@@ -1,0 +1,37 @@
+═══════════════════════════════════════════════════════════
+  URLS DE ACCESO - TENANT DEMO
+═══════════════════════════════════════════════════════════
+
+📋 CREDENCIALES
+  Email:    admin@demo.com
+  Password: demo123
+
+🚀 INICIAR SERVIDOR
+  php artisan serve
+
+🔗 URLS (copiar y pegar en el navegador)
+
+  Menú Público (sin login):
+  http://localhost:8000/demo/menu
+
+  Login:
+  http://localhost:8000/demo/login
+
+  Dashboard:
+  http://localhost:8000/demo/dashboard
+
+  Productos:
+  http://localhost:8000/demo/products
+
+  Categorías:
+  http://localhost:8000/demo/categories
+
+  Mesas:
+  http://localhost:8000/demo/tables
+
+  Códigos QR:
+  http://localhost:8000/demo/qr/print-all
+
+═══════════════════════════════════════════════════════════
+  ✅ NO NECESITAS CONFIGURAR ARCHIVO HOSTS
+═══════════════════════════════════════════════════════════
