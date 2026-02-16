@@ -35,7 +35,7 @@ COPY . /var/www
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Instalar dependencias de Node y compilar assets
-RUN npm install
+RUN npm install --legacy-peer-deps
 RUN npm run build
 
 # Configurar permisos
