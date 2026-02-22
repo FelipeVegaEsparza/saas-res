@@ -4,6 +4,13 @@
 echo "Esperando a que la base de datos esté lista..."
 sleep 10
 
+# Verificar configuración
+echo "Verificando configuración..."
+echo "APP_ENV: $APP_ENV"
+echo "APP_DEBUG: $APP_DEBUG"
+echo "DB_HOST: $DB_HOST"
+echo "DB_DATABASE: $DB_DATABASE"
+
 # Asegurar permisos correctos
 echo "Configurando permisos..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
