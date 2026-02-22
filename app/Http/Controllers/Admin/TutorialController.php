@@ -29,7 +29,6 @@ class TutorialController extends Controller
             'description' => 'nullable|string',
             'youtube_url' => 'required|url',
             'order' => 'nullable|integer',
-            'is_active' => 'boolean'
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -55,7 +54,6 @@ class TutorialController extends Controller
             'description' => 'nullable|string',
             'youtube_url' => 'required|url',
             'order' => 'nullable|integer',
-            'is_active' => 'boolean'
         ]);
 
         $validated['is_active'] = $request->has('is_active');

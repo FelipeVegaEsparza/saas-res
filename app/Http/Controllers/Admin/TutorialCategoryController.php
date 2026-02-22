@@ -25,7 +25,6 @@ class TutorialCategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'order' => 'nullable|integer',
-            'is_active' => 'boolean'
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -48,7 +47,6 @@ class TutorialCategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'order' => 'nullable|integer',
-            'is_active' => 'boolean'
         ]);
 
         $validated['is_active'] = $request->has('is_active');
