@@ -21,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Forzar HTTPS en producción
+        if (config('app.env') === 'production') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         // Registrar directiva Blade para formatear precios
         Blade::directive('price', function ($expression) {
             return "<?php echo \App\Helpers\Helpers::formatPrice($expression); ?>";
