@@ -22,7 +22,9 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('tenant.path.dashboard', ['tenant' => $request->route('tenant')]));
+
+            $tenantId = $request->route('tenant');
+            return redirect()->route('tenant.path.dashboard', ['tenant' => $tenantId]);
         }
 
         return back()->withErrors([

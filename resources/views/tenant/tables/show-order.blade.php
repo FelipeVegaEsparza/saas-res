@@ -69,16 +69,16 @@
                                             <br><small class="text-muted">{{ $item->notes }}</small>
                                         @endif
                                     </td>
-                                    <td>${{ number_format($item->price, 2) }}</td>
+                                    <td>@price($item->price)</td>
                                     <td class="text-center">{{ $item->quantity }}</td>
-                                    <td class="text-end"><strong>${{ number_format($item->subtotal, 2) }}</strong></td>
+                                    <td class="text-end"><strong>@price($item->subtotal)</strong></td>
                                 </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             <tr class="table-active">
                                 <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                <td class="text-end"><h5 class="mb-0">${{ number_format($order->total, 2) }}</h5></td>
+                                <td class="text-end"><h5 class="mb-0">@price($order->total)</h5></td>
                             </tr>
                         </tfoot>
                     </table>

@@ -37,6 +37,12 @@ class Restaurant extends Model
         'twitter',
         'menu_background_image',
         'menu_color_scheme',
+        'accepts_online_orders',
+        'delivery_fee',
+        'min_order_amount',
+        'country',
+        'currency',
+        'currency_symbol',
     ];
 
     protected $casts = [
@@ -44,6 +50,9 @@ class Restaurant extends Model
         'trial_ends_at' => 'datetime',
         'subscribed_at' => 'datetime',
         'settings' => 'array',
+        'accepts_online_orders' => 'boolean',
+        'delivery_fee' => 'decimal:2',
+        'min_order_amount' => 'decimal:2',
     ];
 
     /**
@@ -53,6 +62,14 @@ class Restaurant extends Model
     {
         return $this->hasMany(Subscription::class);
     }
+    /**
+     * Relación con tenant
+     */
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class, 'tenant_id', 'id');
+    }
+
 
     /**
      * Suscripción activa

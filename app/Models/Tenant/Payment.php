@@ -9,7 +9,7 @@ class Payment extends Model
 {
     use HasFactory;
 
-    protected $connection = 'tenant';
+    // No especificamos conexión - usará la conexión por defecto que se cambia dinámicamente
 
     protected $fillable = [
         'order_id',

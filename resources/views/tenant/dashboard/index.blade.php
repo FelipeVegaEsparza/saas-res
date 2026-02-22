@@ -15,13 +15,15 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1">Órdenes Hoy</p>
-                            <h3 class="mb-0">{{ $stats['orders_today'] }}</h3>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-primary">
+                                <i class="ri ri-file-list-3-line ri-24px"></i>
+                            </span>
                         </div>
-                        <div class="avatar avatar-lg bg-label-primary">
-                            <i class="ri ri-file-list-3-line ri-26px"></i>
+                        <div>
+                            <p class="mb-0 text-muted small">Órdenes Hoy</p>
+                            <h4 class="mb-0">{{ $stats['orders_today'] }}</h4>
                         </div>
                     </div>
                 </div>
@@ -31,13 +33,15 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1">Ingresos Hoy</p>
-                            <h3 class="mb-0">${{ number_format($stats['revenue_today'], 2) }}</h3>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-success">
+                                <i class="ri ri-money-dollar-circle-line ri-24px"></i>
+                            </span>
                         </div>
-                        <div class="avatar avatar-lg bg-label-success">
-                            <i class="ri ri-money-dollar-circle-line ri-26px"></i>
+                        <div>
+                            <p class="mb-0 text-muted small">Ingresos Hoy</p>
+                            <h4 class="mb-0">@price($stats['revenue_today'])</h4>
                         </div>
                     </div>
                 </div>
@@ -47,13 +51,15 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1">Delivery Hoy</p>
-                            <h3 class="mb-0">{{ $stats['delivery_orders_today'] }}</h3>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-info">
+                                <i class="ri ri-e-bike-2-line ri-24px"></i>
+                            </span>
                         </div>
-                        <div class="avatar avatar-lg bg-label-info">
-                            <i class="ri ri-e-bike-2-line ri-26px"></i>
+                        <div>
+                            <p class="mb-0 text-muted small">Delivery Hoy</p>
+                            <h4 class="mb-0">{{ $stats['delivery_orders_today'] }}</h4>
                         </div>
                     </div>
                 </div>
@@ -63,13 +69,15 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1">Pedidos Pendientes</p>
-                            <h3 class="mb-0">{{ $stats['delivery_pending'] }}</h3>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-warning">
+                                <i class="ri ri-time-line ri-24px"></i>
+                            </span>
                         </div>
-                        <div class="avatar avatar-lg bg-label-warning">
-                            <i class="ri ri-time-line ri-26px"></i>
+                        <div>
+                            <p class="mb-0 text-muted small">Pedidos Pendientes</p>
+                            <h4 class="mb-0">{{ $stats['delivery_pending'] }}</h4>
                         </div>
                     </div>
                 </div>
@@ -106,7 +114,7 @@
                                             <td><strong>{{ $order->order_number }}</strong></td>
                                             <td>{{ $order->table->number ?? 'N/A' }}</td>
                                             <td>{{ $order->items->count() }} items</td>
-                                            <td>${{ number_format($order->total, 2) }}</td>
+                                            <td>@price($order->total)</td>
                                             <td>
                                                 @php
                                                     $statusColors = [
@@ -147,7 +155,7 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-0">{{ $product->name }}</h6>
-                                            <small class="text-muted">${{ number_format($product->price, 2) }}</small>
+                                            <small class="text-muted">@price($product->price)</small>
                                         </div>
                                         <span class="badge bg-primary rounded-pill">
                                             {{ $product->order_items_count }}
@@ -168,13 +176,13 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a href="{{ route('tenant.path.delivery.index', ['tenant' => request()->route('tenant')]) }}" class="btn btn-outline-primary">
-                            <i class="ri ri-e-bike-2-line"></i> Pedidos Delivery
+                            <i class="ri-e-bike-2-line"></i> Pedidos Delivery
                         </a>
                         <a href="{{ route('tenant.path.menu.index', ['tenant' => request()->route('tenant')]) }}" class="btn btn-outline-primary" target="_blank">
-                            <i class="ri ri-restaurant-line"></i> Ver Menú Público
+                            <i class="ri-restaurant-line"></i> Ver Menú Público
                         </a>
                         <a href="{{ route('tenant.path.qr.print-all', ['tenant' => request()->route('tenant')]) }}" class="btn btn-outline-secondary" target="_blank">
-                            <i class="ri ri-qr-code-line"></i> Imprimir QR Mesas
+                            <i class="ri-qr-code-line"></i> Imprimir QR Mesas
                         </a>
                     </div>
                 </div>
@@ -217,7 +225,7 @@
                                             </span>
                                         </td>
                                         <td>{{ $order->customer_name }}</td>
-                                        <td><strong>${{ number_format($order->total, 2) }}</strong></td>
+                                        <td><strong>@price($order->total)</strong></td>
                                         <td>
                                             <span class="badge bg-{{ $order->status_color }}">
                                                 {{ $order->status_label }}
@@ -227,7 +235,7 @@
                                         <td>
                                             <a href="{{ route('tenant.path.delivery.show', ['tenant' => request()->route('tenant'), 'deliveryOrder' => $order]) }}"
                                                class="btn btn-sm btn-icon btn-text-secondary rounded-pill">
-                                                <i class="ri ri-eye-line ri-20px"></i>
+                                                <i class="ri-eye-line ri-20px"></i>
                                             </a>
                                         </td>
                                     </tr>

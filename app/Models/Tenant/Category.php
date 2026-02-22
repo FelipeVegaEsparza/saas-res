@@ -10,7 +10,7 @@ class Category extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $connection = 'tenant';
+    // No especificamos conexión - usará la conexión por defecto que se cambia dinámicamente
 
     protected $fillable = [
         'name',

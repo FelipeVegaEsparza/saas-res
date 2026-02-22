@@ -10,7 +10,7 @@ class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $connection = 'tenant';
+    // No especificamos conexión - usará la conexión por defecto que se cambia dinámicamente
 
     protected $fillable = [
         'category_id',
@@ -21,6 +21,7 @@ class Product extends Model
         'image',
         'images',
         'available',
+        'available_for_delivery',
         'featured',
         'preparation_time',
         'allergens',
@@ -34,6 +35,7 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'available' => 'boolean',
+        'available_for_delivery' => 'boolean',
         'featured' => 'boolean',
         'track_stock' => 'boolean',
         'stock_quantity' => 'integer',
@@ -65,6 +67,14 @@ class Product extends Model
     public function scopeAvailable($query)
     {
         return $query->where('available', true);
+    }
+
+    /**
+     * Scope para productos disponibles para delivery
+     */
+    public function scopeAvailableForDelivery($query)
+    {
+        return $query->where('available', true)->where('available_for_delivery', true);
     }
 
     /**

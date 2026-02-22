@@ -29,18 +29,18 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
     <div class="layout-container">
         <!-- Menu -->
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-            <div class="app-brand demo">
-                <a href="{{ route('tenant.path.dashboard', ['tenant' => request()->route('tenant')]) }}" class="app-brand-link gap-xl-0 gap-2">
+            <div class="app-brand demo" style="padding: 2rem 1.5rem; min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                <a href="{{ route('tenant.path.dashboard', ['tenant' => request()->route('tenant')]) }}" class="app-brand-link" style="width: 100%; display: flex; justify-content: center;">
                     @php
                         $restaurant = tenant()->restaurant();
                     @endphp
                     @if($restaurant->logo_horizontal)
-                        <img src="{{ Storage::url($restaurant->logo_horizontal) }}" alt="{{ $restaurant->name }}" style="max-height: 50px; max-width: 220px; object-fit: contain;">
+                        <img src="{{ Storage::url($restaurant->logo_horizontal) }}" alt="{{ $restaurant->name }}" style="max-height: 70px; max-width: 200px; object-fit: contain;">
                     @else
-                        <span class="app-brand-text demo menu-text fw-semibold ms-2">{{ $restaurant->name }}</span>
+                        <span class="app-brand-text demo menu-text fw-semibold" style="font-size: 1.5rem;">{{ $restaurant->name }}</span>
                     @endif
                 </a>
-                <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+                <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large" style="position: absolute; right: 1rem;">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8.47365 11.7183C8.11707 12.0749 8.11707 12.6531 8.47365 13.0097L12.071 16.607C12.4615 16.9975 12.4615 17.6305 12.071 18.021C11.6805 18.4115 11.0475 18.4115 10.657 18.021L5.83009 13.1941C5.37164 12.7356 5.37164 11.9924 5.83009 11.5339L10.657 6.707C11.0475 6.31653 11.6805 6.31653 12.071 6.707C12.4615 7.09747 12.4615 7.73053 12.071 8.121L8.47365 11.7183Z" fill-opacity="0.9" />
                         <path d="M14.3584 11.8336C14.0654 12.1266 14.0654 12.6014 14.3584 12.8944L18.071 16.607C18.4615 16.9975 18.4615 17.6305 18.071 18.021C17.6805 18.4115 17.0475 18.4115 16.657 18.021L11.6819 13.0459C11.3053 12.6693 11.3053 12.0587 11.6819 11.6821L16.657 6.707C17.0475 6.31653 17.6805 6.31653 18.071 6.707C18.4615 7.09747 18.4615 7.73053 18.071 8.121L14.3584 11.8336Z" fill-opacity="0.4" />
@@ -167,7 +167,44 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
                         </a>
                     </div>
 
-                    <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
+                    <div class="navbar-nav-right d-flex align-items-center w-100" id="navbar-collapse">
+                        <!-- Estadísticas del Turno (Centradas) -->
+                        @if(isset($shiftStats) && $shiftStats['has_active_session'])
+                        <div class="flex-grow-1 d-none d-lg-flex justify-content-center">
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="d-flex align-items-center">
+                                    <i class="ri ri-money-dollar-circle-line ri-20px me-2 text-success"></i>
+                                    <div>
+                                        <small class="text-muted d-block" style="font-size: 0.7rem;">Ventas</small>
+                                        <strong style="font-size: 0.9rem;">${{ number_format($shiftStats['shift_revenue'], 0) }}</strong>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri ri-e-bike-2-line ri-20px me-2 text-info"></i>
+                                    <div>
+                                        <small class="text-muted d-block" style="font-size: 0.7rem;">Delivery</small>
+                                        <strong style="font-size: 0.9rem;">{{ $shiftStats['shift_delivery_count'] }}</strong>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri ri-restaurant-2-line ri-20px me-2 text-warning"></i>
+                                    <div>
+                                        <small class="text-muted d-block" style="font-size: 0.7rem;">Mesas</small>
+                                        <strong style="font-size: 0.9rem;">{{ $shiftStats['shift_tables_served'] }}</strong>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri ri-receipt-line ri-20px me-2 text-primary"></i>
+                                    <div>
+                                        <small class="text-muted d-block" style="font-size: 0.7rem;">Ticket Prom.</small>
+                                        <strong style="font-size: 0.9rem;">${{ number_format($shiftStats['shift_avg_ticket'], 0) }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        <!-- / Estadísticas del Turno -->
+
                         <ul class="navbar-nav flex-row align-items-center ms-auto">
                             <!-- Theme Switcher -->
                             <li class="nav-item dropdown me-4">
@@ -254,6 +291,13 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
                     @if(session('error'))
                         <div class="alert alert-danger alert-dismissible" role="alert">
                             {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('info'))
+                        <div class="alert alert-info alert-dismissible" role="alert">
+                            {{ session('info') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif

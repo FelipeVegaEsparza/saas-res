@@ -115,7 +115,7 @@
                                             <small class="text-muted">{{ $product->category->name }}</small>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mt-2">
-                                            <span class="h5 mb-0 text-primary">${{ number_format($product->price, 2) }}</span>
+                                            <span class="h5 mb-0 text-primary">@price($product->price)</span>
                                             <button class="btn btn-sm btn-primary">
                                                 <i class="ri ri-add-line"></i>
                                             </button>
@@ -152,13 +152,13 @@
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <div class="flex-grow-1">
                                         <h6 class="mb-1">{{ $item->product->name }}</h6>
-                                        <small class="text-muted">${{ number_format($item->price, 2) }} c/u</small>
+                                        <small class="text-muted">@price($item->price) c/u</small>
                                     </div>
                                     <span class="badge bg-label-secondary">Ya enviado</span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span>Cantidad: {{ $item->quantity }}</span>
-                                    <strong>${{ number_format($item->subtotal, 2) }}</strong>
+                                    <strong>@price($item->subtotal)</strong>
                                 </div>
                             </div>
                         @endforeach
@@ -180,7 +180,7 @@
                     @if($order)
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal anterior:</span>
-                            <strong>${{ number_format($order->subtotal, 2) }}</strong>
+                            <strong>@price($order->subtotal)</strong>
                         </div>
                     @endif
                     <div class="d-flex justify-content-between mb-2">
@@ -189,7 +189,7 @@
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <h5 class="mb-0">Total:</h5>
-                        <h5 class="mb-0" id="total">${{ $order ? number_format($order->total, 2) : '0.00' }}</h5>
+                        <h5 class="mb-0" id="total">@price($order ? $order->total : 0)</h5>
                     </div>
 
                     <div class="mb-3">
@@ -337,9 +337,25 @@ function removeFromOrder(index) {
 
 // Limpiar nuevos items
 function clearNewItems() {
-    if (newItems.length > 0 && confirm('¿Estás seguro de limpiar los nuevos items?')) {
-        newItems = [];
-        updateOrder();
+    if (newItems.length > 0) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Se eliminarán todos los nuevos items del pedido',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, limpiar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                confirmButton: 'btn btn-danger me-2',
+                cancelButton: 'btn btn-secondary'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                newItems = [];
+                updateOrder();
+            }
+        });
     }
 }
 
@@ -355,7 +371,15 @@ function updateTotals() {
 // Enviar pedido
 async function sendOrder() {
     if (newItems.length === 0) {
-        alert('Agrega al menos un producto al pedido');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Atención',
+            text: 'Agrega al menos un producto al pedido',
+            customClass: {
+                confirmButton: 'btn btn-primary'
+            },
+            buttonsStyling: false
+        });
         return;
     }
 
@@ -366,8 +390,7 @@ async function sendOrder() {
             product_id: item.id,
             quantity: item.quantity
         })),
-        kitchen_notes: kitchenNotes,
-        _token: '{{ csrf_token() }}'
+        kitchen_notes: kitchenNotes
     };
 
     try {
@@ -375,20 +398,49 @@ async function sendOrder() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify(data)
         });
 
-        if (response.ok) {
-            alert('Pedido enviado a cocina exitosamente');
-            window.location.href = '{{ route("tenant.path.tables.index", ["tenant" => request()->route("tenant")]) }}';
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: 'Pedido enviado a cocina exitosamente',
+                customClass: {
+                    confirmButton: 'btn btn-success'
+                },
+                buttonsStyling: false
+            }).then(() => {
+                window.location.href = '{{ route("tenant.path.tables.index", ["tenant" => request()->route("tenant")]) }}';
+            });
         } else {
-            const result = await response.json();
-            alert('Error: ' + (result.message || 'Error desconocido'));
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.message || 'Error desconocido',
+                customClass: {
+                    confirmButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            });
         }
     } catch (error) {
-        alert('Error al enviar el pedido: ' + error.message);
+        console.error('Error completo:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al enviar el pedido: ' + error.message,
+            customClass: {
+                confirmButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        });
     }
 }
 </script>

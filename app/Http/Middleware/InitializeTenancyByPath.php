@@ -36,31 +36,34 @@ class InitializeTenancyByPath
         }
 
         // Configurar manualmente la conexión tenant con la base de datos correcta
-        $dbName = config('tenancy.database.prefix') . $tenant->getTenantKey() . config('tenancy.database.suffix');
+        $dbName = 'tenant_' . $tenant->getTenantKey();
 
-        Config::set('database.connections.tenant', [
-            'driver' => 'mysql',
-            'host' => config('database.connections.mysql.host'),
-            'port' => config('database.connections.mysql.port'),
-            'database' => $dbName,
-            'username' => config('database.connections.mysql.username'),
-            'password' => config('database.connections.mysql.password'),
-            'charset' => config('database.connections.mysql.charset'),
-            'collation' => config('database.connections.mysql.collation'),
-            'prefix' => '',
-            'strict' => true,
-            'engine' => null,
-        ]);
+        // Actualizar la configuración de la conexión tenant
+        Config::set('database.connections.tenant.database', $dbName);
+        Config::set('database.connections.tenant.host', config('database.connections.mysql.host'));
+        Config::set('database.connections.tenant.port', config('database.connections.mysql.port'));
+        Config::set('database.connections.tenant.username', config('database.connections.mysql.username'));
+        Config::set('database.connections.tenant.password', config('database.connections.mysql.password'));
 
-        // Purgar la conexión para forzar reconexión
+        // Purgar y reconectar
         DB::purge('tenant');
 
-        // Inicializar tenancy (esto ejecutará los bootstrappers)
+        // Forzar que la conexión por defecto sea tenant dentro de este contexto
+        Config::set('database.default', 'tenant');
+        DB::purge('mysql');
+        DB::setDefaultConnection('tenant');
+
+        // Inicializar tenancy (esto ejecutará los bootstrappers restantes)
         $this->tenancy->initialize($tenant);
 
         // Ejecutar el request con tenancy inicializado
         $response = $next($request);
 
+        // Restaurar la conexión por defecto
+        Config::set('database.default', 'mysql');
+        DB::setDefaultConnection('mysql');
+
         return $response;
     }
+
 }

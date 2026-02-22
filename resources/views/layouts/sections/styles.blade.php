@@ -8,7 +8,7 @@
 @vite(['resources/assets/vendor/fonts/iconify/iconify.css'])
 
 <!-- BEGIN: Vendor CSS-->
-@vite(['resources/assets/vendor/libs/node-waves/node-waves.scss'])
+@vite(['resources/assets/vendor/libs/node-waves/node-waves.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 
 @if ($configData['hasCustomizer'])
   @vite(['resources/assets/vendor/libs/pickr/pickr-themes.scss'])

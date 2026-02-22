@@ -85,7 +85,7 @@
                             </td>
                             <td>{{ $order->customer_name }}</td>
                             <td>{{ $order->customer_phone }}</td>
-                            <td><strong>${{ number_format($order->total, 2) }}</strong></td>
+                            <td><strong>@price($order->total)</strong></td>
                             <td>
                                 <span class="badge bg-{{ $order->status_color }}">
                                     {{ $order->status_label }}

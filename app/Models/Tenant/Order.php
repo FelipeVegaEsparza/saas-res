@@ -5,13 +5,13 @@ namespace App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\User;
+use App\Models\Tenant\User;
 
 class Order extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $connection = 'tenant';
+    // No especificamos conexión - usará la conexión por defecto que se cambia dinámicamente
 
     protected $fillable = [
         'order_number',

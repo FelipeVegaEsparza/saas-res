@@ -21,6 +21,10 @@ class DashboardController extends Controller
         // Estadísticas del día
         $today = now()->startOfDay();
 
+        // Obtener sesión de caja activa para estadísticas del turno
+        $activeSession = \App\Models\Tenant\CashSession::where('status', 'open')->first();
+        $shiftStart = $activeSession ? $activeSession->opened_at : $today;
+
         $stats = [
             'orders_today' => Order::where('created_at', '>=', $today)->count(),
             'revenue_today' => Order::where('created_at', '>=', $today)
@@ -37,7 +41,29 @@ class DashboardController extends Controller
                 ->where('status', 'delivered')
                 ->sum('total'),
             'delivery_pending' => DeliveryOrder::whereIn('status', ['pending', 'confirmed', 'preparing', 'ready', 'on_delivery'])->count(),
+
+            // Estadísticas del turno actual
+            'shift_revenue' => Order::where('created_at', '>=', $shiftStart)
+                ->where('status', 'delivered')
+                ->sum('total') +
+                DeliveryOrder::where('created_at', '>=', $shiftStart)
+                ->where('status', 'delivered')
+                ->sum('total'),
+            'shift_delivery_count' => DeliveryOrder::where('created_at', '>=', $shiftStart)->count(),
+            'shift_tables_served' => Order::where('created_at', '>=', $shiftStart)
+                ->where('status', 'delivered')
+                ->distinct('table_id')
+                ->count('table_id'),
+            'shift_orders_count' => Order::where('created_at', '>=', $shiftStart)->count() +
+                DeliveryOrder::where('created_at', '>=', $shiftStart)->count(),
         ];
+
+        // Calcular ticket promedio del turno
+        $stats['shift_avg_ticket'] = $stats['shift_orders_count'] > 0
+            ? $stats['shift_revenue'] / $stats['shift_orders_count']
+            : 0;
+
+        $stats['has_active_session'] = $activeSession !== null;
 
         // Órdenes recientes
         $recentOrders = Order::with(['table', 'user', 'items.product'])

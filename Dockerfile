@@ -1,56 +1,63 @@
-FROM php:8.2-fpm
+# Dockerfile para Laravel en Easypanel
+FROM php:8.2-fpm-alpine
 
 # Instalar dependencias del sistema
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    mysql-client \
+    nodejs \
+    npm \
     git \
     curl \
     libpng-dev \
-    libonig-dev \
-    libxml2-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     zip \
-    unzip \
-    nginx \
-    supervisor
+    unzip
 
-# Limpiar cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Instalar extensiones de PHP
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# Instalar extensiones PHP necesarias
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+    pdo \
+    pdo_mysql \
+    mysqli \
+    gd \
+    bcmath
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Instalar Node.js y npm
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-RUN apt-get install -y nodejs
-
 # Configurar directorio de trabajo
-WORKDIR /var/www
+WORKDIR /var/www/html
 
 # Copiar archivos del proyecto
-COPY . /var/www
+COPY . .
 
 # Instalar dependencias de PHP
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Instalar dependencias de Node y compilar assets
-RUN npm install --legacy-peer-deps
-RUN npm run build
+RUN npm install && npm run build
 
 # Configurar permisos
-RUN chown -R www-data:www-data /var/www
-RUN chmod -R 755 /var/www/storage
-RUN chmod -R 755 /var/www/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
 
 # Copiar configuración de Nginx
-COPY docker/nginx.conf /etc/nginx/sites-available/default
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/default.conf /etc/nginx/http.d/default.conf
 
 # Copiar configuración de Supervisor
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copiar y dar permisos al script de inicio
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 # Exponer puerto
 EXPOSE 80
 
 # Comando de inicio
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/usr/local/bin/start.sh"]

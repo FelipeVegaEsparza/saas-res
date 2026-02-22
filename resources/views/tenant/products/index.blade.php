@@ -50,7 +50,7 @@ use Illuminate\Support\Facades\Storage;
                                 @endif
                             </td>
                             <td>{{ $product->category->name }}</td>
-                            <td>${{ number_format($product->price, 2) }}</td>
+                            <td>@price($product->price)</td>
                             <td>
                                 <span class="badge bg-{{ $product->available ? 'success' : 'secondary' }}">
                                     {{ $product->available ? 'Disponible' : 'No disponible' }}

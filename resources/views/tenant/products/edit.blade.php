@@ -111,6 +111,15 @@ use Illuminate\Support\Facades\Storage;
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="available_for_delivery" name="available_for_delivery" value="1"
+                                   {{ old('available_for_delivery', $product->available_for_delivery) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="available_for_delivery">Disponible para Delivery</label>
+                        </div>
+                        <small class="text-muted">El producto aparecerá en pedidos online</small>
+                    </div>
+
                     <hr class="my-4">
 
                     <div class="mb-3">

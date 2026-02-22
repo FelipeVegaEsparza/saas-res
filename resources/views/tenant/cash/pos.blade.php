@@ -314,7 +314,12 @@ document.getElementById('paymentMethod').addEventListener('change', function() {
 // Procesar pago
 async function processPayment() {
     if (cart.length === 0) {
-        alert('El carrito está vacío');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Carrito vacío',
+            text: 'Agrega productos antes de procesar el pago',
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
@@ -325,7 +330,12 @@ async function processPayment() {
     if (paymentMethod === 'cash') {
         amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
         if (amountPaid < total) {
-            alert('El monto recibido es menor al total');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Monto insuficiente',
+                text: 'El monto recibido es menor al total',
+                confirmButtonText: 'Aceptar'
+            });
             return;
         }
     }
@@ -353,15 +363,31 @@ async function processPayment() {
         const result = await response.json();
 
         if (result.success) {
-            alert('Venta registrada exitosamente');
-            cart = [];
-            updateCart();
-            document.getElementById('amountPaid').value = '';
+            Swal.fire({
+                icon: 'success',
+                title: '¡Venta registrada!',
+                text: 'La venta se ha procesado exitosamente',
+                confirmButtonText: 'Aceptar'
+            }).then(() => {
+                cart = [];
+                updateCart();
+                document.getElementById('amountPaid').value = '';
+            });
         } else {
-            alert('Error: ' + (result.error || 'Error desconocido'));
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.error || 'Error desconocido',
+                confirmButtonText: 'Aceptar'
+            });
         }
     } catch (error) {
-        alert('Error al procesar el pago: ' + error.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al procesar el pago: ' + error.message,
+            confirmButtonText: 'Aceptar'
+        });
     }
 }
 </script>

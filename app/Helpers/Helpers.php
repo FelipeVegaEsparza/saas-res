@@ -308,4 +308,32 @@ class Helpers
 }
 CSS;
   }
+
+  /**
+   * Format price according to restaurant currency
+   *
+   * @param float $amount Amount to format
+   * @param string|null $currency Currency code (optional, will use restaurant's currency if not provided)
+   * @param string|null $symbol Currency symbol (optional, will use restaurant's symbol if not provided)
+   * @return string Formatted price
+   */
+  public static function formatPrice($amount, $currency = null, $symbol = null)
+  {
+    // Get restaurant currency if not provided
+    if (!$currency || !$symbol) {
+      $restaurant = tenant() ? tenant()->restaurant() : null;
+      if ($restaurant) {
+        $currency = $currency ?? $restaurant->currency;
+        $symbol = $symbol ?? $restaurant->currency_symbol;
+      } else {
+        $currency = $currency ?? 'CLP';
+        $symbol = $symbol ?? '$';
+      }
+    }
+
+    // Format without decimals
+    $formattedAmount = number_format($amount, 0, ',', '.');
+
+    return $symbol . $formattedAmount;
+  }
 }

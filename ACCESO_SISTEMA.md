@@ -198,3 +198,113 @@ Accede directamente a:
 3. **Dashboard**: http://localhost:8000/demo/dashboard
 
 ¡No necesitas configurar nada más!
+
+---
+
+## 🔐 Panel de Administración (Admin)
+
+### Acceso al Admin
+
+- **URL**: http://localhost:8000/admin/login
+- **Email**: `admin@admin.com`
+- **Contraseña**: `admin123`
+
+### Funcionalidades del Admin
+
+El panel de administración permite gestionar todo el sistema SaaS:
+
+- **Dashboard**: Métricas generales del sistema
+- **Restaurantes**: Gestión completa de clientes (crear, editar, ver detalles)
+- **Planes**: Crear y gestionar planes de suscripción
+- **Suscripciones**: Ver y editar suscripciones de restaurantes
+
+### URLs del Admin
+
+```
+http://localhost:8000/admin/login          → Login del administrador
+http://localhost:8000/admin/dashboard      → Dashboard con métricas
+http://localhost:8000/admin/restaurants    → Gestión de restaurantes
+http://localhost:8000/admin/plans          → Gestión de planes
+http://localhost:8000/admin/subscriptions  → Gestión de suscripciones
+```
+
+---
+
+## 🌐 Sitio Público (Landing)
+
+El sitio público promociona el sistema SaaS:
+
+```
+http://localhost:8000/           → Página principal
+http://localhost:8000/features   → Características del sistema
+http://localhost:8000/pricing    → Planes y precios
+http://localhost:8000/contact    → Formulario de contacto
+```
+
+---
+
+## 📐 Arquitectura del Sistema
+
+### Tres Niveles de Acceso
+
+1. **Sitio Público** (`/`)
+
+   - Landing page para promocionar el SaaS
+   - No requiere autenticación
+   - Muestra planes, características y contacto
+
+2. **Panel Admin** (`/admin/*`)
+
+   - Gestión del sistema SaaS
+   - Autenticación independiente (guard: admin)
+   - Administra restaurantes, planes y suscripciones
+
+3. **Panel Tenant** (`/{tenant}/*`)
+   - Sistema de cada restaurante
+   - Autenticación independiente (guard: web)
+   - Gestión de mesas, productos, pedidos, etc.
+
+### Separación de Bases de Datos
+
+- **Base de datos central**: Admins, restaurantes, planes, suscripciones
+- **Base de datos por tenant**: Productos, mesas, pedidos, usuarios del restaurante
+
+---
+
+## 🔄 Flujo de Trabajo Completo
+
+### 1. Cliente Potencial
+
+1. Visita el sitio público (`/`)
+2. Ve características y planes (`/features`, `/pricing`)
+3. Se contacta o registra
+
+### 2. Administrador del SaaS
+
+1. Accede al admin (`/admin/login`)
+2. Crea un nuevo restaurante
+3. Asigna un plan de suscripción
+4. Gestiona pagos y renovaciones
+
+### 3. Restaurante (Tenant)
+
+1. Accede a su panel (`/demo/login`)
+2. Configura productos, mesas, usuarios
+3. Usa el sistema POS
+4. Recibe pedidos online
+
+---
+
+## 🎯 Resumen de Credenciales
+
+| Sistema     | URL            | Email           | Contraseña |
+| ----------- | -------------- | --------------- | ---------- |
+| Admin       | `/admin/login` | admin@admin.com | admin123   |
+| Tenant Demo | `/demo/login`  | admin@demo.com  | demo123    |
+
+---
+
+## 📚 Documentación Adicional
+
+- Ver `ADMIN_SETUP.md` para detalles completos del panel de administración
+- Ver documentación de Laravel Tenancy para gestión de tenants

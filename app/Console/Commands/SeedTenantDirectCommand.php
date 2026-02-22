@@ -28,26 +28,22 @@ class SeedTenantDirectCommand extends Command
         $this->info("Seeding tenant: {$tenantId}");
         $this->info("Base de datos: {$dbName}");
 
-        // Configurar la conexión temporal
+        // Guardar configuración original de la conexión tenant
+        $originalConfig = config('database.connections.tenant');
+
+        // Actualizar la conexión 'tenant' para apuntar a la base de datos correcta
         config([
-            'database.connections.tenant_temp' => [
-                'driver' => 'mysql',
-                'host' => env('DB_HOST', '127.0.0.1'),
-                'port' => env('DB_PORT', '3306'),
-                'database' => $dbName,
-                'username' => env('DB_USERNAME', 'sail'),
-                'password' => env('DB_PASSWORD', 'password'),
-                'charset' => 'utf8mb4',
-                'collation' => 'utf8mb4_unicode_ci',
-                'prefix' => '',
-                'strict' => true,
-                'engine' => null,
-            ]
+            'database.connections.tenant.database' => $dbName,
         ]);
 
-        // Cambiar la conexión por defecto temporalmente
-        DB::purge('tenant_temp');
-        DB::setDefaultConnection('tenant_temp');
+        // Purgar la conexión para forzar reconexión
+        DB::purge('tenant');
+
+        // También configurar la conexión por defecto para el modelo User
+        config([
+            'database.connections.mysql.database' => $dbName,
+        ]);
+        DB::purge('mysql');
 
         try {
             $this->info("Ejecutando seeder...");
@@ -57,13 +53,28 @@ class SeedTenantDirectCommand extends Command
 
             $this->info("✓ Seeder completado exitosamente");
 
-            // Restaurar conexión por defecto
-            DB::setDefaultConnection('mysql');
+            // Restaurar configuración original
+            config(['database.connections.tenant' => $originalConfig]);
+            DB::purge('tenant');
+
+            // Restaurar conexión mysql
+            config([
+                'database.connections.mysql.database' => env('DB_DATABASE', 'laravel'),
+            ]);
+            DB::purge('mysql');
 
             return 0;
         } catch (\Exception $e) {
             $this->error("Error ejecutando seeder: " . $e->getMessage());
-            DB::setDefaultConnection('mysql');
+
+            // Restaurar configuración original en caso de error
+            config(['database.connections.tenant' => $originalConfig]);
+            DB::purge('tenant');
+            config([
+                'database.connections.mysql.database' => env('DB_DATABASE', 'laravel'),
+            ]);
+            DB::purge('mysql');
+
             return 1;
         }
     }

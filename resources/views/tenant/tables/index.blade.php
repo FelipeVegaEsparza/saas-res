@@ -58,7 +58,13 @@
             <h1 class="mb-1">Mesas del Restaurante</h1>
             <p class="text-muted">Gestiona las mesas y toma pedidos</p>
         </div>
-        <div>
+        <div class="d-flex gap-2">
+            <form action="{{ route('tenant.path.tables.syncStatus', ['tenant' => request()->route('tenant')]) }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-outline-secondary" title="Sincronizar estado de mesas">
+                    <i class="ri ri-refresh-line me-1"></i> Sincronizar
+                </button>
+            </form>
             <a href="{{ route('tenant.path.tables.create', ['tenant' => request()->route('tenant')]) }}" class="btn btn-primary">
                 <i class="ri ri-add-line me-1"></i> Nueva Mesa
             </a>

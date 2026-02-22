@@ -25,7 +25,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:tenant.users,email',
             'password' => ['required', 'confirmed', Password::min(8)],
             'role' => 'required|in:owner,manager,staff,waiter',
             'active' => 'boolean',
@@ -49,7 +49,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:tenant.users,email,' . $user->id,
             'password' => ['nullable', 'confirmed', Password::min(8)],
             'role' => 'required|in:owner,manager,staff,waiter',
             'active' => 'boolean',

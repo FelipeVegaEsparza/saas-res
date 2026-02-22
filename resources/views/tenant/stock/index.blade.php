@@ -22,8 +22,10 @@
                         <p class="text-muted mb-1">Productos con Stock</p>
                         <h3 class="mb-0">{{ $stats['total_products'] }}</h3>
                     </div>
-                    <div class="avatar avatar-lg bg-label-primary">
-                        <i class="ri ri-archive-line ri-26px"></i>
+                    <div class="avatar flex-shrink-0">
+                        <span class="avatar-initial rounded bg-label-primary">
+                            <i class="ri ri-archive-line ri-24px"></i>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -38,8 +40,10 @@
                         <p class="text-muted mb-1">Stock Bajo</p>
                         <h3 class="mb-0">{{ $stats['low_stock'] }}</h3>
                     </div>
-                    <div class="avatar avatar-lg bg-label-warning">
-                        <i class="ri ri-alert-line ri-26px"></i>
+                    <div class="avatar flex-shrink-0">
+                        <span class="avatar-initial rounded bg-label-warning">
+                            <i class="ri ri-alert-line ri-24px"></i>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -54,8 +58,10 @@
                         <p class="text-muted mb-1">Sin Stock</p>
                         <h3 class="mb-0">{{ $stats['out_of_stock'] }}</h3>
                     </div>
-                    <div class="avatar avatar-lg bg-label-danger">
-                        <i class="ri ri-close-circle-line ri-26px"></i>
+                    <div class="avatar flex-shrink-0">
+                        <span class="avatar-initial rounded bg-label-danger">
+                            <i class="ri ri-close-circle-line ri-24px"></i>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -68,10 +74,12 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-muted mb-1">Valor Total</p>
-                        <h3 class="mb-0">${{ number_format($stats['total_value'], 2) }}</h3>
+                        <h3 class="mb-0">@price($stats['total_value'])</h3>
                     </div>
-                    <div class="avatar avatar-lg bg-label-success">
-                        <i class="ri ri-money-dollar-circle-line ri-26px"></i>
+                    <div class="avatar flex-shrink-0">
+                        <span class="avatar-initial rounded bg-label-success">
+                            <i class="ri ri-money-dollar-circle-line ri-24px"></i>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -152,8 +160,8 @@
                                         <span class="badge bg-success">Normal</span>
                                     @endif
                                 </td>
-                                <td>${{ number_format($product->price, 2) }}</td>
-                                <td class="fw-medium">${{ number_format($product->price * $product->stock_quantity, 2) }}</td>
+                                <td>@price($product->price)</td>
+                                <td class="fw-medium">@price($product->price * $product->stock_quantity)</td>
                                 <td class="text-end">
                                     <button type="button"
                                             class="btn btn-sm btn-icon btn-text-secondary rounded-pill"

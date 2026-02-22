@@ -32,7 +32,7 @@ class TableController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'number' => 'required|string|max:255|unique:tables,number',
+            'number' => 'required|string|max:255|unique:tenant.tables,number',
             'capacity' => 'required|integer|min:1',
             'location' => 'nullable|string|max:255',
             'active' => 'boolean',
@@ -58,7 +58,7 @@ class TableController extends Controller
         $table = Table::findOrFail($table_id);
 
         $validated = $request->validate([
-            'number' => 'required|string|max:255|unique:tables,number,' . $table->id,
+            'number' => 'required|string|max:255|unique:tenant.tables,number,' . $table->id,
             'capacity' => 'required|integer|min:1',
             'location' => 'nullable|string|max:255',
             'active' => 'boolean',
@@ -116,7 +116,7 @@ class TableController extends Controller
 
         $validated = $request->validate([
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.product_id' => 'required|exists:tenant.products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.notes' => 'nullable|string',
             'kitchen_notes' => 'nullable|string',
@@ -155,13 +155,13 @@ class TableController extends Controller
 
                 if ($existingItem) {
                     $existingItem->quantity += $item['quantity'];
-                    $existingItem->subtotal = $existingItem->quantity * $existingItem->price;
+                    $existingItem->subtotal = $existingItem->quantity * $existingItem->unit_price;
                     $existingItem->save();
                 } else {
                     $order->items()->create([
                         'product_id' => $product->id,
                         'quantity' => $item['quantity'],
-                        'price' => $product->price,
+                        'unit_price' => $product->price,
                         'subtotal' => $product->price * $item['quantity'],
                         'notes' => $item['notes'] ?? null,
                     ]);
@@ -211,7 +211,14 @@ class TableController extends Controller
         $order = $table->orders()
             ->whereIn('status', ['pending', 'preparing', 'ready', 'served', 'closed'])
             ->with(['items.product', 'waiter'])
-            ->firstOrFail();
+            ->first();
+
+        // Si no hay orden activa, redirigir al índice de mesas
+        if (!$order) {
+            return redirect()
+                ->route('tenant.path.tables.index', ['tenant' => request()->route('tenant')])
+                ->with('info', 'Esta mesa no tiene un pedido activo');
+        }
 
         return view('tenant.tables.show-order', compact('table', 'order'));
     }
@@ -242,8 +249,41 @@ class TableController extends Controller
             $order->update(['served_at' => now()]);
         } elseif ($validated['status'] === 'closed' && !$order->closed_at) {
             $order->update(['closed_at' => now()]);
+        } elseif ($validated['status'] === 'cancelled') {
+            // Liberar la mesa cuando se cancela el pedido
+            $table->free();
+
+            return redirect()
+                ->route('tenant.path.tables.index', ['tenant' => request()->route('tenant')])
+                ->with('success', 'Pedido cancelado exitosamente');
         }
 
         return back()->with('success', 'Estado del pedido actualizado');
+    }
+
+    /**
+     * Sincronizar estado de todas las mesas
+     */
+    public function syncStatus($tenant)
+    {
+        $tables = Table::all();
+        $updated = 0;
+
+        foreach ($tables as $table) {
+            $hasActiveOrder = $table->orders()
+                ->whereIn('status', ['pending', 'preparing', 'ready', 'served'])
+                ->exists();
+
+            $expectedStatus = $hasActiveOrder ? 'occupied' : 'available';
+
+            if ($table->status !== $expectedStatus) {
+                $table->update(['status' => $expectedStatus]);
+                $updated++;
+            }
+        }
+
+        return redirect()
+            ->route('tenant.path.tables.index', ['tenant' => $tenant])
+            ->with('success', "Estado sincronizado. {$updated} mesas actualizadas.");
     }
 }

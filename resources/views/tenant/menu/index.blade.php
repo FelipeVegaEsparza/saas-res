@@ -280,7 +280,7 @@ $colorScheme = match($restaurant->menu_color_scheme ?? 'classic') {
                                     @endif
 
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <span class="price-tag">${{ number_format($product->price, 0) }}</span>
+                                        <span class="price-tag">@price($product->price)</span>
 
                                         @if($product->preparation_time)
                                             <small class="text-muted">

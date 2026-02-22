@@ -457,7 +457,12 @@ async function processPayment() {
     if (paymentMethod === 'cash') {
         amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
         if (amountPaid < currentTotal) {
-            alert('El monto recibido es menor al total');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Monto Insuficiente',
+                text: 'El monto recibido es menor al total',
+                confirmButtonText: 'Entendido'
+            });
             return;
         }
     }
@@ -482,20 +487,36 @@ async function processPayment() {
 
         if (result.success) {
             const change = amountPaid - currentTotal;
-            let message = 'Pago procesado exitosamente\n\n';
-            message += `Total: $${currentTotal.toFixed(2)}\n`;
+            let htmlMessage = `<div class="text-start">
+                <p class="mb-2"><strong>Total:</strong> $${currentTotal.toFixed(2)}</p>`;
             if (paymentMethod === 'cash' && change > 0) {
-                message += `Cambio: $${change.toFixed(2)}`;
+                htmlMessage += `<p class="mb-0"><strong>Cambio:</strong> <span class="text-success">$${change.toFixed(2)}</span></p>`;
             }
-            alert(message);
+            htmlMessage += '</div>';
 
-            // Recargar página
-            window.location.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'Pago Procesado',
+                html: htmlMessage,
+                confirmButtonText: 'Aceptar'
+            }).then(() => {
+                window.location.reload();
+            });
         } else {
-            alert('Error: ' + (result.error || 'Error desconocido'));
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.error || 'Error desconocido',
+                confirmButtonText: 'Aceptar'
+            });
         }
     } catch (error) {
-        alert('Error al procesar el pago: ' + error.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error de Conexión',
+            text: 'Error al procesar el pago: ' + error.message,
+            confirmButtonText: 'Aceptar'
+        });
     }
 }
 </script>

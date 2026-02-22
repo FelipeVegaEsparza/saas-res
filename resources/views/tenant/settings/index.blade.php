@@ -117,6 +117,56 @@ use Illuminate\Support\Facades\Storage;
         </div>
     </div>
 
+    <!-- Configuración Regional -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Configuración Regional</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="country" class="form-label">País / Moneda *</label>
+                        <select class="form-select @error('country') is-invalid @enderror" id="country" name="country" required>
+                            <option value="">Seleccionar país</option>
+                            <option value="AR" data-currency="ARS" data-symbol="$" {{ old('country', $restaurant->country) == 'AR' ? 'selected' : '' }}>Argentina (ARS - Peso Argentino)</option>
+                            <option value="BO" data-currency="BOB" data-symbol="Bs" {{ old('country', $restaurant->country) == 'BO' ? 'selected' : '' }}>Bolivia (BOB - Boliviano)</option>
+                            <option value="BR" data-currency="BRL" data-symbol="R$" {{ old('country', $restaurant->country) == 'BR' ? 'selected' : '' }}>Brasil (BRL - Real)</option>
+                            <option value="CL" data-currency="CLP" data-symbol="$" {{ old('country', $restaurant->country) == 'CL' ? 'selected' : '' }}>Chile (CLP - Peso Chileno)</option>
+                            <option value="CO" data-currency="COP" data-symbol="$" {{ old('country', $restaurant->country) == 'CO' ? 'selected' : '' }}>Colombia (COP - Peso Colombiano)</option>
+                            <option value="CR" data-currency="CRC" data-symbol="₡" {{ old('country', $restaurant->country) == 'CR' ? 'selected' : '' }}>Costa Rica (CRC - Colón)</option>
+                            <option value="CU" data-currency="CUP" data-symbol="$" {{ old('country', $restaurant->country) == 'CU' ? 'selected' : '' }}>Cuba (CUP - Peso Cubano)</option>
+                            <option value="EC" data-currency="USD" data-symbol="$" {{ old('country', $restaurant->country) == 'EC' ? 'selected' : '' }}>Ecuador (USD - Dólar)</option>
+                            <option value="SV" data-currency="USD" data-symbol="$" {{ old('country', $restaurant->country) == 'SV' ? 'selected' : '' }}>El Salvador (USD - Dólar)</option>
+                            <option value="GT" data-currency="GTQ" data-symbol="Q" {{ old('country', $restaurant->country) == 'GT' ? 'selected' : '' }}>Guatemala (GTQ - Quetzal)</option>
+                            <option value="HN" data-currency="HNL" data-symbol="L" {{ old('country', $restaurant->country) == 'HN' ? 'selected' : '' }}>Honduras (HNL - Lempira)</option>
+                            <option value="MX" data-currency="MXN" data-symbol="$" {{ old('country', $restaurant->country) == 'MX' ? 'selected' : '' }}>México (MXN - Peso Mexicano)</option>
+                            <option value="NI" data-currency="NIO" data-symbol="C$" {{ old('country', $restaurant->country) == 'NI' ? 'selected' : '' }}>Nicaragua (NIO - Córdoba)</option>
+                            <option value="PA" data-currency="PAB" data-symbol="B/." {{ old('country', $restaurant->country) == 'PA' ? 'selected' : '' }}>Panamá (PAB - Balboa)</option>
+                            <option value="PY" data-currency="PYG" data-symbol="₲" {{ old('country', $restaurant->country) == 'PY' ? 'selected' : '' }}>Paraguay (PYG - Guaraní)</option>
+                            <option value="PE" data-currency="PEN" data-symbol="S/" {{ old('country', $restaurant->country) == 'PE' ? 'selected' : '' }}>Perú (PEN - Sol)</option>
+                            <option value="DO" data-currency="DOP" data-symbol="RD$" {{ old('country', $restaurant->country) == 'DO' ? 'selected' : '' }}>República Dominicana (DOP - Peso Dominicano)</option>
+                            <option value="UY" data-currency="UYU" data-symbol="$U" {{ old('country', $restaurant->country) == 'UY' ? 'selected' : '' }}>Uruguay (UYU - Peso Uruguayo)</option>
+                            <option value="VE" data-currency="VES" data-symbol="Bs.S" {{ old('country', $restaurant->country) == 'VE' ? 'selected' : '' }}>Venezuela (VES - Bolívar Soberano)</option>
+                        </select>
+                        @error('country')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Selecciona tu país para configurar la moneda automáticamente</small>
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" id="currency" name="currency" value="{{ old('currency', $restaurant->currency) }}">
+            <input type="hidden" id="currency_symbol" name="currency_symbol" value="{{ old('currency_symbol', $restaurant->currency_symbol) }}">
+
+            <div class="alert alert-info mb-0">
+                <i class="ri ri-information-line me-2"></i>
+                Los precios se mostrarán sin decimales según la moneda seleccionada
+            </div>
+        </div>
+    </div>
+
     <!-- Redes Sociales -->
     <div class="card mb-4">
         <div class="card-header">
@@ -253,10 +303,117 @@ use Illuminate\Support\Facades\Storage;
         </div>
     </div>
 
+    <!-- Pedidos Online -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Pedidos Online</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="accepts_online_orders"
+                           name="accepts_online_orders" value="1"
+                           {{ old('accepts_online_orders', $restaurant->accepts_online_orders) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="accepts_online_orders">
+                        Aceptar Pedidos Online
+                    </label>
+                </div>
+                <small class="text-muted">Permite que los clientes hagan pedidos desde tu sitio web</small>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="delivery_fee" class="form-label">Costo de Delivery</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control @error('delivery_fee') is-invalid @enderror"
+                                   id="delivery_fee" name="delivery_fee"
+                                   value="{{ old('delivery_fee', $restaurant->delivery_fee ?? 0) }}"
+                                   min="0" step="0.01">
+                        </div>
+                        @error('delivery_fee')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Costo fijo por envío a domicilio</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="min_order_amount" class="form-label">Pedido Mínimo</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control @error('min_order_amount') is-invalid @enderror"
+                                   id="min_order_amount" name="min_order_amount"
+                                   value="{{ old('min_order_amount', $restaurant->min_order_amount ?? 0) }}"
+                                   min="0" step="0.01">
+                        </div>
+                        @error('min_order_amount')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Monto mínimo para realizar un pedido</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info mb-0">
+                <div class="d-flex align-items-start">
+                    <i class="ri ri-information-line ri-22px me-2"></i>
+                    <div>
+                        <h6 class="mb-1">Enlace de Pedidos Online</h6>
+                        <p class="mb-2">Comparte este enlace con tus clientes para que puedan hacer pedidos:</p>
+                        <div class="input-group">
+                            <input type="text" class="form-control"
+                                   value="{{ url('/' . request()->route('tenant') . '/order') }}"
+                                   readonly id="onlineOrderUrl">
+                            <button class="btn btn-outline-primary" type="button" onclick="copyOrderUrl()">
+                                <i class="ri ri-file-copy-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">
             <i class="ri ri-save-line me-1"></i> Guardar Cambios
         </button>
     </div>
 </form>
+
+@push('scripts')
+<script>
+function copyOrderUrl() {
+    const input = document.getElementById('onlineOrderUrl');
+    input.select();
+    document.execCommand('copy');
+
+    // Mostrar feedback
+    const btn = event.target.closest('button');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="ri ri-check-line"></i>';
+    btn.classList.remove('btn-outline-primary');
+    btn.classList.add('btn-success');
+
+    setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-outline-primary');
+    }, 2000);
+}
+
+// Update currency fields when country changes
+document.getElementById('country').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const currency = selectedOption.getAttribute('data-currency');
+    const symbol = selectedOption.getAttribute('data-symbol');
+
+    document.getElementById('currency').value = currency || '';
+    document.getElementById('currency_symbol').value = symbol || '';
+});
+</script>
+@endpush
 @endsection

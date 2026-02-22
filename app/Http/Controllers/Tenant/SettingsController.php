@@ -77,7 +77,16 @@ class SettingsController extends Controller
             'logo_horizontal' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
             'logo_square' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
             'menu_background_image' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'accepts_online_orders' => 'nullable|boolean',
+            'delivery_fee' => 'nullable|numeric|min:0',
+            'min_order_amount' => 'nullable|numeric|min:0',
+            'country' => 'required|string|max:2',
+            'currency' => 'required|string|max:3',
+            'currency_symbol' => 'required|string|max:10',
         ]);
+
+        // Convertir checkbox a boolean
+        $validated['accepts_online_orders'] = $request->has('accepts_online_orders');
 
         // Manejar subida de logo horizontal
         if ($request->hasFile('logo_horizontal')) {

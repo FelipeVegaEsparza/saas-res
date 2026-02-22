@@ -56,7 +56,7 @@ use Illuminate\Support\Facades\Storage;
                     </div>
 
                     <div class="mb-4">
-                        <span class="price-tag">${{ number_format($product->price, 2) }}</span>
+                        <span class="price-tag">@price($product->price)</span>
                     </div>
 
                     @if($product->description)

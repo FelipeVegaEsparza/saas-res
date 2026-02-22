@@ -93,16 +93,16 @@
                                         <br><small class="text-muted">{{ $item->notes }}</small>
                                     @endif
                                 </td>
-                                <td class="text-end">${{ number_format($item->price, 2) }}</td>
+                                <td class="text-end">@price($item->price)</td>
                                 <td class="text-center">{{ $item->quantity }}</td>
-                                <td class="text-end"><strong>${{ number_format($item->subtotal, 2) }}</strong></td>
+                                <td class="text-end"><strong>@price($item->subtotal)</strong></td>
                             </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
-                                <td class="text-end"><strong>${{ number_format($deliveryOrder->subtotal, 2) }}</strong></td>
+                                <td class="text-end"><strong>@price($deliveryOrder->subtotal)</strong></td>
                             </tr>
                             @if($deliveryOrder->delivery_fee > 0)
                             <tr>
@@ -112,7 +112,7 @@
                             @endif
                             <tr class="table-active">
                                 <td colspan="3" class="text-end"><h5 class="mb-0">Total:</h5></td>
-                                <td class="text-end"><h5 class="mb-0">${{ number_format($deliveryOrder->total, 2) }}</h5></td>
+                                <td class="text-end"><h5 class="mb-0">@price($deliveryOrder->total)</h5></td>
                             </tr>
                         </tfoot>
                     </table>

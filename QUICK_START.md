@@ -1,314 +1,177 @@
-# 🚀 GUÍA DE INICIO RÁPIDO
+# 🚀 Quick Start Guide
 
-## Configuración Inicial (Solo una vez)
+## Inicio Rápido en 3 Pasos
 
-### 1. Asegúrate de que MySQL esté corriendo
-```cmd
-docker-compose up -d
-```
+### 1️⃣ Ejecutar Migraciones y Seeders
 
-### 2. Verifica que las migraciones landlord estén ejecutadas
-```cmd
-php artisan migrate --path=database/migrations/landlord
-```
-
-### 3. Crea los planes
-```cmd
-php artisan db:seed --class=PlansSeeder
-```
-
----
-
-## Crear tu Primer Restaurante
-
-### Opción A: Comando Automático (Recomendado)
-```cmd
-php artisan tenant:create "Mi Restaurante Demo" demo --email=admin@demo.com --password=demo123
-```
-
-### Opción B: Paso a Paso
-
-**1. Crear el tenant manualmente:**
-```cmd
-php artisan tinker
-```
-
-```php
-$tenant = App\Models\Tenant::create([
-    'id' => 'demo',
-    'restaurant_name' => 'Mi Restaurante Demo',
-    'plan' => 'free',
-]);
-
-$tenant->domains()->create([
-    'domain' => 'demo.localhost',
-]);
-
-App\Models\Restaurant::create([
-    'tenant_id' => 'demo',
-    'name' => 'Mi Restaurante Demo',
-    'slug' => 'demo',
-    'domain' => 'demo.localhost',
-    'db_name' => 'tenant_demo',
-    'active' => true,
-    'plan' => 'free',
-    'trial_ends_at' => now()->addDays(14),
-]);
-
-exit
-```
-
-**2. Ejecutar migraciones del tenant:**
-```cmd
-php artisan tenant:migrate-direct demo
-```
-
-**3. Poblar con datos de prueba:**
-```cmd
-php artisan tenant:seed-direct demo
-```
-
----
-
-## Configurar Hosts (Desarrollo Local)
-
-### Windows
-Editar como Administrador: `C:\Windows\System32\drivers\etc\hosts`
-
-### Linux/Mac
 ```bash
-sudo nano /etc/hosts
+# Migrar base de datos central (admin, restaurantes, planes)
+php artisan migrate
+
+# Crear usuario admin
+php artisan db:seed --class=AdminSeeder
 ```
 
-### Agregar estas líneas:
-```
-127.0.0.1  demo.localhost
-127.0.0.1  pizzeria.localhost
-127.0.0.1  sushi.localhost
-```
+### 2️⃣ Iniciar el Servidor
 
-Guardar y cerrar.
-
----
-
-## Iniciar el Servidor
-
-```cmd
-composer dev
-```
-
-O manualmente en dos terminales:
-
-**Terminal 1:**
-```cmd
+```bash
 php artisan serve
 ```
 
-**Terminal 2:**
-```cmd
-npm run dev
-```
+El servidor estará disponible en: `http://localhost:8000`
 
----
+### 3️⃣ Acceder al Sistema
 
-## Acceder al Sistema
+#### Panel de Administración
 
-### 🍽️ Menú Público (Carta Digital)
-```
-http://demo.localhost:8000/menu
-```
+- URL: http://localhost:8000/admin/login
+- Email: `admin@admin.com`
+- Password: `admin123`
 
-### 📊 Dashboard (Requiere login)
-```
-http://demo.localhost:8000/dashboard
-```
+#### Sitio Público
 
-**Credenciales:**
+- URL: http://localhost:8000/
+
+#### Panel Tenant (Demo)
+
+- URL: http://localhost:8000/demo/login
 - Email: `admin@demo.com`
 - Password: `demo123`
 
-### 🔲 Ver QR de Mesa
-```
-http://demo.localhost:8000/qr/table/1
-```
+---
 
-### 🖨️ Imprimir Todos los QR
-```
-http://demo.localhost:8000/qr/print-all
-```
+## 📋 Checklist de Configuración
+
+- [ ] Base de datos configurada en `.env`
+- [ ] Migraciones ejecutadas (`php artisan migrate`)
+- [ ] Admin seeder ejecutado (`php artisan db:seed --class=AdminSeeder`)
+- [ ] Servidor iniciado (`php artisan serve`)
+- [ ] Acceso al admin verificado
 
 ---
 
-## Crear Más Restaurantes
+## 🎯 Primeros Pasos en el Admin
 
-```cmd
-# Pizzería
-php artisan tenant:create "Pizzería Italiana" pizzeria --email=admin@pizzeria.com --password=pizza123
-php artisan tenant:migrate-direct pizzeria
-php artisan tenant:seed-direct pizzeria
+### 1. Crear un Plan
 
-# Sushi Bar
-php artisan tenant:create "Sushi Bar Tokyo" sushi --email=admin@sushi.com --password=sushi123
-php artisan tenant:migrate-direct sushi
-php artisan tenant:seed-direct sushi
+1. Login en `/admin/login`
+2. Ir a "Planes" en el menú
+3. Click en "Nuevo Plan"
+4. Llenar formulario:
+   - Nombre: "Plan Básico"
+   - Slug: "plan-basico"
+   - Precio: 9990
+   - Ciclo: Mensual
+   - Límites: 5 usuarios, 10 mesas, 50 productos
+5. Agregar características
+6. Guardar
 
-# Burger House
-php artisan tenant:create "Burger House" burger --email=admin@burger.com --password=burger123
-php artisan tenant:migrate-direct burger
-php artisan tenant:seed-direct burger
-```
+### 2. Ver Restaurantes
 
-Acceder a:
-- `http://pizzeria.localhost:8000/menu`
-- `http://sushi.localhost:8000/menu`
-- `http://burger.localhost:8000/menu`
+1. Ir a "Restaurantes"
+2. Ver lista de restaurantes existentes
+3. Click en un restaurante para ver detalles
+4. Editar configuración si es necesario
 
----
+### 3. Gestionar Suscripciones
 
-## Verificar que Todo Funciona
-
-### 1. Listar Tenants
-```cmd
-php artisan tenants:list
-```
-
-### 2. Ver Bases de Datos
-```cmd
-php artisan tinker
-```
-```php
-DB::connection('landlord')->select('SHOW DATABASES LIKE "tenant_%"');
-exit
-```
-
-### 3. Ver Restaurantes
-```cmd
-php artisan tinker
-```
-```php
-App\Models\Restaurant::all(['name', 'slug', 'domain', 'plan']);
-exit
-```
-
-### 4. Probar Menú
-Abrir navegador: `http://demo.localhost:8000/menu`
-
-Deberías ver:
-- ✅ Nombre del restaurante
-- ✅ 4 categorías (Entradas, Principales, Postres, Bebidas)
-- ✅ 12 productos con precios
-- ✅ Diseño responsive
-
-### 5. Probar QR
-Abrir: `http://demo.localhost:8000/qr/print-all`
-
-Deberías ver:
-- ✅ 15 códigos QR (uno por mesa)
-- ✅ Información de cada mesa
-- ✅ Botón de imprimir
+1. Ir a "Suscripciones"
+2. Ver todas las suscripciones
+3. Filtrar por estado
+4. Editar o cancelar según necesidad
 
 ---
 
-## ⚠️ Nota Importante sobre Comandos de Tenant
+## 🔧 Comandos Útiles
 
-Debido a un problema con el `DatabaseTenancyBootstrapper` de stancl/tenancy, los comandos estándar (`tenants:migrate` y `tenants:seed`) no cambian correctamente a la base de datos del tenant.
+### Limpiar Caché
 
-**Solución:** Hemos creado comandos personalizados que funcionan correctamente:
-
-- ✅ `php artisan tenant:migrate-direct {tenant_id}` - Migra directamente a la BD del tenant
-- ✅ `php artisan tenant:seed-direct {tenant_id}` - Seed directamente en la BD del tenant
-
-Estos comandos:
-1. Crean la base de datos del tenant si no existe
-2. Configuran la conexión correctamente
-3. Ejecutan las migraciones/seeders en la base de datos correcta
-
----
-
-## Comandos Útiles
-
-### Limpiar Cachés
-```cmd
-php artisan config:clear
+```bash
 php artisan cache:clear
-php artisan view:clear
+php artisan config:clear
 php artisan route:clear
+php artisan view:clear
 ```
 
-### Ver Rutas Tenant
-```cmd
-php artisan route:list --path=tenant
+### Ver Rutas
+
+```bash
+# Ver todas las rutas admin
+php artisan route:list --path=admin
+
+# Ver todas las rutas tenant
+php artisan route:list --path=demo
 ```
 
-### Ejecutar Comando en un Tenant
-```cmd
-php artisan tenants:run demo --command="cache:clear"
+### Crear Nuevo Tenant
+
+```bash
+php artisan tenant:create {nombre}
+php artisan tenant:migrate-direct {nombre}
+php artisan tenant:seed-direct {nombre}
 ```
 
-### Eliminar un Tenant
-```cmd
-php artisan tinker
-```
-```php
-$tenant = App\Models\Tenant::find('demo');
-$tenant->delete(); // Esto también elimina la base de datos
-exit
+### Verificar Estado de Tenant
+
+```bash
+php artisan tenant:status {nombre}
 ```
 
 ---
 
-## Troubleshooting
+## 🐛 Solución de Problemas
 
-### ❌ Error: "Tenant could not be identified"
-**Solución:** Verifica que el dominio esté en la tabla `domains`
-```cmd
-php artisan tinker
-```
-```php
-DB::connection('landlord')->table('domains')->get();
-exit
+### Error: "Admin not found"
+
+**Solución**: Ejecutar el seeder
+
+```bash
+php artisan db:seed --class=AdminSeeder
 ```
 
-### ❌ Error: "Base table or view not found"
-**Solución:** Ejecuta las migraciones del tenant con el comando directo
-```cmd
-php artisan tenant:migrate-direct demo
+### Error: "Table admins doesn't exist"
+
+**Solución**: Ejecutar migraciones
+
+```bash
+php artisan migrate
 ```
 
-### ❌ No se ven los productos
-**Solución:** Ejecuta el seeder con el comando directo
-```cmd
-php artisan tenant:seed-direct demo
+### Error: "Route not found"
+
+**Solución**: Limpiar caché de rutas
+
+```bash
+php artisan route:clear
+php artisan config:clear
 ```
 
-### ❌ El subdominio no funciona
-**Solución:** Verifica el archivo hosts
-```cmd
-# Windows
-notepad C:\Windows\System32\drivers\etc\hosts
+### No puedo iniciar sesión en admin
 
-# Debe contener:
-127.0.0.1  demo.localhost
-```
+**Verificar**:
 
-### ❌ Error de conexión a MySQL
-**Solución:** Verifica que Docker esté corriendo
-```cmd
-docker ps
-docker-compose up -d
-```
+1. Credenciales correctas: `admin@admin.com` / `admin123`
+2. Tabla `admins` existe en la base de datos
+3. Usuario admin existe en la tabla
+
+---
+
+## 📚 Documentación Adicional
+
+- `ADMIN_SETUP.md` - Documentación completa del panel admin
+- `ACCESO_SISTEMA.md` - Todas las credenciales y URLs
+- `DESARROLLO_COMPLETADO.md` - Resumen de lo implementado
 
 ---
 
 ## 🎉 ¡Listo!
 
-Tu sistema multi-tenant está funcionando. Ahora puedes:
+Ahora puedes:
 
-1. ✅ Crear múltiples restaurantes
-2. ✅ Cada uno con su propia base de datos
-3. ✅ Cada uno con su propio subdominio
-4. ✅ Carta digital pública
-5. ✅ Códigos QR por mesa
-6. ✅ Dashboard básico
+- ✅ Gestionar restaurantes desde el admin
+- ✅ Crear y editar planes de suscripción
+- ✅ Administrar suscripciones
+- ✅ Ver métricas en el dashboard
+- ✅ Promocionar el SaaS con el sitio público
 
-**Siguiente paso:** Implementar autenticación y CRUD completo (Fase 3)
+**¿Necesitas ayuda?** Revisa la documentación en los archivos `.md` del proyecto.

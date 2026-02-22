@@ -49,7 +49,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-muted mb-1">Ingresos Totales</p>
-                        <h3 class="mb-0">${{ number_format($stats['total_revenue'], 0) }}</h3>
+                        <h3 class="mb-0">@price($stats['total_revenue'])</h3>
                         @if(isset($comparison['revenue_change']))
                             <small class="text-{{ $comparison['revenue_change'] >= 0 ? 'success' : 'danger' }}">
                                 <i class="ri ri-arrow-{{ $comparison['revenue_change'] >= 0 ? 'up' : 'down' }}-line"></i>
@@ -93,7 +93,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-muted mb-1">Ticket Promedio</p>
-                        <h3 class="mb-0">${{ number_format($stats['average_ticket'], 0) }}</h3>
+                        <h3 class="mb-0">@price($stats['average_ticket'])</h3>
                     </div>
                     <div class="avatar avatar-lg bg-label-info">
                         <i class="ri ri-receipt-line ri-26px"></i>
@@ -177,7 +177,7 @@
                                     <tr>
                                         <td>{{ $day['label'] }}</td>
                                         <td class="text-end">
-                                            <strong>${{ number_format($day['revenue'], 0) }}</strong>
+                                            <strong>@price($day['revenue'])</strong>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -185,7 +185,7 @@
                             <tfoot>
                                 <tr class="table-active">
                                     <th>Total</th>
-                                    <th class="text-end">${{ number_format(collect($salesByDay)->sum('revenue'), 0) }}</th>
+                                    <th class="text-end">@price(collect($salesByDay)->sum('revenue'))</th>
                                 </tr>
                             </tfoot>
                         </table>
@@ -211,7 +211,7 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="mb-0">{{ str_pad($hour['hour'], 2, '0', STR_PAD_LEFT) }}:00</h6>
-                                        <small class="text-muted">${{ number_format($hour['revenue'], 0) }}</small>
+                                        <small class="text-muted">@price($hour['revenue'])</small>
                                     </div>
                                     <span class="badge bg-primary rounded-pill">
                                         {{ $hour['orders'] }} órdenes
@@ -255,10 +255,10 @@
                                             <span class="badge bg-label-primary">{{ $index + 1 }}</span>
                                         </td>
                                         <td><strong>{{ $product->name }}</strong></td>
-                                        <td>${{ number_format($product->price, 0) }}</td>
+                                        <td>@price($product->price)</td>
                                         <td class="text-end">{{ $product->total_sold }}</td>
                                         <td class="text-end">
-                                            <strong>${{ number_format($product->price * $product->total_sold, 0) }}</strong>
+                                            <strong>@price($product->price * $product->total_sold)</strong>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -293,7 +293,7 @@
                                 @foreach($lowProducts as $product)
                                     <tr>
                                         <td><strong>{{ $product->name }}</strong></td>
-                                        <td>${{ number_format($product->price, 0) }}</td>
+                                        <td>@price($product->price)</td>
                                         <td class="text-end">
                                             <span class="badge bg-label-warning">{{ $product->total_sold }}</span>
                                         </td>
@@ -333,7 +333,7 @@
                                 @foreach($salesByCategory as $category)
                                     <tr>
                                         <td><strong>{{ $category->name }}</strong></td>
-                                        <td class="text-end">${{ number_format($category->total_revenue, 0) }}</td>
+                                        <td class="text-end">@price($category->total_revenue)</td>
                                         <td class="text-end">
                                             <span class="badge bg-label-primary">
                                                 {{ $totalCategoryRevenue > 0 ? number_format(($category->total_revenue / $totalCategoryRevenue) * 100, 1) : 0 }}%
@@ -376,7 +376,7 @@
                                         </td>
                                         <td class="text-end">{{ $method->count }}</td>
                                         <td class="text-end">
-                                            <strong>${{ number_format($method->total, 0) }}</strong>
+                                            <strong>@price($method->total)</strong>
                                         </td>
                                     </tr>
                                 @endforeach

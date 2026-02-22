@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registrar middleware de tenancy por path
         $middleware->alias([
             'tenant.path' => \App\Http\Middleware\InitializeTenancyByPath::class,
+            'tenant.auth' => \App\Http\Middleware\TenantAuthenticate::class,
+            'admin.auth' => \App\Http\Middleware\AdminAuthenticate::class,
         ]);
 
         // Asegurar que tenant.path se ejecute antes de SubstituteBindings

@@ -54,7 +54,7 @@ class DeliveryOrderController extends Controller
             'delivery_fee' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.product_id' => 'required|exists:tenant.products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.notes' => 'nullable|string',
         ]);
@@ -73,7 +73,7 @@ class DeliveryOrderController extends Controller
                 $itemsData[] = [
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
-                    'price' => $product->price,
+                    'unit_price' => $product->price,
                     'subtotal' => $itemSubtotal,
                     'notes' => $item['notes'] ?? null,
                 ];

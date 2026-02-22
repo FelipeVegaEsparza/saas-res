@@ -124,7 +124,7 @@ class CashRegisterController extends Controller
     public function processPayment(Request $request)
     {
         $validated = $request->validate([
-            'order_id' => 'required|exists:orders,id',
+            'order_id' => 'required|exists:tenant.orders,id',
             'payment_method' => 'required|in:cash,card,transfer',
             'amount_paid' => 'required|numeric|min:0',
         ]);

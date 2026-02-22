@@ -29,7 +29,7 @@ class ProductController extends Controller
     public function store(Request $request, $tenant)
     {
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'required|exists:tenant.categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
@@ -51,6 +51,7 @@ class ProductController extends Controller
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['available'] = $request->boolean('available', true);
+        $validated['available_for_delivery'] = $request->boolean('available_for_delivery', true);
         $validated['featured'] = $request->boolean('featured', false);
         $validated['track_stock'] = $request->boolean('track_stock', false);
         $validated['stock_quantity'] = $request->input('stock_quantity', 0);
@@ -71,7 +72,7 @@ class ProductController extends Controller
     public function update(Request $request, $tenant, Product $product)
     {
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'required|exists:tenant.categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
@@ -97,6 +98,7 @@ class ProductController extends Controller
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['available'] = $request->boolean('available');
+        $validated['available_for_delivery'] = $request->boolean('available_for_delivery');
         $validated['featured'] = $request->boolean('featured');
         $validated['track_stock'] = $request->boolean('track_stock', false);
         $validated['stock_quantity'] = $request->input('stock_quantity', 0);
