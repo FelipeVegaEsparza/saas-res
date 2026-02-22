@@ -40,10 +40,14 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Instalar dependencias de Node y compilar assets
 RUN npm install --legacy-peer-deps && npm run build
 
+# Verificar que los assets se compilaron
+RUN ls -la public/build || echo "Warning: build directory not found"
+
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+    && chmod -R 775 /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html/public
 
 # Copiar configuración de Nginx
 COPY docker/nginx.conf /etc/nginx/nginx.conf
