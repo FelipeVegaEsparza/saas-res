@@ -1,6 +1,11 @@
+@php
+use App\Models\SystemSetting;
+$companyName = SystemSetting::get('company_name', config('app.name'));
+@endphp
+
 @extends('landing.layouts.app')
 
-@section('title', 'Página no encontrada - ' . config('app.name'))
+@section('title', 'Página no encontrada - ' . $companyName)
 
 @section('content')
 <section style="min-height: 70vh; display: flex; align-items: center; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);">
