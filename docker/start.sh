@@ -12,6 +12,11 @@ php artisan migrate --path=database/migrations/landlord --force
 echo "Ejecutando migraciones generales..."
 php artisan migrate --force
 
+# Ejecutar seeders
+echo "Ejecutando seeders..."
+php artisan db:seed --class=SystemSettingsSeeder --force
+php artisan db:seed --class=AdminSeeder --force
+
 # Limpiar caché
 echo "Limpiando caché..."
 php artisan config:cache
