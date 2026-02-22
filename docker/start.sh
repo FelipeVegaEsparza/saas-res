@@ -4,6 +4,11 @@
 echo "Esperando a que la base de datos esté lista..."
 sleep 10
 
+# Asegurar permisos correctos
+echo "Configurando permisos..."
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 # Ejecutar migraciones de landlord primero
 echo "Ejecutando migraciones de landlord..."
 php artisan migrate --path=database/migrations/landlord --force
