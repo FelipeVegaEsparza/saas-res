@@ -65,4 +65,16 @@ class LandingController extends Controller
 
         return back()->with('success', '¡Gracias por contactarnos! Te responderemos pronto.');
     }
+
+    public function tutorials()
+    {
+        $categories = \App\Models\TutorialCategory::where('is_active', true)
+            ->with(['activeTutorials' => function($query) {
+                $query->orderBy('order');
+            }])
+            ->orderBy('order')
+            ->get();
+
+        return view('landing.tutorials', compact('categories'));
+    }
 }

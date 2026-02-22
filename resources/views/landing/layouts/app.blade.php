@@ -22,7 +22,11 @@
         }
 
         .hero-section {
-            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%),
+                        url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: white;
             padding: 120px 0 80px 0;
             position: relative;
@@ -53,42 +57,108 @@
             opacity: 0.9;
         }
 
+        .badge-trial {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
         .navbar-landing {
             background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            padding: 1rem 0;
+            padding: 1.2rem 0;
         }
 
         .navbar-landing .navbar-brand {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #2d3748;
+            color: #667eea;
         }
 
         .navbar-landing .nav-link {
             font-weight: 500;
             color: #4a5568;
-            padding: 0.5rem 1rem;
-            transition: color 0.3s;
+            padding: 0.6rem 1.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        .navbar-landing .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
         }
 
         .navbar-landing .nav-link:hover {
-            color: #ff6b35;
+            color: #667eea;
+        }
+
+        .navbar-landing .nav-link:hover::after {
+            width: 60%;
+        }
+
+        .navbar-landing .nav-link i {
+            font-size: 1.1rem;
+        }
+
+        .navbar-divider {
+            width: 1px;
+            height: 30px;
+            background: linear-gradient(to bottom, transparent, #e2e8f0, transparent);
+            margin: 0 1rem;
+        }
+
+        .badge-new {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 0.3rem;
+            vertical-align: middle;
         }
 
         .btn-primary {
-            background: #ff6b35;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            padding: 0.75rem 2rem;
+            padding: 0.65rem 1.8rem;
             font-weight: 600;
             border-radius: 8px;
-            transition: all 0.3s;
+            transition: opacity 0.2s;
+            font-size: 0.9rem;
         }
 
         .btn-primary:hover {
-            background: #e55a2b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+            opacity: 0.9;
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 0.55rem 1.8rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-outline-primary:hover {
+            background: #667eea;
+            color: white;
         }
 
         .btn-outline-light {
@@ -102,7 +172,7 @@
 
         .btn-outline-light:hover {
             background: white;
-            color: #2d3748;
+            color: #667eea;
         }
 
         .section-title {
@@ -129,13 +199,13 @@
 
         .feature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
         }
 
         .feature-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -158,7 +228,7 @@
         }
 
         .stats-section {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 4rem 0;
         }
@@ -174,13 +244,61 @@
             opacity: 0.9;
         }
 
+        .trial-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
         footer {
-            background: #1a202c;
+            background: #2d3748;
+            color: #e2e8f0;
         }
 
         footer h6 {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 1.2rem;
+        }
+
+        footer a {
+            color: #cbd5e0;
+            text-decoration: none;
+            transition: color 0.2s;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        footer a:hover {
+            color: #667eea;
+        }
+
+        footer .social-links a {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        footer .social-links a:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        footer .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            margin-top: 2rem;
         }
     </style>
 
@@ -202,20 +320,39 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav mx-auto gap-2">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('landing.index') }}">Inicio</a>
+                        <a class="nav-link" href="{{ route('landing.index') }}">
+                            <i class="ri ri-home-line me-1"></i>Inicio
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('landing.features') }}">Características</a>
+                        <a class="nav-link" href="{{ route('landing.features') }}">
+                            <i class="ri ri-star-line me-1"></i>Funciones
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('landing.pricing') }}">Precios</a>
+                        <a class="nav-link" href="{{ route('landing.pricing') }}">
+                            <i class="ri ri-price-tag-3-line me-1"></i>Precios
+                            <span class="badge-new">10 días gratis</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('landing.contact') }}">Contacto</a>
+                        <a class="nav-link" href="{{ route('landing.contact') }}">
+                            <i class="ri ri-mail-line me-1"></i>Contacto
+                        </a>
                     </li>
-                    <li class="nav-item ms-3">
+                </ul>
+                <div class="d-none d-lg-flex align-items-center">
+                    <div class="navbar-divider"></div>
+                </div>
+                <ul class="navbar-nav ms-auto gap-2">
+                    <li class="nav-item">
+                        <a class="btn btn-outline-primary btn-sm" href="{{ route('landing.tutorials') }}">
+                            <i class="ri ri-video-line me-1"></i>Tutoriales
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="btn btn-primary btn-sm" href="{{ route('admin.login') }}">
                             <i class="ri ri-login-box-line me-1"></i>Admin
                         </a>
@@ -231,68 +368,80 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-5 mt-5">
+    <footer class="text-white py-5 mt-5">
         <div class="container">
             <div class="row">
-                <div class="col-md-4 mb-4">
+                <div class="col-lg-4 col-md-6 mb-4">
                     @if($companyLogo)
-                        <img src="{{ asset('storage/' . $companyLogo) }}" alt="{{ $companyName }}" style="max-height: 50px;" class="mb-3">
+                        <img src="{{ asset('storage/' . $companyLogo) }}" alt="{{ $companyName }}" style="max-height: 45px;" class="mb-3">
                     @else
-                        <h5 class="fw-bold mb-3">{{ $companyName }}</h5>
+                        <h5 class="fw-bold mb-3" style="color: white;">{{ $companyName }}</h5>
                     @endif
-                    <p class="text-white-50">{{ $companyDescription }}</p>
+                    <p style="color: #cbd5e0; line-height: 1.6;">{{ $companyDescription }}</p>
 
                     @if($socialFacebook || $socialInstagram || $socialTwitter || $socialLinkedin || $socialYoutube)
-                        <div class="mt-3">
+                        <div class="social-links mt-4">
                             @if($socialFacebook)
-                                <a href="{{ $socialFacebook }}" target="_blank" class="text-white-50 me-3" style="font-size: 1.5rem;">
+                                <a href="{{ $socialFacebook }}" target="_blank" class="me-2">
                                     <i class="ri ri-facebook-fill"></i>
                                 </a>
                             @endif
                             @if($socialInstagram)
-                                <a href="{{ $socialInstagram }}" target="_blank" class="text-white-50 me-3" style="font-size: 1.5rem;">
+                                <a href="{{ $socialInstagram }}" target="_blank" class="me-2">
                                     <i class="ri ri-instagram-line"></i>
                                 </a>
                             @endif
                             @if($socialTwitter)
-                                <a href="{{ $socialTwitter }}" target="_blank" class="text-white-50 me-3" style="font-size: 1.5rem;">
+                                <a href="{{ $socialTwitter }}" target="_blank" class="me-2">
                                     <i class="ri ri-twitter-fill"></i>
                                 </a>
                             @endif
                             @if($socialLinkedin)
-                                <a href="{{ $socialLinkedin }}" target="_blank" class="text-white-50 me-3" style="font-size: 1.5rem;">
+                                <a href="{{ $socialLinkedin }}" target="_blank" class="me-2">
                                     <i class="ri ri-linkedin-fill"></i>
                                 </a>
                             @endif
                             @if($socialYoutube)
-                                <a href="{{ $socialYoutube }}" target="_blank" class="text-white-50" style="font-size: 1.5rem;">
+                                <a href="{{ $socialYoutube }}" target="_blank">
                                     <i class="ri ri-youtube-fill"></i>
                                 </a>
                             @endif
                         </div>
                     @endif
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h6 class="fw-bold mb-3">Enlaces</h6>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6>Producto</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ route('landing.features') }}" class="text-white-50 text-decoration-none">Características</a></li>
-                        <li><a href="{{ route('landing.pricing') }}" class="text-white-50 text-decoration-none">Precios</a></li>
-                        <li><a href="{{ route('landing.contact') }}" class="text-white-50 text-decoration-none">Contacto</a></li>
+                        <li><a href="{{ route('landing.features') }}">Funciones</a></li>
+                        <li><a href="{{ route('landing.pricing') }}">Precios</a></li>
+                        <li><a href="{{ route('landing.tutorials') }}">Tutoriales</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h6 class="fw-bold mb-3">Contacto</h6>
-                    <p class="text-white-50">
-                        <i class="ri ri-mail-line me-2"></i>{{ $companyEmail }}<br>
-                        <i class="ri ri-phone-line me-2"></i>{{ $companyPhone }}
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6>Soporte</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ route('landing.contact') }}">Contacto</a></li>
+                        <li><a href="{{ route('landing.tutorials') }}">Ayuda</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h6>Contacto</h6>
+                    <ul class="list-unstyled" style="color: #cbd5e0;">
+                        <li class="mb-2">
+                            <i class="ri ri-mail-line me-2"></i>{{ $companyEmail }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="ri ri-phone-line me-2"></i>{{ $companyPhone }}
+                        </li>
                         @if($companyAddress)
-                            <br><i class="ri ri-map-pin-line me-2"></i>{{ $companyAddress }}
+                            <li class="mb-2">
+                                <i class="ri ri-map-pin-line me-2"></i>{{ $companyAddress }}
+                            </li>
                         @endif
-                    </p>
+                    </ul>
                 </div>
             </div>
-            <hr class="border-white-50 my-4">
-            <div class="text-center text-white-50">
+            <div class="footer-bottom text-center" style="color: #a0aec0;">
                 <p class="mb-0">© {{ date('Y') }} {{ $companyName }}. Todos los derechos reservados.</p>
             </div>
         </div>

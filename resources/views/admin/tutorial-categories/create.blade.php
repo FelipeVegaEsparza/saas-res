@@ -1,0 +1,66 @@
+@extends('admin.layouts.admin')
+
+@section('title', 'Nueva Categoría - Admin')
+
+@section('content')
+<div class="mb-4">
+    <h1 class="mb-1">Nueva Categoría de Tutoriales</h1>
+    <p class="text-muted">Crea una nueva categoría para organizar tus tutoriales</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form action="{{ route('admin.tutorial-categories.store') }}" method="POST">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('name') is-invalid @enderror"
+                               id="name" name="name" value="{{ old('name') }}" required>
+                        @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descripción</label>
+                        <textarea class="form-control @error('description') is-invalid @enderror"
+                                  id="description" name="description" rows="3">{{ old('description') }}</textarea>
+                        @error('description')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="order" class="form-label">Orden</label>
+                        <input type="number" class="form-control @error('order') is-invalid @enderror"
+                               id="order" name="order" value="{{ old('order', 0) }}" min="0">
+                        <small class="text-muted">Orden de visualización (menor número aparece primero)</small>
+                        @error('order')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                            <label class="form-check-label" for="is_active">Categoría activa</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ri ri-save-line me-1"></i>Guardar Categoría
+                        </button>
+                        <a href="{{ route('admin.tutorial-categories.index') }}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

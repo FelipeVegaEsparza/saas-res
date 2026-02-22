@@ -8,11 +8,14 @@
     <div class="container position-relative" style="z-index: 1;">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="badge-trial mb-3">
+                    <i class="ri ri-gift-line me-2"></i>10 DÍAS DE PRUEBA GRATIS - Sin Tarjeta de Crédito
+                </div>
                 <h1 class="mb-4">Aumenta tus ventas y reduce costos operativos hasta un 40%</h1>
                 <p class="mb-4" style="font-size: 1.15rem; opacity: 0.95;">Sistema profesional de gestión para restaurantes. Control total de mesas, pedidos, inventario y finanzas en una sola plataforma. Implementación en 24 horas.</p>
                 <div class="d-flex flex-column flex-sm-row gap-3 mb-4">
-                    <a href="{{ route('landing.pricing') }}" class="btn btn-primary btn-lg px-5">
-                        Ver Planes y Precios
+                    <a href="{{ route('landing.pricing') }}" class="btn btn-light btn-lg px-5" style="background: white; color: #667eea; font-weight: 700;">
+                        Comenzar Prueba Gratis
                     </a>
                     <a href="{{ route('landing.contact') }}" class="btn btn-outline-light btn-lg px-5">
                         Solicitar Demo
@@ -25,7 +28,7 @@
                     </div>
                     <div>
                         <i class="ri ri-check-line me-1"></i>
-                        <small>14 días gratis</small>
+                        <small>10 días gratis</small>
                     </div>
                     <div>
                         <i class="ri ri-check-line me-1"></i>
@@ -34,29 +37,42 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="card border-0 shadow-lg" style="background: rgba(255,255,255,0.98);">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4" style="color: #2d3748;">Beneficios Inmediatos</h5>
+                <div class="card border-0 shadow-lg" style="background: white; border-radius: 16px;">
+                    <div class="card-body p-5">
+                        <div class="d-flex align-items-center mb-4">
+                            <div style="width: 4px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 2px; margin-right: 1rem;"></div>
+                            <h5 class="fw-bold mb-0" style="color: #2d3748; font-size: 1.3rem;">Beneficios Inmediatos</h5>
+                        </div>
                         <ul class="list-unstyled mb-0">
                             <li class="mb-3 d-flex align-items-start">
-                                <i class="ri ri-check-line me-2 mt-1" style="color: #ff6b35; font-size: 1.3rem;"></i>
-                                <span style="color: #4a5568;"><strong style="color: #2d3748;">Reduce errores</strong> en pedidos hasta 95%</span>
+                                <div style="min-width: 28px; height: 28px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                    <i class="ri ri-check-line" style="color: #667eea; font-size: 1.1rem;"></i>
+                                </div>
+                                <span style="color: #4a5568; line-height: 1.6;"><strong style="color: #2d3748;">Reduce errores</strong> en pedidos hasta 95%</span>
                             </li>
                             <li class="mb-3 d-flex align-items-start">
-                                <i class="ri ri-check-line me-2 mt-1" style="color: #ff6b35; font-size: 1.3rem;"></i>
-                                <span style="color: #4a5568;"><strong style="color: #2d3748;">Aumenta rotación</strong> de mesas en 30%</span>
+                                <div style="min-width: 28px; height: 28px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                    <i class="ri ri-check-line" style="color: #667eea; font-size: 1.1rem;"></i>
+                                </div>
+                                <span style="color: #4a5568; line-height: 1.6;"><strong style="color: #2d3748;">Aumenta rotación</strong> de mesas en 30%</span>
                             </li>
                             <li class="mb-3 d-flex align-items-start">
-                                <i class="ri ri-check-line me-2 mt-1" style="color: #ff6b35; font-size: 1.3rem;"></i>
-                                <span style="color: #4a5568;"><strong style="color: #2d3748;">Control total</strong> de inventario y mermas</span>
+                                <div style="min-width: 28px; height: 28px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                    <i class="ri ri-check-line" style="color: #667eea; font-size: 1.1rem;"></i>
+                                </div>
+                                <span style="color: #4a5568; line-height: 1.6;"><strong style="color: #2d3748;">Control total</strong> de inventario y mermas</span>
                             </li>
                             <li class="mb-3 d-flex align-items-start">
-                                <i class="ri ri-check-line me-2 mt-1" style="color: #ff6b35; font-size: 1.3rem;"></i>
-                                <span style="color: #4a5568;"><strong style="color: #2d3748;">Reportes en tiempo real</strong> desde cualquier lugar</span>
+                                <div style="min-width: 28px; height: 28px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                    <i class="ri ri-check-line" style="color: #667eea; font-size: 1.1rem;"></i>
+                                </div>
+                                <span style="color: #4a5568; line-height: 1.6;"><strong style="color: #2d3748;">Reportes en tiempo real</strong> desde cualquier lugar</span>
                             </li>
                             <li class="mb-0 d-flex align-items-start">
-                                <i class="ri ri-check-line me-2 mt-1" style="color: #ff6b35; font-size: 1.3rem;"></i>
-                                <span style="color: #4a5568;"><strong style="color: #2d3748;">Pedidos online</strong> integrados sin comisiones</span>
+                                <div style="min-width: 28px; height: 28px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                                    <i class="ri ri-check-line" style="color: #667eea; font-size: 1.1rem;"></i>
+                                </div>
+                                <span style="color: #4a5568; line-height: 1.6;"><strong style="color: #2d3748;">Pedidos online</strong> integrados sin comisiones</span>
                             </li>
                         </ul>
                     </div>
@@ -126,152 +142,116 @@
 <section class="py-5">
     <div class="container py-5">
         <div class="text-center mb-5">
-            <h2 class="fw-bold mb-3">Todo lo que necesitas para gestionar tu restaurante</h2>
-            <p class="text-muted">Funcionalidades probadas en cientos de restaurantes</p>
+            <h2 class="section-title">Funcionalidades probadas en cientos de restaurantes</h2>
+            <p class="section-subtitle">Todo lo que necesitas en una sola plataforma</p>
         </div>
 
-        <div class="row g-4 mb-5">
-            <div class="col-lg-4">
-                <div class="card border-0 h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start mb-3">
-                            <div class="avatar avatar-lg me-3">
-                                <span class="avatar-initial rounded bg-label-primary">
-                                    <i class="ri ri-table-line ri-24px"></i>
-                                </span>
-                            </div>
-                            <div>
-                                <h5 class="mb-2">Sistema POS Completo</h5>
-                                <p class="text-muted mb-0">Control de mesas, pedidos y pagos en tiempo real. Interfaz rápida diseñada para meseros.</p>
-                            </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.5rem; margin-bottom: 0;">
+                            <i class="ri ri-restaurant-line"></i>
                         </div>
-                        <ul class="list-unstyled small text-muted mb-0">
-                            <li class="mb-2">• Vista de mesas en tiempo real</li>
-                            <li class="mb-2">• Asignación de meseros</li>
-                            <li class="mb-2">• División de cuentas</li>
-                            <li>• Múltiples métodos de pago</li>
-                        </ul>
+                        <h4 class="ms-3 mb-0">Sistema POS Completo</h4>
                     </div>
+                    <p class="mb-3">Control de mesas, pedidos y pagos en tiempo real. Interfaz rápida diseñada para meseros.</p>
+                    <ul class="list-unstyled small mb-0" style="color: #718096;">
+                        <li class="mb-2">- Vista de mesas en tiempo real</li>
+                        <li class="mb-2">- Asignación de meseros</li>
+                        <li class="mb-2">- División de cuentas</li>
+                        <li>- Múltiples métodos de pago</li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card border-0 h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start mb-3">
-                            <div class="avatar avatar-lg me-3">
-                                <span class="avatar-initial rounded bg-label-success">
-                                    <i class="ri ri-smartphone-line ri-24px"></i>
-                                </span>
-                            </div>
-                            <div>
-                                <h5 class="mb-2">Pedidos Online</h5>
-                                <p class="text-muted mb-0">Tu propio sistema de pedidos online sin comisiones de terceros. Aumenta ventas 24/7.</p>
-                            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.5rem; margin-bottom: 0;">
+                            <i class="ri ri-smartphone-line"></i>
                         </div>
-                        <ul class="list-unstyled small text-muted mb-0">
-                            <li class="mb-2">• Catálogo online personalizado</li>
-                            <li class="mb-2">• Pedidos para delivery y retiro</li>
-                            <li class="mb-2">• Sin comisiones por pedido</li>
-                            <li>• Integración con tu sistema</li>
-                        </ul>
+                        <h4 class="ms-3 mb-0">Pedidos Online</h4>
                     </div>
+                    <p class="mb-3">Tu propio sistema de pedidos online sin comisiones de terceros. Aumenta ventas 24/7.</p>
+                    <ul class="list-unstyled small mb-0" style="color: #718096;">
+                        <li class="mb-2">- Catálogo online personalizado</li>
+                        <li class="mb-2">- Pedidos para delivery y retiro</li>
+                        <li class="mb-2">- Sin comisiones por pedido</li>
+                        <li>- Integración con tu sistema</li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card border-0 h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start mb-3">
-                            <div class="avatar avatar-lg me-3">
-                                <span class="avatar-initial rounded bg-label-info">
-                                    <i class="ri ri-bar-chart-box-line ri-24px"></i>
-                                </span>
-                            </div>
-                            <div>
-                                <h5 class="mb-2">Reportes y Análisis</h5>
-                                <p class="text-muted mb-0">Toma decisiones basadas en datos reales. Reportes de ventas, productos y rendimiento.</p>
-                            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.5rem; margin-bottom: 0;">
+                            <i class="ri ri-line-chart-line"></i>
                         </div>
-                        <ul class="list-unstyled small text-muted mb-0">
-                            <li class="mb-2">• Ventas por período</li>
-                            <li class="mb-2">• Productos más vendidos</li>
-                            <li class="mb-2">• Rendimiento por mesero</li>
-                            <li>• Análisis de rentabilidad</li>
-                        </ul>
+                        <h4 class="ms-3 mb-0">Reportes y Análisis</h4>
                     </div>
+                    <p class="mb-3">Toma decisiones basadas en datos reales. Reportes de ventas, productos y rendimiento.</p>
+                    <ul class="list-unstyled small mb-0" style="color: #718096;">
+                        <li class="mb-2">- Ventas por período</li>
+                        <li class="mb-2">- Productos más vendidos</li>
+                        <li class="mb-2">- Rendimiento por mesero</li>
+                        <li>- Análisis de rentabilidad</li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card border-0 h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start mb-3">
-                            <div class="avatar avatar-lg me-3">
-                                <span class="avatar-initial rounded bg-label-warning">
-                                    <i class="ri ri-archive-line ri-24px"></i>
-                                </span>
-                            </div>
-                            <div>
-                                <h5 class="mb-2">Control de Inventario</h5>
-                                <p class="text-muted mb-0">Gestión de stock, alertas de productos bajos y control de mermas.</p>
-                            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.5rem; margin-bottom: 0;">
+                            <i class="ri ri-archive-line"></i>
                         </div>
-                        <ul class="list-unstyled small text-muted mb-0">
-                            <li class="mb-2">• Stock en tiempo real</li>
-                            <li class="mb-2">• Alertas de stock bajo</li>
-                            <li class="mb-2">• Control de mermas</li>
-                            <li>• Historial de movimientos</li>
-                        </ul>
+                        <h4 class="ms-3 mb-0">Control de Inventario</h4>
                     </div>
+                    <p class="mb-3">Gestión de stock, alertas de productos bajos y control de mermas.</p>
+                    <ul class="list-unstyled small mb-0" style="color: #718096;">
+                        <li class="mb-2">- Stock en tiempo real</li>
+                        <li class="mb-2">- Alertas de stock bajo</li>
+                        <li class="mb-2">- Control de mermas</li>
+                        <li>- Historial de movimientos</li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card border-0 h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start mb-3">
-                            <div class="avatar avatar-lg me-3">
-                                <span class="avatar-initial rounded bg-label-danger">
-                                    <i class="ri ri-qr-code-line ri-24px"></i>
-                                </span>
-                            </div>
-                            <div>
-                                <h5 class="mb-2">Menú Digital QR</h5>
-                                <p class="text-muted mb-0">Menú digital sin contacto. Tus clientes escanean y ven el menú en su celular.</p>
-                            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.5rem; margin-bottom: 0;">
+                            <i class="ri ri-qr-code-line"></i>
                         </div>
-                        <ul class="list-unstyled small text-muted mb-0">
-                            <li class="mb-2">• Códigos QR por mesa</li>
-                            <li class="mb-2">• Actualización instantánea</li>
-                            <li class="mb-2">• Fotos de productos</li>
-                            <li>• Categorías organizadas</li>
-                        </ul>
+                        <h4 class="ms-3 mb-0">Menú Digital QR</h4>
                     </div>
+                    <p class="mb-3">Menú digital sin contacto. Tus clientes escanean y ven el menú en su celular.</p>
+                    <ul class="list-unstyled small mb-0" style="color: #718096;">
+                        <li class="mb-2">- Códigos QR por mesa</li>
+                        <li class="mb-2">- Actualización instantánea</li>
+                        <li class="mb-2">- Fotos de productos</li>
+                        <li>- Categorías organizadas</li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card border-0 h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start mb-3">
-                            <div class="avatar avatar-lg me-3">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="ri ri-cash-line ri-24px"></i>
-                                </span>
-                            </div>
-                            <div>
-                                <h5 class="mb-2">Control de Caja</h5>
-                                <p class="text-muted mb-0">Apertura, cierre y cuadre de caja. Control total de efectivo y transacciones.</p>
-                            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.5rem; margin-bottom: 0;">
+                            <i class="ri ri-wallet-line"></i>
                         </div>
-                        <ul class="list-unstyled small text-muted mb-0">
-                            <li class="mb-2">• Sesiones de caja</li>
-                            <li class="mb-2">• Múltiples formas de pago</li>
-                            <li class="mb-2">• Cuadre automático</li>
-                            <li>• Historial completo</li>
-                        </ul>
+                        <h4 class="ms-3 mb-0">Control de Caja</h4>
                     </div>
+                    <p class="mb-3">Apertura, cierre y cuadre de caja. Control total de efectivo y transacciones.</p>
+                    <ul class="list-unstyled small mb-0" style="color: #718096;">
+                        <li class="mb-2">- Sesiones de caja</li>
+                        <li class="mb-2">- Múltiples formas de pago</li>
+                        <li class="mb-2">- Cuadre automático</li>
+                        <li>- Historial completo</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -279,7 +259,7 @@
 </section>
 
 <!-- Proceso Simple -->
-<section class="py-5 bg-light">
+<section class="py-5" style="background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'); background-size: cover; background-position: center; background-attachment: fixed;">
     <div class="container py-5">
         <div class="text-center mb-5">
             <h2 class="fw-bold mb-3">Comienza en 3 pasos simples</h2>
@@ -290,17 +270,17 @@
             <div class="col-md-4">
                 <div class="text-center">
                     <div class="avatar avatar-xl mx-auto mb-3" style="width: 80px; height: 80px;">
-                        <span class="avatar-initial rounded-circle bg-primary text-white" style="font-size: 2rem;">1</span>
+                        <span class="avatar-initial rounded-circle text-white" style="font-size: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">1</span>
                     </div>
                     <h5 class="mb-3">Elige tu Plan</h5>
-                    <p class="text-muted">Selecciona el plan que mejor se adapte al tamaño de tu restaurante. Todos incluyen 14 días de prueba gratis.</p>
+                    <p class="text-muted">Selecciona el plan que mejor se adapte al tamaño de tu restaurante. <strong>Todos incluyen 10 días de prueba gratis sin tarjeta de crédito.</strong></p>
                 </div>
             </div>
 
             <div class="col-md-4">
                 <div class="text-center">
                     <div class="avatar avatar-xl mx-auto mb-3" style="width: 80px; height: 80px;">
-                        <span class="avatar-initial rounded-circle bg-primary text-white" style="font-size: 2rem;">2</span>
+                        <span class="avatar-initial rounded-circle text-white" style="font-size: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">2</span>
                     </div>
                     <h5 class="mb-3">Configuración Inicial</h5>
                     <p class="text-muted">Nuestro equipo configura tu sistema en 24 horas: mesas, productos, usuarios y todo listo para operar.</p>
@@ -310,7 +290,7 @@
             <div class="col-md-4">
                 <div class="text-center">
                     <div class="avatar avatar-xl mx-auto mb-3" style="width: 80px; height: 80px;">
-                        <span class="avatar-initial rounded-circle bg-primary text-white" style="font-size: 2rem;">3</span>
+                        <span class="avatar-initial rounded-circle text-white" style="font-size: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">3</span>
                     </div>
                     <h5 class="mb-3">Comienza a Operar</h5>
                     <p class="text-muted">Capacitamos a tu equipo y comienzas a usar el sistema. Soporte continuo incluido en todos los planes.</p>
@@ -320,8 +300,9 @@
 
         <div class="text-center mt-5">
             <a href="{{ route('landing.pricing') }}" class="btn btn-primary btn-lg px-5">
-                Ver Planes y Comenzar
+                Comenzar Prueba Gratis de 10 Días
             </a>
+            <p class="text-muted mt-3 mb-0"><small>No se requiere tarjeta de crédito</small></p>
         </div>
     </div>
 </section>
@@ -331,18 +312,21 @@
     <div class="container py-5">
         <div class="card border-0 shadow-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div class="card-body p-5 text-white text-center">
+                <div class="trial-highlight mb-4" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3);">
+                    <i class="ri ri-gift-line me-2"></i>PRUEBA GRATIS POR 10 DÍAS
+                </div>
                 <h2 class="fw-bold mb-3">¿Listo para aumentar tus ventas?</h2>
                 <p class="lead mb-4">Únete a cientos de restaurantes que ya optimizaron su operación</p>
-                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-                    <a href="{{ route('landing.pricing') }}" class="btn btn-light btn-lg px-4">
-                        Ver Planes y Precios
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mb-4">
+                    <a href="{{ route('landing.pricing') }}" class="btn btn-light btn-lg px-5" style="background: white; color: #667eea; font-weight: 700;">
+                        Comenzar Prueba Gratis
                     </a>
-                    <a href="{{ route('landing.contact') }}" class="btn btn-outline-light btn-lg px-4">
+                    <a href="{{ route('landing.contact') }}" class="btn btn-outline-light btn-lg px-5">
                         Solicitar Demo Gratuita
                     </a>
                 </div>
-                <div class="mt-4">
-                    <small>14 días de prueba gratis • Sin tarjeta de crédito • Cancela cuando quieras</small>
+                <div class="mt-3">
+                    <small><strong>10 días de prueba gratis</strong> • Sin tarjeta de crédito • Cancela cuando quieras</small>
                 </div>
             </div>
         </div>

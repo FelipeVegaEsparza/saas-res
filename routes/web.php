@@ -11,6 +11,7 @@ Route::get('/features', [LandingController::class, 'features'])->name('landing.f
 Route::get('/pricing', [LandingController::class, 'pricing'])->name('landing.pricing');
 Route::get('/contact', [LandingController::class, 'contact'])->name('landing.contact');
 Route::post('/contact', [LandingController::class, 'submitContact'])->name('landing.contact.submit');
+Route::get('/tutorials', [LandingController::class, 'tutorials'])->name('landing.tutorials');
 
 // PANEL DE ADMINISTRACIÓN
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -44,6 +45,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Configuración
         Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
         Route::post('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+
+        // Tutoriales
+        Route::resource('tutorial-categories', \App\Http\Controllers\Admin\TutorialCategoryController::class);
+        Route::resource('tutorials', \App\Http\Controllers\Admin\TutorialController::class);
     });
 });
 
