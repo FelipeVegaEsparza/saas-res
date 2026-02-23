@@ -16,6 +16,17 @@ echo "Configurando permisos..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Crear directorios necesarios
+mkdir -p /var/www/html/storage/app/public/logos
+mkdir -p /var/www/html/storage/framework/cache
+mkdir -p /var/www/html/storage/framework/sessions
+mkdir -p /var/www/html/storage/framework/views
+mkdir -p /var/www/html/storage/logs
+
+# Asegurar permisos después de crear directorios
+chown -R www-data:www-data /var/www/html/storage
+chmod -R 775 /var/www/html/storage
+
 # Ejecutar migraciones de landlord primero
 echo "Ejecutando migraciones de landlord..."
 php artisan migrate --path=database/migrations/landlord --force
