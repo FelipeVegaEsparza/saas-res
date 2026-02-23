@@ -215,6 +215,11 @@
 let newItems = [];
 const existingTotal = {{ $order ? $order->total : 0 }};
 
+// Función para formatear precios sin decimales y con separadores de miles
+function formatPrice(amount) {
+    return '$' + Math.round(amount).toLocaleString('es-CL');
+}
+
 // Filtrar por categoría
 document.querySelectorAll('.category-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -287,7 +292,7 @@ function updateOrder() {
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div class="flex-grow-1">
                             <h6 class="mb-1">${item.name}</h6>
-                            <small class="text-muted">$${item.price.toFixed(2)} c/u</small>
+                            <small class="text-muted">${formatPrice(item.price)} c/u</small>
                         </div>
                         <button class="btn btn-sm btn-icon btn-text-danger" onclick="removeFromOrder(${index})">
                             <i class="ri ri-close-line"></i>
@@ -303,7 +308,7 @@ function updateOrder() {
                                 <i class="ri ri-add-line"></i>
                             </button>
                         </div>
-                        <strong>$${(item.price * item.quantity).toFixed(2)}</strong>
+                        <strong>${formatPrice(item.price * item.quantity)}</strong>
                     </div>
                 </div>
             `;
@@ -364,8 +369,8 @@ function updateTotals() {
     const newSubtotal = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const total = existingTotal + newSubtotal;
 
-    document.getElementById('newSubtotal').textContent = '$' + newSubtotal.toFixed(2);
-    document.getElementById('total').textContent = '$' + total.toFixed(2);
+    document.getElementById('newSubtotal').textContent = formatPrice(newSubtotal);
+    document.getElementById('total').textContent = formatPrice(total);
 }
 
 // Enviar pedido

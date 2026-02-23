@@ -275,4 +275,73 @@ class RestaurantController extends Controller
 
         return back()->with('success', 'Estado actualizado');
     }
+
+    public function editCredentials($id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+        return view('admin.restaurants.edit-credentials', compact('restaurant'));
+    }
+
+    public function updateCredentials(Request $request, $id)
+    {
+        $restaurant = Restaurant::findOrFail($id);
+
+        $validated = $request->validate([
+            'admin_email' => 'required|email|max:255',
+            'admin_password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        try {
+            $dbName = 'tenant_' . $restaurant->slug;
+            config(['database.connections.tenant.database' => $dbName]);
+            DB::purge('tenant');
+
+            // Verificar si el usuario existe
+            $user = DB::connection('tenant')->table('users')
+                ->where('email', $validated['admin_email'])
+                ->orWhere('role', 'admin')
+                ->first();
+
+            if (!$user) {
+                // Si no existe, crear nuevo usuario admin
+                if (empty($validated['admin_password'])) {
+                    return back()->with('error', 'Debes proporcionar una contraseña para crear el nuevo usuario');
+                }
+
+                Artisan::call('tenant:reset-user', [
+                    'tenant' => $restaurant->slug,
+                    'email' => $validated['admin_email'],
+                    'password' => $validated['admin_password']
+                ]);
+
+                Log::info("Nuevo usuario administrador creado para {$restaurant->slug}: {$validated['admin_email']}");
+            } else {
+                // Si existe, actualizar
+                $updateData = ['email' => $validated['admin_email']];
+
+                if (!empty($validated['admin_password'])) {
+                    $updateData['password'] = bcrypt($validated['admin_password']);
+                }
+
+                DB::connection('tenant')->table('users')
+                    ->where('id', $user->id)
+                    ->update($updateData);
+
+                Log::info("Credenciales actualizadas para {$restaurant->slug}: {$validated['admin_email']}");
+            }
+
+            $message = 'Credenciales actualizadas exitosamente';
+            if (!empty($validated['admin_password'])) {
+                $message .= '. Nueva contraseña establecida.';
+            }
+
+            return redirect()
+                ->route('admin.restaurants.show', $restaurant->id)
+                ->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error("Error al actualizar credenciales para {$restaurant->slug}: " . $e->getMessage());
+            return back()->with('error', 'Error al actualizar credenciales: ' . $e->getMessage());
+        }
+    }
 }

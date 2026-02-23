@@ -33,6 +33,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Restaurantes
         Route::resource('restaurants', AdminRestaurantController::class);
         Route::post('restaurants/{id}/toggle-status', [AdminRestaurantController::class, 'toggleStatus'])->name('restaurants.toggleStatus');
+        Route::get('restaurants/{id}/edit-credentials', [AdminRestaurantController::class, 'editCredentials'])->name('restaurants.editCredentials');
+        Route::put('restaurants/{id}/update-credentials', [AdminRestaurantController::class, 'updateCredentials'])->name('restaurants.updateCredentials');
 
         // Suscripciones
         Route::resource('subscriptions', AdminSubscriptionController::class)->except(['create', 'store', 'destroy']);

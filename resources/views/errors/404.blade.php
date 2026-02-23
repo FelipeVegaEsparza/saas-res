@@ -2,6 +2,7 @@
 use App\Models\SystemSetting;
 $companyName = SystemSetting::get('company_name', 'RestaurantSaaS');
 $companyLogo = SystemSetting::get('company_logo', '');
+$companyFavicon = SystemSetting::get('company_favicon', '');
 $companyPhone = SystemSetting::get('company_phone', '+56 9 1234 5678');
 $companyEmail = SystemSetting::get('company_email', 'info@restaurantsaas.com');
 $companyAddress = SystemSetting::get('company_address', '');
