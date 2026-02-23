@@ -23,18 +23,14 @@ class SettingsController extends Controller
                 'settings.company_logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
             ]);
 
-            foreach ($request->input('settings', []) as $key => $value) {
-                $setting = SystemSetting::where('key', $key)->first();
+            // Manejar subida de logo primero (antes del loop)
+            if ($request->hasFile('settings.company_logo')) {
+                try {
+                    \Log::info('Intentando subir logo...');
 
-                if (!$setting) {
-                    continue;
-                }
+                    $setting = SystemSetting::where('key', 'company_logo')->first();
 
-                // Manejar subida de archivos
-                if ($key === 'company_logo' && $request->hasFile("settings.{$key}")) {
-                    try {
-                        \Log::info('Intentando subir logo...');
-
+                    if ($setting) {
                         // Verificar que el disco público existe
                         $publicPath = storage_path('app/public');
                         \Log::info('Public path: ' . $publicPath);
@@ -54,22 +50,36 @@ class SettingsController extends Controller
                         }
 
                         // Guardar nuevo logo
-                        $file = $request->file("settings.{$key}");
+                        $file = $request->file('settings.company_logo');
                         \Log::info('Archivo recibido: ' . $file->getClientOriginalName());
 
                         $path = $file->store('logos', 'public');
                         \Log::info('Logo guardado en: ' . $path);
 
-                        $value = $path;
-                    } catch (\Exception $e) {
-                        \Log::error('Error al subir logo: ' . $e->getMessage());
-                        \Log::error('Stack trace: ' . $e->getTraceAsString());
-                        throw $e;
+                        SystemSetting::set('company_logo', $path, $setting->type, $setting->group);
                     }
+                } catch (\Exception $e) {
+                    \Log::error('Error al subir logo: ' . $e->getMessage());
+                    \Log::error('Stack trace: ' . $e->getTraceAsString());
+                    throw $e;
+                }
+            }
+
+            // Procesar el resto de configuraciones
+            foreach ($request->input('settings', []) as $key => $value) {
+                // Saltar company_logo ya que se procesó arriba
+                if ($key === 'company_logo') {
+                    continue;
                 }
 
-                if ($value !== null || $key === 'company_logo') {
-                    SystemSetting::set($key, $value ?? '', $setting->type, $setting->group);
+                $setting = SystemSetting::where('key', $key)->first();
+
+                if (!$setting) {
+                    continue;
+                }
+
+                if ($value !== null) {
+                    SystemSetting::set($key, $value, $setting->type, $setting->group);
                 }
             }
 
