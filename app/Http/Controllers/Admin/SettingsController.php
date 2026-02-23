@@ -23,6 +23,7 @@ class SettingsController extends Controller
                 'settings' => 'required|array',
                 'settings.*' => 'nullable',
                 'settings.company_logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+                'settings.company_favicon' => 'nullable|image|mimes:ico,png,jpg,svg|max:1024',
             ]);
 
             // Manejar subida de logo primero (antes del loop)
@@ -67,10 +68,46 @@ class SettingsController extends Controller
                 }
             }
 
+            // Manejar subida de favicon
+            if ($request->hasFile('settings.company_favicon')) {
+                try {
+                    Log::info('Intentando subir favicon...');
+
+                    $setting = SystemSetting::where('key', 'company_favicon')->first();
+
+                    if ($setting) {
+                        // Asegurar que el directorio existe
+                        if (!Storage::disk('public')->exists('favicons')) {
+                            Log::info('Creando directorio favicons...');
+                            Storage::disk('public')->makeDirectory('favicons');
+                        }
+
+                        // Eliminar favicon anterior si existe
+                        if ($setting->value && Storage::disk('public')->exists($setting->value)) {
+                            Log::info('Eliminando favicon anterior: ' . $setting->value);
+                            Storage::disk('public')->delete($setting->value);
+                        }
+
+                        // Guardar nuevo favicon
+                        $file = $request->file('settings.company_favicon');
+                        Log::info('Archivo recibido: ' . $file->getClientOriginalName());
+
+                        $path = $file->store('favicons', 'public');
+                        Log::info('Favicon guardado en: ' . $path);
+
+                        SystemSetting::set('company_favicon', $path, $setting->type, $setting->group);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error al subir favicon: ' . $e->getMessage());
+                    Log::error('Stack trace: ' . $e->getTraceAsString());
+                    throw $e;
+                }
+            }
+
             // Procesar el resto de configuraciones
             foreach ($request->input('settings', []) as $key => $value) {
-                // Saltar company_logo ya que se procesó arriba
-                if ($key === 'company_logo') {
+                // Saltar company_logo y company_favicon ya que se procesaron arriba
+                if ($key === 'company_logo' || $key === 'company_favicon') {
                     continue;
                 }
 

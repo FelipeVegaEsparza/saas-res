@@ -44,6 +44,12 @@ class SystemSettingsSeeder extends Seeder
                 'group' => 'company',
             ],
             [
+                'key' => 'company_favicon',
+                'value' => '',
+                'type' => 'file',
+                'group' => 'company',
+            ],
+            [
                 'key' => 'company_phone',
                 'value' => '+56 9 1234 5678',
                 'type' => 'text',

@@ -6,7 +6,11 @@
     <title>@yield('title', $companyName . ' - Sistema de Gestión para Restaurantes')</title>
     <meta name="description" content="{{ $companyDescription }}" />
 
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
+    @if($companyFavicon)
+        <link rel="icon" type="image/x-icon" href="{{ asset('storage/' . $companyFavicon) }}" />
+    @else
+        <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
+    @endif
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

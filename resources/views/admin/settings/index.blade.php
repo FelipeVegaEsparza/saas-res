@@ -77,6 +77,19 @@
                                     <input type="file" class="form-control" id="company_logo" name="settings[company_logo]" accept="image/*">
                                     <small class="text-muted">JPG, PNG, SVG. Máximo 2MB. Recomendado: 200x50px</small>
                                 </div>
+                            @elseif($setting->key === 'company_favicon')
+                                <div class="col-12 mb-4">
+                                    <label for="company_favicon" class="form-label">
+                                        <strong>Favicon (Icono del Navegador)</strong>
+                                    </label>
+                                    @if($setting->value)
+                                        <div class="mb-3">
+                                            <img src="{{ asset('storage/' . $setting->value) }}" alt="Favicon" style="max-height: 32px;" class="img-thumbnail">
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control" id="company_favicon" name="settings[company_favicon]" accept="image/x-icon,image/png,image/jpg,image/svg+xml">
+                                    <small class="text-muted">ICO, PNG, JPG, SVG. Máximo 1MB. Recomendado: 32x32px o 64x64px</small>
+                                </div>
                             @else
                                 <div class="col-md-6 mb-4">
                                     <label for="{{ $setting->key }}" class="form-label">
