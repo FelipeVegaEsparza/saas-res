@@ -53,6 +53,9 @@ RUN chown -R www-data:www-data /var/www/html \
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/default.conf /etc/nginx/http.d/default.conf
 
+# Copiar configuración de PHP
+COPY docker/php.ini /usr/local/etc/php/conf.d/uploads.ini
+
 # Copiar configuración de Supervisor
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
