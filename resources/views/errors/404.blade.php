@@ -1,6 +1,16 @@
 @php
 use App\Models\SystemSetting;
-$companyName = SystemSetting::get('company_name', config('app.name'));
+$companyName = SystemSetting::get('company_name', 'RestaurantSaaS');
+$companyLogo = SystemSetting::get('company_logo', '');
+$companyPhone = SystemSetting::get('company_phone', '+56 9 1234 5678');
+$companyEmail = SystemSetting::get('company_email', 'info@restaurantsaas.com');
+$companyAddress = SystemSetting::get('company_address', '');
+$companyDescription = SystemSetting::get('company_description', 'Sistema completo de gestión para restaurantes.');
+$socialFacebook = SystemSetting::get('social_facebook', '');
+$socialInstagram = SystemSetting::get('social_instagram', '');
+$socialTwitter = SystemSetting::get('social_twitter', '');
+$socialLinkedin = SystemSetting::get('social_linkedin', '');
+$socialYoutube = SystemSetting::get('social_youtube', '');
 @endphp
 
 @extends('landing.layouts.app')
