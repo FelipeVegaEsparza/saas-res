@@ -23,9 +23,16 @@ mkdir -p /var/www/html/storage/framework/sessions
 mkdir -p /var/www/html/storage/framework/views
 mkdir -p /var/www/html/storage/logs
 
-# Asegurar permisos después de crear directorios
+# Asegurar permisos después de crear directorios (incluyendo volumen montado)
 chown -R www-data:www-data /var/www/html/storage
 chmod -R 775 /var/www/html/storage
+
+# Asegurar permisos específicos para el directorio público (volumen montado)
+if [ -d "/var/www/html/storage/app/public" ]; then
+    chown -R www-data:www-data /var/www/html/storage/app/public
+    chmod -R 775 /var/www/html/storage/app/public
+    echo "Permisos configurados para storage/app/public"
+fi
 
 # Ejecutar migraciones de landlord primero
 echo "Ejecutando migraciones de landlord..."

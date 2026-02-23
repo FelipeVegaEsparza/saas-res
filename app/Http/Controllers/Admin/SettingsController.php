@@ -32,20 +32,40 @@ class SettingsController extends Controller
 
                 // Manejar subida de archivos
                 if ($key === 'company_logo' && $request->hasFile("settings.{$key}")) {
-                    // Asegurar que el directorio existe
-                    if (!\Storage::disk('public')->exists('logos')) {
-                        \Storage::disk('public')->makeDirectory('logos');
-                    }
+                    try {
+                        \Log::info('Intentando subir logo...');
 
-                    // Eliminar logo anterior si existe
-                    if ($setting->value && \Storage::disk('public')->exists($setting->value)) {
-                        \Storage::disk('public')->delete($setting->value);
-                    }
+                        // Verificar que el disco público existe
+                        $publicPath = storage_path('app/public');
+                        \Log::info('Public path: ' . $publicPath);
+                        \Log::info('Public path exists: ' . (file_exists($publicPath) ? 'yes' : 'no'));
+                        \Log::info('Public path writable: ' . (is_writable($publicPath) ? 'yes' : 'no'));
 
-                    // Guardar nuevo logo
-                    $file = $request->file("settings.{$key}");
-                    $path = $file->store('logos', 'public');
-                    $value = $path;
+                        // Asegurar que el directorio existe
+                        if (!\Storage::disk('public')->exists('logos')) {
+                            \Log::info('Creando directorio logos...');
+                            \Storage::disk('public')->makeDirectory('logos');
+                        }
+
+                        // Eliminar logo anterior si existe
+                        if ($setting->value && \Storage::disk('public')->exists($setting->value)) {
+                            \Log::info('Eliminando logo anterior: ' . $setting->value);
+                            \Storage::disk('public')->delete($setting->value);
+                        }
+
+                        // Guardar nuevo logo
+                        $file = $request->file("settings.{$key}");
+                        \Log::info('Archivo recibido: ' . $file->getClientOriginalName());
+
+                        $path = $file->store('logos', 'public');
+                        \Log::info('Logo guardado en: ' . $path);
+
+                        $value = $path;
+                    } catch (\Exception $e) {
+                        \Log::error('Error al subir logo: ' . $e->getMessage());
+                        \Log::error('Stack trace: ' . $e->getTraceAsString());
+                        throw $e;
+                    }
                 }
 
                 if ($value !== null || $key === 'company_logo') {
@@ -58,6 +78,8 @@ class SettingsController extends Controller
                 ->with('success', 'Configuraciones actualizadas exitosamente');
         } catch (\Exception $e) {
             \Log::error('Error al actualizar configuraciones: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+
             return redirect()
                 ->route('admin.settings.index')
                 ->with('error', 'Error al actualizar configuraciones: ' . $e->getMessage());
