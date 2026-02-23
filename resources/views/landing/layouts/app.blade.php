@@ -311,7 +311,7 @@
         <div class="container">
             <a class="navbar-brand fw-bold" href="{{ route('landing.index') }}">
                 @if($companyLogo)
-                    <img src="{{ asset('storage/' . $companyLogo) }}" alt="{{ $companyName }}" style="max-height: 40px;">
+                    <img src="{{ asset('storage/' . $companyLogo) }}" alt="{{ $companyName }}" style="max-height: 55px;">
                 @else
                     <span style="font-size: 1.5rem; color: #667eea;">{{ $companyName }}</span>
                 @endif
@@ -373,7 +373,7 @@
             <div class="row">
                 <div class="col-lg-4 col-md-6 mb-4">
                     @if($companyLogo)
-                        <img src="{{ asset('storage/' . $companyLogo) }}" alt="{{ $companyName }}" style="max-height: 45px;" class="mb-3">
+                        <img src="{{ asset('storage/' . $companyLogo) }}" alt="{{ $companyName }}" style="max-height: 60px;" class="mb-3">
                     @else
                         <h5 class="fw-bold mb-3" style="color: white;">{{ $companyName }}</h5>
                     @endif
