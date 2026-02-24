@@ -16,6 +16,7 @@ class DeliveryOrder extends Model
         'order_number',
         'type',
         'status',
+        'payment_status',
         'customer_name',
         'customer_phone',
         'customer_email',
@@ -28,6 +29,7 @@ class DeliveryOrder extends Model
         'confirmed_at',
         'ready_at',
         'delivered_at',
+        'paid_at',
     ];
 
     protected $casts = [
@@ -37,6 +39,7 @@ class DeliveryOrder extends Model
         'confirmed_at' => 'datetime',
         'ready_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'paid_at' => 'datetime',
     ];
 
     public function items()
