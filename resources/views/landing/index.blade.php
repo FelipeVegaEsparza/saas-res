@@ -258,6 +258,115 @@
     </div>
 </section>
 
+<!-- Modelo de Precios Transparente -->
+<section class="py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0 text-white">
+                <div class="badge mb-3" style="background: rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600;">
+                    <i class="ri ri-shield-check-line me-2"></i>MODELO ÚNICO EN EL MERCADO
+                </div>
+                <h2 class="fw-bold mb-4" style="font-size: 2.5rem;">Sin Cobros Ocultos ni Módulos Adicionales</h2>
+                <p class="lead mb-4" style="opacity: 0.95;">Somos el único sistema que te da acceso completo a todas las funcionalidades desde el primer día.</p>
+
+                <div class="mb-4">
+                    <div class="d-flex align-items-start mb-3">
+                        <div style="min-width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                            <i class="ri ri-check-line" style="font-size: 1.3rem;"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Todas las Funcionalidades Incluidas</h5>
+                            <p class="mb-0" style="opacity: 0.9;">POS, inventario, reportes, pedidos online, menú QR, control de caja y más. Todo incluido en tu suscripción.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start mb-3">
+                        <div style="min-width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                            <i class="ri ri-close-line" style="font-size: 1.3rem;"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Sin Módulos Adicionales</h5>
+                            <p class="mb-0" style="opacity: 0.9;">No pagas extra por activar funciones. Todo está disponible desde el momento en que te suscribes.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start">
+                        <div style="min-width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 1rem;">
+                            <i class="ri ri-user-line" style="font-size: 1.3rem;"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Solo Pagas por Usuarios</h5>
+                            <p class="mb-0" style="opacity: 0.9;">La única diferencia entre planes es la cantidad de usuarios que puedes crear. Nada más.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg" style="background: white; border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4 text-center" style="color: #2d3748;">Comparación con Otros Sistemas</h4>
+
+                        <div class="table-responsive">
+                            <table class="table table-borderless mb-0">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                                        <th style="color: #4a5568; font-weight: 600; padding: 12px 8px;">Funcionalidad</th>
+                                        <th class="text-center" style="color: #667eea; font-weight: 700; padding: 12px 8px;">Nosotros</th>
+                                        <th class="text-center" style="color: #718096; font-weight: 600; padding: 12px 8px;">Otros</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid #f7fafc;">
+                                        <td style="padding: 12px 8px; color: #4a5568;">Sistema POS</td>
+                                        <td class="text-center" style="padding: 12px 8px;"><i class="ri ri-check-line text-success" style="font-size: 1.3rem;"></i></td>
+                                        <td class="text-center" style="padding: 12px 8px;"><i class="ri ri-check-line text-success" style="font-size: 1.3rem;"></i></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #f7fafc;">
+                                        <td style="padding: 12px 8px; color: #4a5568;">Pedidos Online</td>
+                                        <td class="text-center" style="padding: 12px 8px;"><i class="ri ri-check-line text-success" style="font-size: 1.3rem;"></i></td>
+                                        <td class="text-center" style="padding: 12px 8px;"><span class="badge bg-warning text-dark">+$$$</span></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #f7fafc;">
+                                        <td style="padding: 12px 8px; color: #4a5568;">Inventario Avanzado</td>
+                                        <td class="text-center" style="padding: 12px 8px;"><i class="ri ri-check-line text-success" style="font-size: 1.3rem;"></i></td>
+                                        <td class="text-center" style="padding: 12px 8px;"><span class="badge bg-warning text-dark">+$$$</span></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #f7fafc;">
+                                        <td style="padding: 12px 8px; color: #4a5568;">Reportes Avanzados</td>
+                                        <td class="text-center" style="padding: 12px 8px;"><i class="ri ri-check-line text-success" style="font-size: 1.3rem;"></i></td>
+                                        <td class="text-center" style="padding: 12px 8px;"><span class="badge bg-warning text-dark">+$$$</span></td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #f7fafc;">
+                                        <td style="padding: 12px 8px; color: #4a5568;">Menú Digital QR</td>
+                                        <td class="text-center" style="padding: 12px 8px;"><i class="ri ri-check-line text-success" style="font-size: 1.3rem;"></i></td>
+                                        <td class="text-center" style="padding: 12px 8px;"><span class="badge bg-warning text-dark">+$$$</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 12px 8px; color: #4a5568;">Soporte Técnico</td>
+                                        <td class="text-center" style="padding: 12px 8px;"><i class="ri ri-check-line text-success" style="font-size: 1.3rem;"></i></td>
+                                        <td class="text-center" style="padding: 12px 8px;"><span class="badge bg-warning text-dark">+$$$</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="alert alert-info mt-4 mb-0" style="background: rgba(102, 126, 234, 0.1); border: none; border-left: 4px solid #667eea;">
+                            <div class="d-flex align-items-center">
+                                <i class="ri ri-information-line me-2" style="font-size: 1.5rem; color: #667eea;"></i>
+                                <div>
+                                    <strong style="color: #2d3748;">Un solo precio, todo incluido.</strong><br>
+                                    <small style="color: #4a5568;">Solo pagas más si necesitas más usuarios. Las funcionalidades son las mismas para todos.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Proceso Simple -->
 <section class="py-5" style="background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'); background-size: cover; background-position: center; background-attachment: fixed;">
     <div class="container py-5">
