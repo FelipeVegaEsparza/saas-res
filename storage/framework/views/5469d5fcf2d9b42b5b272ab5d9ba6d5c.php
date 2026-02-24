@@ -1,8 +1,6 @@
-@extends('tenant.layouts.admin')
+<?php $__env->startSection('title', 'Mesas'); ?>
 
-@section('title', 'Mesas')
-
-@section('page-style')
+<?php $__env->startSection('page-style'); ?>
 <style>
     .restaurant-map {
         position: relative;
@@ -252,9 +250,9 @@
         margin: 4px 0;
     }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="mb-3">
     <div class="d-flex justify-content-between align-items-center">
         <div>
@@ -268,7 +266,7 @@
             <button id="savePositions" class="btn btn-success" style="display: none;">
                 <i class="ri ri-save-line me-1"></i> Guardar Posiciones
             </button>
-            <a href="{{ route('tenant.path.tables.create', ['tenant' => request()->route('tenant')]) }}" class="btn btn-primary">
+            <a href="<?php echo e(route('tenant.path.tables.create', ['tenant' => request()->route('tenant')])); ?>" class="btn btn-primary">
                 <i class="ri ri-add-line me-1"></i> Nueva Mesa
             </a>
         </div>
@@ -286,52 +284,53 @@
 <!-- Mapa del Restaurante -->
 <div class="card">
     <div class="card-body p-0">
-        @if($tables->count() > 0)
+        <?php if($tables->count() > 0): ?>
             <div class="restaurant-map" id="restaurantMap">
                 <!-- Estadísticas dentro del mapa -->
                 <div class="map-stats">
                     <div class="stat-badge available">
                         <i class="ri ri-check-line text-success"></i>
-                        <span><strong>{{ $tables->where('status', 'available')->count() }}</strong> Disponibles</span>
+                        <span><strong><?php echo e($tables->where('status', 'available')->count()); ?></strong> Disponibles</span>
                     </div>
                     <div class="stat-badge occupied">
                         <i class="ri ri-user-line text-danger"></i>
-                        <span><strong>{{ $tables->where('status', 'occupied')->count() }}</strong> Ocupadas</span>
+                        <span><strong><?php echo e($tables->where('status', 'occupied')->count()); ?></strong> Ocupadas</span>
                     </div>
                     <div class="stat-badge reserved">
                         <i class="ri ri-bookmark-line text-warning"></i>
-                        <span><strong>{{ $tables->where('status', 'reserved')->count() }}</strong> Reservadas</span>
+                        <span><strong><?php echo e($tables->where('status', 'reserved')->count()); ?></strong> Reservadas</span>
                     </div>
                     <div class="stat-badge total">
                         <i class="ri ri-table-line text-primary"></i>
-                        <span><strong>{{ $tables->count() }}</strong> Total</span>
+                        <span><strong><?php echo e($tables->count()); ?></strong> Total</span>
                     </div>
                 </div>
 
                 <!-- Mesas -->
-                @foreach($tables as $table)
-                    <div class="table-item card {{ $table->shape ?? 'square' }} size-{{ $table->size ?? 'medium' }} {{ ($table->shape === 'rectangle' && $table->orientation === 'vertical') ? 'vertical' : '' }}"
-                         data-table-id="{{ $table->id }}"
-                         data-status="{{ $table->status }}"
-                         data-shape="{{ $table->shape ?? 'square' }}"
-                         data-orientation="{{ $table->orientation ?? 'horizontal' }}"
-                         data-size="{{ $table->size ?? 'medium' }}"
-                         style="left: {{ $table->position_x ?? (($loop->index % 8) * 120 + 20) }}px; top: {{ $table->position_y ?? (floor($loop->index / 8) * 120 + 80) }}px;">
+                <?php $__currentLoopData = $tables; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $table): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="table-item card <?php echo e($table->shape ?? 'square'); ?> size-<?php echo e($table->size ?? 'medium'); ?> <?php echo e(($table->shape === 'rectangle' && $table->orientation === 'vertical') ? 'vertical' : ''); ?>"
+                         data-table-id="<?php echo e($table->id); ?>"
+                         data-status="<?php echo e($table->status); ?>"
+                         data-shape="<?php echo e($table->shape ?? 'square'); ?>"
+                         data-orientation="<?php echo e($table->orientation ?? 'horizontal'); ?>"
+                         data-size="<?php echo e($table->size ?? 'medium'); ?>"
+                         style="left: <?php echo e($table->position_x ?? (($loop->index % 8) * 120 + 20)); ?>px; top: <?php echo e($table->position_y ?? (floor($loop->index / 8) * 120 + 80)); ?>px;">
 
-                        <div class="table-visual-map {{ $table->status }} shape-{{ $table->shape ?? 'square' }}">
+                        <div class="table-visual-map <?php echo e($table->status); ?> shape-<?php echo e($table->shape ?? 'square'); ?>">
                             <i class="ri ri-restaurant-2-line table-icon-map"></i>
                         </div>
 
                         <div class="table-info-map">
-                            <strong class="d-block">{{ $table->number }}</strong>
+                            <strong class="d-block"><?php echo e($table->number); ?></strong>
                             <small class="text-muted">
-                                <i class="ri ri-user-line"></i> {{ $table->capacity }}
+                                <i class="ri ri-user-line"></i> <?php echo e($table->capacity); ?>
+
                             </small>
                         </div>
                     </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
-        @else
+        <?php else: ?>
             <div class="text-center py-5">
                 <div class="avatar avatar-xl mx-auto mb-3">
                     <span class="avatar-initial rounded bg-label-secondary">
@@ -340,11 +339,11 @@
                 </div>
                 <h5 class="mb-1">No hay mesas registradas</h5>
                 <p class="text-muted mb-4">Crea tu primera mesa para comenzar</p>
-                <a href="{{ route('tenant.path.tables.create', ['tenant' => request()->route('tenant')]) }}" class="btn btn-primary">
+                <a href="<?php echo e(route('tenant.path.tables.create', ['tenant' => request()->route('tenant')])); ?>" class="btn btn-primary">
                     <i class="ri ri-add-line me-1"></i> Crear Primera Mesa
                 </a>
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
@@ -385,9 +384,9 @@
         <span>Vertical</span>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('page-script')
+<?php $__env->startSection('page-script'); ?>
 <script>
 let editMode = false;
 let draggedElement = null;
@@ -457,9 +456,9 @@ tableItems.forEach(item => {
 
 function handleTableClick(tableId, status) {
     if (status === 'available') {
-        window.location.href = `{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/take-order`;
+        window.location.href = `<?php echo e(url('/')); ?>/<?php echo e(request()->route('tenant')); ?>/tables/${tableId}/take-order`;
     } else if (status === 'occupied') {
-        window.location.href = `{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/show-order`;
+        window.location.href = `<?php echo e(url('/')); ?>/<?php echo e(request()->route('tenant')); ?>/tables/${tableId}/show-order`;
     }
 }
 
@@ -551,11 +550,11 @@ async function updateTableShape(element, shape) {
     const tableId = element.dataset.tableId;
 
     try {
-        const response = await fetch(`{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/update-shape`, {
+        const response = await fetch(`<?php echo e(url('/')); ?>/<?php echo e(request()->route('tenant')); ?>/tables/${tableId}/update-shape`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ shape: shape })
@@ -606,11 +605,11 @@ async function updateTableOrientation(element, orientation) {
     }
 
     try {
-        const response = await fetch(`{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/update-orientation`, {
+        const response = await fetch(`<?php echo e(url('/')); ?>/<?php echo e(request()->route('tenant')); ?>/tables/${tableId}/update-orientation`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ orientation: orientation })
@@ -636,11 +635,11 @@ async function updateTableSize(element, size) {
     const tableId = element.dataset.tableId;
 
     try {
-        const response = await fetch(`{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/update-size`, {
+        const response = await fetch(`<?php echo e(url('/')); ?>/<?php echo e(request()->route('tenant')); ?>/tables/${tableId}/update-size`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ size: size })
@@ -676,11 +675,11 @@ saveBtn.addEventListener('click', async function() {
     });
 
     try {
-        const response = await fetch('{{ route("tenant.path.tables.updatePositions", ["tenant" => request()->route("tenant")]) }}', {
+        const response = await fetch('<?php echo e(route("tenant.path.tables.updatePositions", ["tenant" => request()->route("tenant")])); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ positions: positions })
@@ -708,4 +707,6 @@ saveBtn.addEventListener('click', async function() {
     }
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('tenant.layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH F:\saasres\resources\views/tenant/tables/index.blade.php ENDPATH**/ ?>

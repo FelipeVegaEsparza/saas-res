@@ -6,7 +6,11 @@
     <title><?php echo $__env->yieldContent('title', $companyName . ' - Sistema de Gestión para Restaurantes'); ?></title>
     <meta name="description" content="<?php echo e($companyDescription); ?>" />
 
-    <link rel="icon" type="image/x-icon" href="<?php echo e(asset('assets/img/favicon/favicon.ico')); ?>" />
+    <?php if($companyFavicon): ?>
+        <link rel="icon" type="image/x-icon" href="<?php echo e(asset('storage/' . $companyFavicon)); ?>" />
+    <?php else: ?>
+        <link rel="icon" type="image/x-icon" href="<?php echo e(asset('assets/img/favicon/favicon.ico')); ?>" />
+    <?php endif; ?>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

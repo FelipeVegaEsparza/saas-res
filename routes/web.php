@@ -126,6 +126,9 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
         Route::post('tables/{table_id}/store-order', [TableController::class, 'storeOrder'])->where('table_id', '[0-9]+')->name('tenant.path.tables.storeOrder');
         Route::get('tables/{table_id}/show-order', [TableController::class, 'showOrder'])->where('table_id', '[0-9]+')->name('tenant.path.tables.showOrder');
         Route::post('tables/{table_id}/update-status', [TableController::class, 'updateOrderStatus'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateOrderStatus');
+        Route::post('tables/{table_id}/update-shape', [TableController::class, 'updateShape'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateShape');
+        Route::post('tables/{table_id}/update-orientation', [TableController::class, 'updateOrientation'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateOrientation');
+        Route::post('tables/{table_id}/update-size', [TableController::class, 'updateSize'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateSize');
         Route::post('tables/sync-status', [TableController::class, 'syncStatus'])->name('tenant.path.tables.syncStatus');
 
         // Rutas CRUD - DESPUÉS

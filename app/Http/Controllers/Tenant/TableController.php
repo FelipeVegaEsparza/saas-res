@@ -30,11 +30,17 @@ class TableController extends Controller
             'number' => 'required|string|max:255|unique:tenant.tables,number',
             'capacity' => 'required|integer|min:1',
             'location' => 'nullable|string|max:255',
+            'shape' => 'nullable|in:square,round,rectangle',
+            'orientation' => 'nullable|in:horizontal,vertical',
+            'size' => 'nullable|in:small,medium,large',
             'active' => 'boolean',
         ]);
 
         $validated['active'] = $request->boolean('active', true);
         $validated['status'] = 'available';
+        $validated['shape'] = $validated['shape'] ?? 'square';
+        $validated['orientation'] = $validated['orientation'] ?? 'horizontal';
+        $validated['size'] = $validated['size'] ?? 'medium';
 
         Table::create($validated);
 
@@ -56,6 +62,9 @@ class TableController extends Controller
             'number' => 'required|string|max:255|unique:tenant.tables,number,' . $table->id,
             'capacity' => 'required|integer|min:1',
             'location' => 'nullable|string|max:255',
+            'shape' => 'nullable|in:square,round,rectangle',
+            'orientation' => 'nullable|in:horizontal,vertical',
+            'size' => 'nullable|in:small,medium,large',
             'active' => 'boolean',
         ]);
 
@@ -310,6 +319,81 @@ class TableController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar posiciones: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualizar forma de la mesa
+     */
+    public function updateShape(Request $request, $tenant, $table_id)
+    {
+        $validated = $request->validate([
+            'shape' => 'required|in:square,round,rectangle',
+        ]);
+
+        try {
+            $table = Table::findOrFail($table_id);
+            $table->update(['shape' => $validated['shape']]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Forma actualizada exitosamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar forma: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualizar orientación de la mesa
+     */
+    public function updateOrientation(Request $request, $tenant, $table_id)
+    {
+        $validated = $request->validate([
+            'orientation' => 'required|in:horizontal,vertical',
+        ]);
+
+        try {
+            $table = Table::findOrFail($table_id);
+            $table->update(['orientation' => $validated['orientation']]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Orientación actualizada exitosamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar orientación: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualizar tamaño de la mesa
+     */
+    public function updateSize(Request $request, $tenant, $table_id)
+    {
+        $validated = $request->validate([
+            'size' => 'required|in:small,medium,large',
+        ]);
+
+        try {
+            $table = Table::findOrFail($table_id);
+            $table->update(['size' => $validated['size']]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tamaño actualizado exitosamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar tamaño: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -100,6 +100,9 @@
                                     <a href="<?php echo e(route('admin.restaurants.edit', $restaurant->id)); ?>" class="btn btn-sm btn-icon btn-text-secondary" title="Editar">
                                         <i class="ri ri-edit-line"></i>
                                     </a>
+                                    <a href="<?php echo e(route('admin.restaurants.editCredentials', $restaurant->id)); ?>" class="btn btn-sm btn-icon btn-text-info" title="Cambiar Credenciales">
+                                        <i class="ri ri-lock-password-line"></i>
+                                    </a>
                                     <form action="<?php echo e(route('admin.restaurants.toggleStatus', $restaurant->id)); ?>" method="POST" class="d-inline">
                                         <?php echo csrf_field(); ?>
                                         <button type="submit" class="btn btn-sm btn-icon btn-text-<?php echo e($restaurant->active ? 'warning' : 'success'); ?>" title="<?php echo e($restaurant->active ? 'Desactivar' : 'Activar'); ?>">

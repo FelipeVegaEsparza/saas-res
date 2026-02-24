@@ -63,6 +63,9 @@ Route::middleware([
         ]);
         Route::get('tables-map', [TableController::class, 'map'])->name('tenant.tables.map');
         Route::post('tables/update-positions', [TableController::class, 'updatePositions'])->name('tenant.tables.updatePositions');
+        Route::post('tables/{table}/update-shape', [TableController::class, 'updateShape'])->name('tenant.tables.updateShape');
+        Route::post('tables/{table}/update-orientation', [TableController::class, 'updateOrientation'])->name('tenant.tables.updateOrientation');
+        Route::post('tables/{table}/update-size', [TableController::class, 'updateSize'])->name('tenant.tables.updateSize');
 
         Route::prefix('qr')->name('tenant.qr.')->group(function () {
             Route::get('/table/{table}', [QRController::class, 'generate'])->name('generate');

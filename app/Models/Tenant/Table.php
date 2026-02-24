@@ -24,6 +24,7 @@ class Table extends Model
         'position_y',
         'shape',
         'orientation',
+        'size',
     ];
 
     protected $casts = [

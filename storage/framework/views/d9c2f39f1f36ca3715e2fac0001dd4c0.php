@@ -61,6 +61,28 @@ $configData['hasCustomizer'] = true;
                     </a>
                 </li>
 
+                <li class="menu-header small mt-5">
+                    <span class="menu-header-text">Contenido</span>
+                </li>
+
+                <li class="menu-item <?php echo e(request()->routeIs('admin.tutorial-categories.*') ? 'active' : ''); ?>">
+                    <a href="<?php echo e(route('admin.tutorial-categories.index')); ?>" class="menu-link">
+                        <i class="menu-icon icon-base ri ri-folder-line"></i>
+                        <div>Categorías</div>
+                    </a>
+                </li>
+
+                <li class="menu-item <?php echo e(request()->routeIs('admin.tutorials.*') ? 'active' : ''); ?>">
+                    <a href="<?php echo e(route('admin.tutorials.index')); ?>" class="menu-link">
+                        <i class="menu-icon icon-base ri ri-video-line"></i>
+                        <div>Tutoriales</div>
+                    </a>
+                </li>
+
+                <li class="menu-header small mt-5">
+                    <span class="menu-header-text">Configuración</span>
+                </li>
+
                 <li class="menu-item <?php echo e(request()->routeIs('admin.settings.*') ? 'active' : ''); ?>">
                     <a href="<?php echo e(route('admin.settings.index')); ?>" class="menu-link">
                         <i class="menu-icon icon-base ri ri-settings-3-line"></i>
