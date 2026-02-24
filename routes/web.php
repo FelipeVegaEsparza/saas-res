@@ -119,6 +119,7 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
         Route::get('tables', [TableController::class, 'index'])->name('tenant.path.tables.index');
         Route::get('tables/create', [TableController::class, 'create'])->name('tenant.path.tables.create');
         Route::post('tables', [TableController::class, 'store'])->name('tenant.path.tables.store');
+        Route::post('tables/update-positions', [TableController::class, 'updatePositions'])->name('tenant.path.tables.updatePositions');
 
         // Rutas específicas para gestión de pedidos - MUY ESPECÍFICAS PRIMERO
         Route::get('tables/{table_id}/take-order', [TableController::class, 'takeOrder'])->where('table_id', '[0-9]+')->name('tenant.path.tables.takeOrder');

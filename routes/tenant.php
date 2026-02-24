@@ -61,6 +61,8 @@ Route::middleware([
             'update' => 'tenant.tables.update',
             'destroy' => 'tenant.tables.destroy',
         ]);
+        Route::get('tables-map', [TableController::class, 'map'])->name('tenant.tables.map');
+        Route::post('tables/update-positions', [TableController::class, 'updatePositions'])->name('tenant.tables.updatePositions');
 
         Route::prefix('qr')->name('tenant.qr.')->group(function () {
             Route::get('/table/{table}', [QRController::class, 'generate'])->name('generate');

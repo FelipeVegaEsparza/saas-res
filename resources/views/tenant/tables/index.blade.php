@@ -4,67 +4,150 @@
 
 @section('page-style')
 <style>
-    .table-card {
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border-radius: 12px;
+    .restaurant-map {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 250px);
+        min-height: 600px;
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
         overflow: hidden;
     }
-    .table-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+
+    .map-stats {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 100;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
     }
-    .table-visual {
-        width: 100%;
+
+    .stat-badge {
+        background: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+
+    .stat-badge i {
+        font-size: 1.2rem;
+    }
+
+    .stat-badge.available {
+        border-left: 3px solid var(--bs-success);
+    }
+
+    .stat-badge.occupied {
+        border-left: 3px solid var(--bs-danger);
+    }
+
+    .stat-badge.reserved {
+        border-left: 3px solid var(--bs-warning);
+    }
+
+    .stat-badge.total {
+        border-left: 3px solid var(--bs-primary);
+    }
+
+    .table-item {
+        position: absolute;
+        width: 100px;
         height: 100px;
+        cursor: pointer;
+        user-select: none;
+        transition: box-shadow 0.2s;
+    }
+
+    .table-item:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+
+    .table-item.dragging {
+        opacity: 0.7;
+        z-index: 1000;
+    }
+
+    .table-visual-map {
+        width: 100%;
+        height: 70px;
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: 8px 8px 0 0;
         position: relative;
     }
-    .table-visual::before {
+
+    .table-visual-map::before {
         content: '';
         position: absolute;
-        width: 80%;
-        height: 70%;
-        border: 3px solid currentColor;
-        border-radius: 8px;
+        width: 70%;
+        height: 60%;
+        border: 2px solid currentColor;
+        border-radius: 6px;
         opacity: 0.3;
     }
-    .table-visual.available {
-        background: rgba(var(--bs-success-rgb), 0.12);
+
+    .table-visual-map.available {
+        background: rgba(var(--bs-success-rgb), 0.15);
         color: var(--bs-success);
     }
-    .table-visual.occupied {
-        background: rgba(var(--bs-danger-rgb), 0.12);
+
+    .table-visual-map.occupied {
+        background: rgba(var(--bs-danger-rgb), 0.15);
         color: var(--bs-danger);
     }
-    .table-visual.reserved {
-        background: rgba(var(--bs-warning-rgb), 0.12);
+
+    .table-visual-map.reserved {
+        background: rgba(var(--bs-warning-rgb), 0.15);
         color: var(--bs-warning);
     }
-    .table-icon {
-        font-size: 2.5rem;
+
+    .table-info-map {
+        background: white;
+        padding: 8px;
+        text-align: center;
+        border-radius: 0 0 8px 8px;
+        border: 1px solid #dee2e6;
+        border-top: none;
+    }
+
+    .table-icon-map {
+        font-size: 2rem;
         position: relative;
         z-index: 1;
+    }
+
+    .edit-mode-badge {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 1000;
     }
 </style>
 @endsection
 
 @section('content')
-<div class="mb-4">
+<div class="mb-3">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="mb-1">Mesas del Restaurante</h1>
-            <p class="text-muted">Gestiona las mesas y toma pedidos</p>
+            <p class="text-muted mb-0">Haz clic en una mesa para tomar pedido o arrastra para reposicionar</p>
         </div>
         <div class="d-flex gap-2">
-            <form action="{{ route('tenant.path.tables.syncStatus', ['tenant' => request()->route('tenant')]) }}" method="POST" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-outline-secondary" title="Sincronizar estado de mesas">
-                    <i class="ri ri-refresh-line me-1"></i> Sincronizar
-                </button>
-            </form>
+            <button id="toggleEditMode" class="btn btn-outline-primary">
+                <i class="ri ri-edit-line me-1"></i> <span id="editModeText">Modo Edición</span>
+            </button>
+            <button id="savePositions" class="btn btn-success" style="display: none;">
+                <i class="ri ri-save-line me-1"></i> Guardar Posiciones
+            </button>
             <a href="{{ route('tenant.path.tables.create', ['tenant' => request()->route('tenant')]) }}" class="btn btn-primary">
                 <i class="ri ri-add-line me-1"></i> Nueva Mesa
             </a>
@@ -72,147 +155,55 @@
     </div>
 </div>
 
-<!-- Estadísticas -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="avatar flex-shrink-0 me-3">
-                        <span class="avatar-initial rounded bg-label-success">
-                            <i class="ri ri-check-line ri-24px"></i>
-                        </span>
-                    </div>
-                    <div>
-                        <p class="mb-0 text-muted small">Disponibles</p>
-                        <h4 class="mb-0">{{ $tables->where('status', 'available')->count() }}</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="avatar flex-shrink-0 me-3">
-                        <span class="avatar-initial rounded bg-label-danger">
-                            <i class="ri ri-user-line ri-24px"></i>
-                        </span>
-                    </div>
-                    <div>
-                        <p class="mb-0 text-muted small">Ocupadas</p>
-                        <h4 class="mb-0">{{ $tables->where('status', 'occupied')->count() }}</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="avatar flex-shrink-0 me-3">
-                        <span class="avatar-initial rounded bg-label-warning">
-                            <i class="ri ri-bookmark-line ri-24px"></i>
-                        </span>
-                    </div>
-                    <div>
-                        <p class="mb-0 text-muted small">Reservadas</p>
-                        <h4 class="mb-0">{{ $tables->where('status', 'reserved')->count() }}</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="avatar flex-shrink-0 me-3">
-                        <span class="avatar-initial rounded bg-label-primary">
-                            <i class="ri ri-table-line ri-24px"></i>
-                        </span>
-                    </div>
-                    <div>
-                        <p class="mb-0 text-muted small">Total Mesas</p>
-                        <h4 class="mb-0">{{ $tables->count() }}</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div id="editModeBadge" class="edit-mode-badge" style="display: none;">
+    <div class="alert alert-warning mb-0">
+        <i class="ri ri-edit-line me-2"></i>
+        <strong>Modo Edición Activo</strong><br>
+        <small>Arrastra las mesas para reposicionarlas</small>
     </div>
 </div>
 
-<!-- Mapa de Mesas -->
+<!-- Mapa del Restaurante -->
 <div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Mapa de Mesas</h5>
-    </div>
-    <div class="card-body">
+    <div class="card-body p-0">
         @if($tables->count() > 0)
-            <div class="row g-4">
+            <div class="restaurant-map" id="restaurantMap">
+                <!-- Estadísticas dentro del mapa -->
+                <div class="map-stats">
+                    <div class="stat-badge available">
+                        <i class="ri ri-check-line text-success"></i>
+                        <span><strong>{{ $tables->where('status', 'available')->count() }}</strong> Disponibles</span>
+                    </div>
+                    <div class="stat-badge occupied">
+                        <i class="ri ri-user-line text-danger"></i>
+                        <span><strong>{{ $tables->where('status', 'occupied')->count() }}</strong> Ocupadas</span>
+                    </div>
+                    <div class="stat-badge reserved">
+                        <i class="ri ri-bookmark-line text-warning"></i>
+                        <span><strong>{{ $tables->where('status', 'reserved')->count() }}</strong> Reservadas</span>
+                    </div>
+                    <div class="stat-badge total">
+                        <i class="ri ri-table-line text-primary"></i>
+                        <span><strong>{{ $tables->count() }}</strong> Total</span>
+                    </div>
+                </div>
+
+                <!-- Mesas -->
                 @foreach($tables as $table)
-                    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                        <div class="card table-card h-100"
-                             onclick="handleTableClick({{ $table->id }}, '{{ $table->status }}', {{ $table->orders_count }})">
+                    <div class="table-item card"
+                         data-table-id="{{ $table->id }}"
+                         data-status="{{ $table->status }}"
+                         style="left: {{ $table->position_x ?? (($loop->index % 8) * 120 + 20) }}px; top: {{ $table->position_y ?? (floor($loop->index / 8) * 120 + 80) }}px;">
 
-                            <!-- Representación visual de la mesa -->
-                            <div class="table-visual {{ $table->status }}">
-                                <i class="ri ri-restaurant-2-line table-icon"></i>
-                            </div>
+                        <div class="table-visual-map {{ $table->status }}">
+                            <i class="ri ri-restaurant-2-line table-icon-map"></i>
+                        </div>
 
-                            <div class="card-body text-center p-3">
-                                <!-- Badge de estado -->
-                                <div class="mb-2">
-                                    @if($table->status === 'available')
-                                        <span class="badge bg-label-success">Disponible</span>
-                                    @elseif($table->status === 'occupied')
-                                        <span class="badge bg-label-danger">Ocupada</span>
-                                    @elseif($table->status === 'reserved')
-                                        <span class="badge bg-label-warning">Reservada</span>
-                                    @endif
-                                </div>
-
-                                <!-- Nombre de la mesa -->
-                                <h5 class="mb-2">{{ $table->number }}</h5>
-
-                                <!-- Información compacta -->
-                                <div class="d-flex justify-content-center gap-3 text-muted small mb-2">
-                                    <span>
-                                        <i class="ri ri-user-line"></i> {{ $table->capacity }}
-                                    </span>
-                                    @if($table->location)
-                                        <span>
-                                            <i class="ri ri-map-pin-line"></i> {{ \Illuminate\Support\Str::limit($table->location, 8) }}
-                                        </span>
-                                    @endif
-                                </div>
-
-                                @if($table->orders_count > 0)
-                                    <span class="badge bg-label-primary">
-                                        <i class="ri ri-restaurant-line"></i> Pedido
-                                    </span>
-                                @endif
-                            </div>
-
-                            <!-- Acciones -->
-                            <div class="card-footer bg-transparent border-top p-2">
-                                <div class="d-flex justify-content-center gap-1">
-                                    @if($table->status === 'available')
-                                        <button class="btn btn-sm btn-success" onclick="event.stopPropagation(); takeOrder({{ $table->id }})" title="Tomar Pedido">
-                                            <i class="ri ri-add-line"></i>
-                                        </button>
-                                    @elseif($table->status === 'occupied')
-                                        <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); viewOrder({{ $table->id }})" title="Ver Pedido">
-                                            <i class="ri ri-eye-line"></i>
-                                        </button>
-                                    @endif
-                                    <button class="btn btn-sm btn-icon btn-text-secondary rounded-pill" onclick="event.stopPropagation(); editTable({{ $table->id }})" title="Editar">
-                                        <i class="ri ri-edit-line"></i>
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="table-info-map">
+                            <strong class="d-block">{{ $table->number }}</strong>
+                            <small class="text-muted">
+                                <i class="ri ri-user-line"></i> {{ $table->capacity }}
+                            </small>
                         </div>
                     </div>
                 @endforeach
@@ -237,24 +228,167 @@
 
 @section('page-script')
 <script>
-function handleTableClick(tableId, status, hasOrders) {
+let editMode = false;
+let draggedElement = null;
+let offsetX = 0;
+let offsetY = 0;
+
+const toggleEditBtn = document.getElementById('toggleEditMode');
+const saveBtn = document.getElementById('savePositions');
+const editModeBadge = document.getElementById('editModeBadge');
+const editModeText = document.getElementById('editModeText');
+const restaurantMap = document.getElementById('restaurantMap');
+const tableItems = document.querySelectorAll('.table-item');
+
+// Toggle edit mode
+toggleEditBtn.addEventListener('click', function() {
+    editMode = !editMode;
+
+    if (editMode) {
+        editModeText.textContent = 'Desactivar Edición';
+        toggleEditBtn.classList.remove('btn-outline-primary');
+        toggleEditBtn.classList.add('btn-warning');
+        saveBtn.style.display = 'inline-block';
+        editModeBadge.style.display = 'block';
+        enableDragging();
+    } else {
+        editModeText.textContent = 'Modo Edición';
+        toggleEditBtn.classList.remove('btn-warning');
+        toggleEditBtn.classList.add('btn-outline-primary');
+        saveBtn.style.display = 'none';
+        editModeBadge.style.display = 'none';
+        disableDragging();
+    }
+});
+
+function enableDragging() {
+    tableItems.forEach(item => {
+        item.style.cursor = 'move';
+        item.addEventListener('mousedown', handleMouseDown);
+        // Deshabilitar click para tomar pedido en modo edición
+        item.onclick = null;
+    });
+}
+
+function disableDragging() {
+    tableItems.forEach(item => {
+        item.style.cursor = 'pointer';
+        item.removeEventListener('mousedown', handleMouseDown);
+        // Habilitar click para tomar pedido
+        item.onclick = function() {
+            handleTableClick(this.dataset.tableId, this.dataset.status);
+        };
+    });
+}
+
+// Habilitar clicks inicialmente
+tableItems.forEach(item => {
+    item.onclick = function() {
+        if (!editMode) {
+            handleTableClick(this.dataset.tableId, this.dataset.status);
+        }
+    };
+});
+
+function handleTableClick(tableId, status) {
     if (status === 'available') {
-        takeOrder(tableId);
-    } else if (status === 'occupied' && hasOrders > 0) {
-        viewOrder(tableId);
+        window.location.href = `{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/take-order`;
+    } else if (status === 'occupied') {
+        window.location.href = `{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/show-order`;
     }
 }
 
-function takeOrder(tableId) {
-    window.location.href = `{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/take-order`;
+function handleMouseDown(e) {
+    if (!editMode) return;
+
+    draggedElement = e.currentTarget;
+    draggedElement.classList.add('dragging');
+
+    const rect = draggedElement.getBoundingClientRect();
+    const mapRect = restaurantMap.getBoundingClientRect();
+
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    e.preventDefault();
 }
 
-function viewOrder(tableId) {
-    window.location.href = `{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/show-order`;
+function handleMouseMove(e) {
+    if (!draggedElement) return;
+
+    const mapRect = restaurantMap.getBoundingClientRect();
+
+    let newX = e.clientX - mapRect.left - offsetX;
+    let newY = e.clientY - mapRect.top - offsetY;
+
+    // Limitar dentro del mapa
+    newX = Math.max(0, Math.min(newX, mapRect.width - draggedElement.offsetWidth));
+    newY = Math.max(0, Math.min(newY, mapRect.height - draggedElement.offsetHeight));
+
+    draggedElement.style.left = newX + 'px';
+    draggedElement.style.top = newY + 'px';
 }
 
-function editTable(tableId) {
-    window.location.href = `{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}/edit`;
+function handleMouseUp() {
+    if (draggedElement) {
+        draggedElement.classList.remove('dragging');
+        draggedElement = null;
+    }
+
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
 }
+
+// Guardar posiciones
+saveBtn.addEventListener('click', async function() {
+    const positions = [];
+
+    tableItems.forEach(item => {
+        const tableId = item.dataset.tableId;
+        const x = parseInt(item.style.left);
+        const y = parseInt(item.style.top);
+
+        positions.push({
+            id: tableId,
+            x: x,
+            y: y
+        });
+    });
+
+    try {
+        const response = await fetch('{{ route("tenant.path.tables.updatePositions", ["tenant" => request()->route("tenant")]) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ positions: positions })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Guardado!',
+                text: 'Las posiciones de las mesas se han guardado correctamente',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudieron guardar las posiciones: ' + error.message
+        });
+    }
+});
 </script>
 @endsection

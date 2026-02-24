@@ -15,12 +15,7 @@ class TableController extends Controller
 {
     public function index()
     {
-        $tables = Table::withCount(['orders' => function($query) {
-            $query->whereIn('status', ['pending', 'preparing', 'ready', 'served']);
-        }])
-        ->orderBy('number')
-        ->get();
-
+        $tables = Table::orderBy('number')->get();
         return view('tenant.tables.index', compact('tables'));
     }
 
@@ -285,5 +280,37 @@ class TableController extends Controller
         return redirect()
             ->route('tenant.path.tables.index', ['tenant' => $tenant])
             ->with('success', "Estado sincronizado. {$updated} mesas actualizadas.");
+    }
+
+    /**
+     * Actualizar posiciones de las mesas en el mapa
+     */
+    public function updatePositions(Request $request, $tenant)
+    {
+        $validated = $request->validate([
+            'positions' => 'required|array',
+            'positions.*.id' => 'required|exists:tenant.tables,id',
+            'positions.*.x' => 'required|integer|min:0',
+            'positions.*.y' => 'required|integer|min:0',
+        ]);
+
+        try {
+            foreach ($validated['positions'] as $position) {
+                Table::where('id', $position['id'])->update([
+                    'position_x' => $position['x'],
+                    'position_y' => $position['y'],
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Posiciones actualizadas exitosamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar posiciones: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

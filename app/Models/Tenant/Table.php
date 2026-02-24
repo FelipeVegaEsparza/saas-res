@@ -20,6 +20,10 @@ class Table extends Model
         'status',
         'location',
         'active',
+        'position_x',
+        'position_y',
+        'shape',
+        'orientation',
     ];
 
     protected $casts = [
