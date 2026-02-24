@@ -13,6 +13,7 @@ class Payment extends Model
 
     protected $fillable = [
         'order_id',
+        'delivery_order_id',
         'cash_session_id',
         'payment_method',
         'amount',
@@ -37,6 +38,14 @@ class Payment extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * Relación con pedido de delivery
+     */
+    public function deliveryOrder()
+    {
+        return $this->belongsTo(DeliveryOrder::class);
     }
 
     /**

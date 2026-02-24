@@ -162,6 +162,7 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
             Route::post('/{cashSession}/close', [CashRegisterController::class, 'closeSession'])->name('close');
             Route::get('/pos', [CashRegisterController::class, 'pos'])->name('pos');
             Route::post('/payment', [CashRegisterController::class, 'processPayment'])->name('payment');
+            Route::post('/delivery-payment', [CashRegisterController::class, 'processDeliveryPayment'])->name('deliveryPayment');
             Route::get('/{cashSession}/report', [CashRegisterController::class, 'report'])->name('report');
         });
 

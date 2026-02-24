@@ -25,13 +25,20 @@ class CashRegisterController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        // Obtener cuentas cerradas pendientes de pago
+        // Obtener cuentas cerradas pendientes de pago (pedidos de mesa)
         $pendingOrders = Order::whereIn('status', ['closed'])
             ->with(['table', 'waiter', 'items.product'])
             ->orderBy('closed_at', 'desc')
             ->get();
 
-        return view('tenant.cash.index', compact('activeSession', 'sessions', 'pendingOrders'));
+        // Obtener pedidos de delivery entregados pendientes de pago
+        $pendingDeliveryOrders = \App\Models\Tenant\DeliveryOrder::where('status', 'delivered')
+            ->where('payment_status', 'pending')
+            ->with(['items.product'])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return view('tenant.cash.index', compact('activeSession', 'sessions', 'pendingOrders', 'pendingDeliveryOrders'));
     }
 
     public function openSession(Request $request)
@@ -181,6 +188,71 @@ class CashRegisterController extends Controller
             return response()->json([
                 'success' => true,
                 'order' => $order,
+                'payment' => $payment,
+                'message' => 'Pago procesado exitosamente',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::connection('tenant')->rollBack();
+            return response()->json(['error' => 'Error al procesar el pago: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function processDeliveryPayment(Request $request)
+    {
+        $validated = $request->validate([
+            'delivery_order_id' => 'required|exists:tenant.delivery_orders,id',
+            'payment_method' => 'required|in:cash,card,transfer',
+            'amount_paid' => 'required|numeric|min:0',
+        ]);
+
+        $activeSession = CashSession::where('user_id', Auth::id())
+            ->where('status', 'open')
+            ->first();
+
+        if (!$activeSession) {
+            return response()->json(['error' => 'No hay sesión de caja abierta'], 400);
+        }
+
+        $deliveryOrder = \App\Models\Tenant\DeliveryOrder::with(['items.product'])->findOrFail($validated['delivery_order_id']);
+
+        if ($deliveryOrder->payment_status !== 'pending') {
+            return response()->json(['error' => 'Este pedido ya fue pagado'], 400);
+        }
+
+        DB::connection('tenant')->beginTransaction();
+
+        try {
+            // Crear pago
+            $payment = Payment::create([
+                'delivery_order_id' => $deliveryOrder->id,
+                'cash_session_id' => $activeSession->id,
+                'payment_method' => $validated['payment_method'],
+                'amount' => $deliveryOrder->total,
+                'amount_paid' => $validated['amount_paid'],
+                'change' => $validated['amount_paid'] - $deliveryOrder->total,
+                'status' => 'completed',
+                'paid_at' => now(),
+            ]);
+
+            // Rebajar stock de productos
+            foreach ($deliveryOrder->items as $item) {
+                if ($item->product && $item->product->track_stock) {
+                    $item->product->reduceStock($item->quantity);
+                }
+            }
+
+            // Marcar pedido como pagado
+            $deliveryOrder->update([
+                'payment_status' => 'paid',
+                'paid_at' => now(),
+            ]);
+
+            DB::connection('tenant')->commit();
+
+            return response()->json([
+                'success' => true,
+                'order' => $deliveryOrder,
                 'payment' => $payment,
                 'message' => 'Pago procesado exitosamente',
             ]);
