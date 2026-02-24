@@ -269,7 +269,7 @@ class CashRegisterController extends Controller
             abort(403);
         }
 
-        $cashSession->load(['payments.order.items.product']);
+        $cashSession->load(['payments.order.items.product', 'payments.deliveryOrder.items.product']);
 
         $paymentsByMethod = $cashSession->payments()
             ->select('payment_method', DB::raw('COUNT(*) as count'), DB::raw('SUM(amount) as total'))

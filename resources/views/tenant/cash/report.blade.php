@@ -159,7 +159,15 @@
                             <tbody>
                                 @foreach($cashSession->payments as $payment)
                                     <tr>
-                                        <td>{{ $payment->order->order_number }}</td>
+                                        <td>
+                                            @if($payment->order)
+                                                {{ $payment->order->order_number }}
+                                            @elseif($payment->deliveryOrder)
+                                                {{ $payment->deliveryOrder->order_number }}
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
                                         <td>{{ $payment->created_at->format('H:i') }}</td>
                                         <td class="text-end">${{ number_format($payment->amount, 2) }}</td>
                                     </tr>
