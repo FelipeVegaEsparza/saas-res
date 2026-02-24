@@ -142,7 +142,9 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
             Route::get('/print-all', [QRController::class, 'printAll'])->name('print-all');
         });
 
-        Route::resource('delivery', DeliveryOrderController::class)->names([
+        Route::resource('delivery', DeliveryOrderController::class)->parameters([
+            'delivery' => 'deliveryOrder'
+        ])->names([
             'index' => 'tenant.path.delivery.index',
             'create' => 'tenant.path.delivery.create',
             'store' => 'tenant.path.delivery.store',
