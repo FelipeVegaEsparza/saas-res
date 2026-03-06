@@ -83,10 +83,14 @@ class SettingsController extends Controller
             'country' => 'required|string|max:2',
             'currency' => 'required|string|max:3',
             'currency_symbol' => 'required|string|max:10',
+            'module_tables_enabled' => 'nullable|boolean',
+            'module_delivery_enabled' => 'nullable|boolean',
         ]);
 
-        // Convertir checkbox a boolean
+        // Convertir checkboxes a boolean
         $validated['accepts_online_orders'] = $request->has('accepts_online_orders');
+        $validated['module_tables_enabled'] = $request->has('module_tables_enabled');
+        $validated['module_delivery_enabled'] = $request->has('module_delivery_enabled');
 
         // Manejar subida de logo horizontal
         if ($request->hasFile('logo_horizontal')) {

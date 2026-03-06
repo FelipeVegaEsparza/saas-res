@@ -43,6 +43,8 @@ class Restaurant extends Model
         'country',
         'currency',
         'currency_symbol',
+        'module_tables_enabled',
+        'module_delivery_enabled',
     ];
 
     protected $casts = [
@@ -53,6 +55,8 @@ class Restaurant extends Model
         'accepts_online_orders' => 'boolean',
         'delivery_fee' => 'decimal:2',
         'min_order_amount' => 'decimal:2',
+        'module_tables_enabled' => 'boolean',
+        'module_delivery_enabled' => 'boolean',
     ];
 
     /**

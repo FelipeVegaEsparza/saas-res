@@ -58,6 +58,13 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
                     </a>
                 </li>
 
+                @php
+                    $restaurant = tenant()->restaurant();
+                    $showTables = $restaurant->module_tables_enabled ?? true;
+                    $showDelivery = $restaurant->module_delivery_enabled ?? true;
+                @endphp
+
+                @if($showTables || $showDelivery)
                 <li class="menu-header small mt-5">
                     <span class="menu-header-text">Punto de Venta</span>
                 </li>
@@ -69,13 +76,16 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
                     </a>
                 </li>
 
+                @if($showTables)
                 <li class="menu-item {{ request()->routeIs('tenant.path.tables.*') ? 'active' : '' }}">
                     <a href="{{ route('tenant.path.tables.index', ['tenant' => request()->route('tenant')]) }}" class="menu-link">
                         <i class="menu-icon icon-base ri ri-table-line"></i>
                         <div>Mesas</div>
                     </a>
                 </li>
+                @endif
 
+                @if($showDelivery)
                 <li class="menu-item {{ request()->routeIs('tenant.path.delivery.*') ? 'active' : '' }}">
                     <a href="{{ route('tenant.path.delivery.index', ['tenant' => request()->route('tenant')]) }}" class="menu-link">
                         <i class="menu-icon icon-base ri ri-e-bike-2-line"></i>
@@ -88,6 +98,8 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
                         @endif
                     </a>
                 </li>
+                @endif
+                @endif
 
                 @php
                     $preparationAreas = \App\Models\Tenant\PreparationArea::active()->ordered()->get();

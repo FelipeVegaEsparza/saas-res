@@ -303,6 +303,71 @@ use Illuminate\Support\Facades\Storage;
         </div>
     </div>
 
+    <!-- Módulos del Sistema -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="ri ri-apps-line me-2"></i>Módulos del Sistema</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4">Activa o desactiva los módulos según las necesidades de tu negocio. Los módulos desactivados no aparecerán en el menú lateral.</p>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card border mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="mb-1"><i class="ri ri-table-line me-2 text-primary"></i>Módulo de Mesas</h6>
+                                    <small class="text-muted">Gestión de mesas y pedidos en local</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="module_tables_enabled"
+                                           name="module_tables_enabled" value="1"
+                                           {{ old('module_tables_enabled', $restaurant->module_tables_enabled ?? true) ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                            <ul class="list-unstyled mb-0 small text-muted">
+                                <li><i class="ri ri-check-line me-1"></i> Gestión de mesas</li>
+                                <li><i class="ri ri-check-line me-1"></i> Toma de pedidos</li>
+                                <li><i class="ri ri-check-line me-1"></i> Control de cuentas</li>
+                                <li><i class="ri ri-check-line me-1"></i> Impresión de comandas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card border mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="mb-1"><i class="ri ri-e-bike-2-line me-2 text-info"></i>Módulo de Delivery</h6>
+                                    <small class="text-muted">Gestión de pedidos para llevar y delivery</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="module_delivery_enabled"
+                                           name="module_delivery_enabled" value="1"
+                                           {{ old('module_delivery_enabled', $restaurant->module_delivery_enabled ?? true) ? 'checked' : '' }}>
+                                </div>
+                            </div>
+                            <ul class="list-unstyled mb-0 small text-muted">
+                                <li><i class="ri ri-check-line me-1"></i> Pedidos para llevar</li>
+                                <li><i class="ri ri-check-line me-1"></i> Pedidos a domicilio</li>
+                                <li><i class="ri ri-check-line me-1"></i> Seguimiento de estados</li>
+                                <li><i class="ri ri-check-line me-1"></i> Impresión de comandas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mb-0">
+                <i class="ri ri-information-line me-2"></i>
+                <strong>Importante:</strong> Al desactivar un módulo, este dejará de aparecer en el menú lateral y no podrás acceder a sus funciones. Puedes reactivarlo en cualquier momento.
+            </div>
+        </div>
+    </div>
+
     <!-- Pedidos Online -->
     <div class="card mb-4">
         <div class="card-header">
