@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Hook de Git que se ejecuta automáticamente después de un git pull
+# Este hook ejecuta el script de despliegue
+
+echo "🔄 Detectado cambio en el código, ejecutando despliegue automático..."
+echo ""
+
+# Ejecutar script de despliegue (skip pull porque ya se hizo)
+bash deploy.sh --skip-pull
+
+exit 0
