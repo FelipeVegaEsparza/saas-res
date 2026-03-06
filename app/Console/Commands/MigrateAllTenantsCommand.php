@@ -36,12 +36,18 @@ class MigrateAllTenantsCommand extends Command
         $this->info("Found {$tenants->count()} tenant(s).");
         $this->newLine();
 
+        $successCount = 0;
+        $errorCount = 0;
+
         foreach ($tenants as $tenant) {
             $this->info("Migrating tenant: {$tenant->id}");
 
             try {
                 // Inicializar tenancy
                 tenancy()->initialize($tenant);
+
+                // Verificar si la tabla migrations existe, si no, crearla
+                $this->ensureMigrationsTable();
 
                 // Ejecutar migraciones
                 if ($this->option('fresh')) {
@@ -50,10 +56,14 @@ class MigrateAllTenantsCommand extends Command
                         '--force' => true,
                     ]);
                 } else {
-                    $this->call('migrate', [
+                    $exitCode = $this->call('migrate', [
                         '--path' => 'database/migrations/tenant',
                         '--force' => true,
                     ]);
+
+                    if ($exitCode === 0) {
+                        $successCount++;
+                    }
                 }
 
                 // Seed si se especifica
@@ -68,15 +78,36 @@ class MigrateAllTenantsCommand extends Command
                 $this->newLine();
 
             } catch (\Exception $e) {
+                $errorCount++;
                 $this->error("✗ Error migrating tenant {$tenant->id}: {$e->getMessage()}");
                 $this->newLine();
+
+                // Continuar con el siguiente tenant
+                continue;
             } finally {
                 // Limpiar tenancy
                 tenancy()->end();
             }
         }
 
-        $this->info('All tenants processed.');
-        return 0;
+        $this->newLine();
+        $this->info("All tenants processed.");
+        $this->info("Success: {$successCount} | Errors: {$errorCount}");
+
+        return $errorCount > 0 ? 1 : 0;
+    }
+
+    /**
+     * Asegurar que la tabla migrations existe en la base de datos del tenant
+     */
+    private function ensureMigrationsTable()
+    {
+        if (!\Schema::hasTable('migrations')) {
+            \Schema::create('migrations', function ($table) {
+                $table->increments('id');
+                $table->string('migration');
+                $table->integer('batch');
+            });
+        }
     }
 }
