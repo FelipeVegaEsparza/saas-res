@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('restaurants', function (Blueprint $table) {
-            $table->boolean('module_tables_enabled')->default(true)->after('currency_decimals');
-            $table->boolean('module_delivery_enabled')->default(true)->after('module_tables_enabled');
+            $table->boolean('module_tables_enabled')->default(true);
+            $table->boolean('module_delivery_enabled')->default(true);
         });
     }
 
