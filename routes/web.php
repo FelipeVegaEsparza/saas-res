@@ -125,6 +125,8 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
         Route::get('tables/{table_id}/take-order', [TableController::class, 'takeOrder'])->where('table_id', '[0-9]+')->name('tenant.path.tables.takeOrder');
         Route::post('tables/{table_id}/store-order', [TableController::class, 'storeOrder'])->where('table_id', '[0-9]+')->name('tenant.path.tables.storeOrder');
         Route::get('tables/{table_id}/show-order', [TableController::class, 'showOrder'])->where('table_id', '[0-9]+')->name('tenant.path.tables.showOrder');
+        Route::get('tables/{table_id}/print-comanda', [TableController::class, 'printComanda'])->where('table_id', '[0-9]+')->name('tenant.path.tables.printComanda');
+        Route::get('tables/{table_id}/print-comanda/{area_id}', [TableController::class, 'printComandaByArea'])->where(['table_id' => '[0-9]+', 'area_id' => '[0-9]+'])->name('tenant.path.tables.printComandaByArea');
         Route::post('tables/{table_id}/update-status', [TableController::class, 'updateOrderStatus'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateOrderStatus');
         Route::post('tables/{table_id}/update-shape', [TableController::class, 'updateShape'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateShape');
         Route::post('tables/{table_id}/update-orientation', [TableController::class, 'updateOrientation'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateOrientation');
@@ -154,6 +156,8 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
             'destroy' => 'tenant.path.delivery.destroy',
         ]);
         Route::post('delivery/{deliveryOrder}/status', [DeliveryOrderController::class, 'updateStatus'])->name('tenant.path.delivery.updateStatus');
+        Route::get('delivery/{deliveryOrder}/print-comanda', [DeliveryOrderController::class, 'printComanda'])->name('tenant.path.delivery.printComanda');
+        Route::get('delivery/{deliveryOrder}/print-comanda/{area_id}', [DeliveryOrderController::class, 'printComandaByArea'])->where('area_id', '[0-9]+')->name('tenant.path.delivery.printComandaByArea');
 
         // Rutas de Caja (POS)
         Route::prefix('cash')->name('tenant.path.cash.')->group(function () {
@@ -190,5 +194,26 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('tenant.path.settings.index');
         Route::put('/settings', [SettingsController::class, 'update'])->name('tenant.path.settings.update');
         Route::get('/settings/download-qr', [SettingsController::class, 'downloadQR'])->name('tenant.path.settings.download-qr');
+
+        // Rutas de Estaciones de Preparación
+        Route::resource('preparation-areas', \App\Http\Controllers\Tenant\PreparationAreaController::class)->parameters([
+            'preparation-areas' => 'preparation_area'
+        ])->names([
+            'index' => 'tenant.path.preparation-areas.index',
+            'create' => 'tenant.path.preparation-areas.create',
+            'store' => 'tenant.path.preparation-areas.store',
+            'edit' => 'tenant.path.preparation-areas.edit',
+            'update' => 'tenant.path.preparation-areas.update',
+            'destroy' => 'tenant.path.preparation-areas.destroy',
+        ]);
+
+        // Rutas KDS (Kitchen Display System)
+        Route::prefix('kds')->name('tenant.path.kds.')->group(function () {
+            Route::get('/{area_id}', [\App\Http\Controllers\Tenant\KitchenDisplayController::class, 'index'])->name('index');
+            Route::post('/{area_id}/{order_type}/{order_id}/update', [\App\Http\Controllers\Tenant\KitchenDisplayController::class, 'updateOrderStatus'])->name('updateOrder');
+        });
+
+        // Rutas de Notificaciones
+        Route::get('/notifications/check-new-orders', [\App\Http\Controllers\Tenant\NotificationController::class, 'checkNewOrders'])->name('tenant.path.notifications.checkNewOrders');
     });
 });

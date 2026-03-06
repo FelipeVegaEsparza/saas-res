@@ -80,8 +80,32 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
                     <a href="<?php echo e(route('tenant.path.delivery.index', ['tenant' => request()->route('tenant')])); ?>" class="menu-link">
                         <i class="menu-icon icon-base ri ri-e-bike-2-line"></i>
                         <div>Delivery</div>
+                        <?php
+                            $pendingDeliveryCount = \App\Models\Tenant\DeliveryOrder::where('status', 'pending')->count();
+                        ?>
+                        <?php if($pendingDeliveryCount > 0): ?>
+                            <span class="badge rounded-pill bg-danger ms-auto"><?php echo e($pendingDeliveryCount); ?></span>
+                        <?php endif; ?>
                     </a>
                 </li>
+
+                <?php
+                    $preparationAreas = \App\Models\Tenant\PreparationArea::active()->ordered()->get();
+                ?>
+                <?php if($preparationAreas->isNotEmpty()): ?>
+                    <li class="menu-header small mt-5">
+                        <span class="menu-header-text">Estaciones</span>
+                    </li>
+
+                    <?php $__currentLoopData = $preparationAreas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $area): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li class="menu-item <?php echo e(request()->routeIs('tenant.path.kds.index') && request()->route('area_id') == $area->id ? 'active' : ''); ?>">
+                            <a href="<?php echo e(route('tenant.path.kds.index', ['tenant' => request()->route('tenant'), 'area_id' => $area->id])); ?>" class="menu-link">
+                                <i class="menu-icon icon-base ri <?php echo e($area->icon); ?>" style="color: <?php echo e($area->color); ?>;"></i>
+                                <div><?php echo e($area->name); ?></div>
+                            </a>
+                        </li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endif; ?>
 
                 <li class="menu-header small mt-5">
                     <span class="menu-header-text">Gestión de Menú</span>
@@ -126,6 +150,13 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
 
                 <li class="menu-header small mt-5">
                     <span class="menu-header-text">Configuración</span>
+                </li>
+
+                <li class="menu-item <?php echo e(request()->routeIs('tenant.path.preparation-areas.*') ? 'active' : ''); ?>">
+                    <a href="<?php echo e(route('tenant.path.preparation-areas.index', ['tenant' => request()->route('tenant')])); ?>" class="menu-link">
+                        <i class="menu-icon icon-base ri ri-restaurant-2-line"></i>
+                        <div>Estaciones</div>
+                    </a>
                 </li>
 
                 <li class="menu-item <?php echo e(request()->routeIs('tenant.path.users.*') ? 'active' : ''); ?>">
@@ -334,6 +365,150 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
     <!-- Drag Target Area To SlideIn Menu On Small Screens -->
     <div class="drag-target"></div>
 </div>
+
+<!-- Sistema de Notificaciones de Pedidos Online -->
+<script>
+(function() {
+    let isCheckingOrders = false;
+    let notifiedOrders = new Set();
+
+    // Función para verificar nuevos pedidos
+    async function checkNewOrders() {
+        if (isCheckingOrders) return;
+
+        isCheckingOrders = true;
+
+        try {
+            const response = await fetch('<?php echo e(route("tenant.path.notifications.checkNewOrders", ["tenant" => request()->route("tenant")])); ?>', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al verificar pedidos');
+            }
+
+            const data = await response.json();
+
+            if (data.has_new_orders && data.orders && data.orders.length > 0) {
+                // Filtrar solo los pedidos que no hemos notificado
+                const newOrders = data.orders.filter(order => !notifiedOrders.has(order.id));
+
+                if (newOrders.length > 0) {
+                    // Marcar como notificados
+                    newOrders.forEach(order => notifiedOrders.add(order.id));
+
+                    // Mostrar notificación para cada pedido nuevo
+                    newOrders.forEach(order => {
+                        showOrderNotification(order);
+                    });
+
+                    // Reproducir sonido de notificación
+                    playNotificationSound();
+                }
+            }
+        } catch (error) {
+            console.error('Error al verificar nuevos pedidos:', error);
+        } finally {
+            isCheckingOrders = false;
+        }
+    }
+
+    // Función para mostrar notificación de pedido
+    function showOrderNotification(order) {
+        const typeLabel = order.type === 'delivery' ? 'Delivery' : 'Para Llevar';
+        const typeIcon = order.type === 'delivery' ? 'ri-e-bike-2-line' : 'ri-shopping-bag-3-line';
+
+        Swal.fire({
+            title: '🔔 Nuevo Pedido Online',
+            html: `
+                <div class="text-start">
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="ri ${typeIcon} ri-24px me-2 text-primary"></i>
+                            <h5 class="mb-0">${order.order_number}</h5>
+                        </div>
+                        <span class="badge bg-label-info">${typeLabel}</span>
+                    </div>
+
+                    <div class="mb-2">
+                        <strong><i class="ri ri-user-line me-1"></i>Cliente:</strong> ${order.customer_name}
+                    </div>
+                    <div class="mb-2">
+                        <strong><i class="ri ri-phone-line me-1"></i>Teléfono:</strong> ${order.customer_phone}
+                    </div>
+                    <div class="mb-2">
+                        <strong><i class="ri ri-shopping-cart-line me-1"></i>Items:</strong> ${order.items_count} productos
+                    </div>
+                    <div class="mb-2">
+                        <strong><i class="ri ri-time-line me-1"></i>Hora:</strong> ${order.created_at}
+                    </div>
+                    <div class="mt-3 p-2 bg-success bg-opacity-10 rounded">
+                        <strong class="text-success"><i class="ri ri-money-dollar-circle-line me-1"></i>Total: $${formatPrice(order.total)}</strong>
+                    </div>
+                </div>
+            `,
+            icon: 'info',
+            iconColor: '#696cff',
+            showCancelButton: true,
+            confirmButtonText: '<i class="ri ri-eye-line me-1"></i> Ver Pedido',
+            cancelButtonText: 'Cerrar',
+            customClass: {
+                confirmButton: 'btn btn-primary me-2',
+                cancelButton: 'btn btn-outline-secondary'
+            },
+            buttonsStyling: false,
+            allowOutsideClick: false,
+            timer: 30000,
+            timerProgressBar: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirigir a la vista del pedido
+                window.location.href = '<?php echo e(route("tenant.path.delivery.index", ["tenant" => request()->route("tenant")])); ?>';
+            }
+        });
+    }
+
+    // Función para formatear precio
+    function formatPrice(amount) {
+        return Math.round(amount).toLocaleString('es-CL');
+    }
+
+    // Función para reproducir sonido de notificación
+    function playNotificationSound() {
+        try {
+            // Crear un beep simple usando Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        } catch (error) {
+            console.log('No se pudo reproducir el sonido de notificación');
+        }
+    }
+
+    // Iniciar polling cada 30 segundos
+    setInterval(checkNewOrders, 30000);
+
+    // Verificar inmediatamente al cargar la página
+    setTimeout(checkNewOrders, 2000);
+})();
+</script>
+
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts/commonMaster', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH F:\saasres\resources\views/tenant/layouts/admin.blade.php ENDPATH**/ ?>

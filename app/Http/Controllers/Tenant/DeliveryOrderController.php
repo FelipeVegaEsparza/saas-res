@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\DeliveryOrder;
 use App\Models\Tenant\Product;
+use App\Models\Tenant\PreparationArea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -113,8 +114,14 @@ class DeliveryOrderController extends Controller
 
     public function show($tenant, DeliveryOrder $deliveryOrder)
     {
-        $deliveryOrder->load('items.product');
-        return view('tenant.delivery.show', compact('deliveryOrder'));
+        $deliveryOrder->load('items.product.preparationArea');
+
+        // Obtener las áreas de preparación que tienen productos en este pedido
+        $preparationAreas = PreparationArea::whereHas('products', function($query) use ($deliveryOrder) {
+            $query->whereIn('id', $deliveryOrder->items->pluck('product_id'));
+        })->active()->ordered()->get();
+
+        return view('tenant.delivery.show', compact('deliveryOrder', 'preparationAreas'));
     }
 
     public function updateStatus(Request $request, $tenant, DeliveryOrder $deliveryOrder)
@@ -136,6 +143,30 @@ class DeliveryOrderController extends Controller
 
         return back()->with('success', 'Estado actualizado correctamente');
     }
+
+    public function printComanda($tenant, DeliveryOrder $deliveryOrder)
+    {
+        $deliveryOrder->load('items.product');
+        return view('tenant.delivery.print-comanda', compact('deliveryOrder'));
+    }
+
+    public function printComandaByArea($tenant, DeliveryOrder $deliveryOrder, $area_id)
+    {
+        $area = PreparationArea::findOrFail($area_id);
+        $deliveryOrder->load('items.product');
+
+        // Filtrar solo los items que pertenecen a esta área
+        $items = $deliveryOrder->items()->whereHas('product', function($query) use ($area_id) {
+            $query->where('preparation_area_id', $area_id);
+        })->get();
+
+        if ($items->isEmpty()) {
+            return redirect()->back()->with('error', 'No hay productos de esta estación en el pedido');
+        }
+
+        return view('tenant.delivery.print-comanda-area', compact('deliveryOrder', 'area', 'items'));
+    }
+
 
     public function destroy($tenant, DeliveryOrder $deliveryOrder)
     {

@@ -9,9 +9,11 @@
             <h1 class="mb-1">Pedido {{ $deliveryOrder->order_number }}</h1>
             <p class="text-muted">{{ $deliveryOrder->created_at->format('d/m/Y H:i') }}</p>
         </div>
-        <a href="{{ route('tenant.path.delivery.index', ['tenant' => request()->route('tenant')]) }}" class="btn btn-outline-secondary">
-            <i class="ri ri-arrow-left-line me-1"></i> Volver
-        </a>
+        <div>
+            <a href="{{ route('tenant.path.delivery.index', ['tenant' => request()->route('tenant')]) }}" class="btn btn-outline-secondary">
+                <i class="ri ri-arrow-left-line me-1"></i> Volver
+            </a>
+        </div>
     </div>
 </div>
 
@@ -133,6 +135,28 @@
                         {{ $deliveryOrder->status_label }}
                     </span>
                 </div>
+
+                <!-- Botón Imprimir Comanda Completa -->
+                <a href="{{ route('tenant.path.delivery.printComanda', ['tenant' => request()->route('tenant'), 'deliveryOrder' => $deliveryOrder]) }}"
+                   class="btn btn-outline-primary w-100 mb-3"
+                   target="_blank">
+                    <i class="ri ri-printer-line me-1"></i> Imprimir Comanda Completa
+                </a>
+
+                @if($preparationAreas->isNotEmpty())
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-semibold">Imprimir por Estación</label>
+                        @foreach($preparationAreas as $area)
+                            <a href="{{ route('tenant.path.delivery.printComandaByArea', ['tenant' => request()->route('tenant'), 'deliveryOrder' => $deliveryOrder, 'area_id' => $area->id]) }}"
+                               class="btn btn-outline-secondary w-100 mb-2"
+                               target="_blank">
+                                <i class="ri {{ $area->icon }} me-1" style="color: {{ $area->color }};"></i> {{ $area->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+
+                <hr class="my-3">
 
                 <form action="{{ route('tenant.path.delivery.updateStatus', ['tenant' => request()->route('tenant'), 'deliveryOrder' => $deliveryOrder]) }}" method="POST">
                     @csrf

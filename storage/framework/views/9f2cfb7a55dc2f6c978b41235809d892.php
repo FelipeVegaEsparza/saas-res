@@ -47,9 +47,9 @@
     </div>
 
     <!-- Cuentas Pendientes de Pago -->
-    <div class="card">
+    <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Cuentas por Cobrar</h5>
+            <h5 class="mb-0">Cuentas por Cobrar - Mesas</h5>
             <span class="badge bg-label-primary"><?php echo e($pendingOrders->count()); ?> cuentas</span>
         </div>
         <div class="card-body">
@@ -107,6 +107,76 @@
                     </div>
                     <h5 class="mb-1">No hay cuentas pendientes</h5>
                     <p class="text-muted">Todas las cuentas han sido cobradas</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Pedidos de Delivery Pendientes de Pago -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Pedidos Delivery por Cobrar</h5>
+            <span class="badge bg-label-info"><?php echo e($pendingDeliveryOrders->count()); ?> pedidos</span>
+        </div>
+        <div class="card-body">
+            <?php if($pendingDeliveryOrders->count() > 0): ?>
+                <div class="row g-3">
+                    <?php $__currentLoopData = $pendingDeliveryOrders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $deliveryOrder): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card border">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="mb-1">
+                                                <i class="ri ri-e-bike-2-line me-1"></i><?php echo e($deliveryOrder->type === 'delivery' ? 'Delivery' : 'Para Llevar'); ?>
+
+                                            </h5>
+                                            <small class="text-muted"><?php echo e($deliveryOrder->order_number); ?></small>
+                                        </div>
+                                        <span class="badge bg-warning">Por cobrar</span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small class="text-muted">Cliente:</small>
+                                            <small><?php echo e($deliveryOrder->customer_name); ?></small>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small class="text-muted">Teléfono:</small>
+                                            <small><?php echo e($deliveryOrder->customer_phone); ?></small>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small class="text-muted">Hora:</small>
+                                            <small><?php echo e($deliveryOrder->created_at->format('H:i')); ?></small>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small class="text-muted">Items:</small>
+                                            <small><?php echo e($deliveryOrder->items->count()); ?> productos</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="text-muted">Total:</span>
+                                        <h4 class="mb-0 text-primary">$<?php echo e(number_format($deliveryOrder->total, 2)); ?></h4>
+                                    </div>
+
+                                    <button class="btn btn-success w-100" onclick="showDeliveryPaymentModal(<?php echo e($deliveryOrder->id); ?>, <?php echo e($deliveryOrder->total); ?>, '<?php echo e($deliveryOrder->order_number); ?>')">
+                                        <i class="ri ri-cash-line me-1"></i> Cobrar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </div>
+            <?php else: ?>
+                <div class="text-center py-5">
+                    <div class="avatar avatar-lg mx-auto mb-3">
+                        <span class="avatar-initial rounded bg-label-success">
+                            <i class="ri ri-check-line ri-36px"></i>
+                        </span>
+                    </div>
+                    <h5 class="mb-1">No hay pedidos delivery pendientes</h5>
+                    <p class="text-muted">Todos los pedidos han sido cobrados</p>
                 </div>
             <?php endif; ?>
         </div>
@@ -411,14 +481,35 @@
 <?php $__env->startSection('page-script'); ?>
 <script>
 let currentOrderId = null;
+let currentDeliveryOrderId = null;
 let currentTotal = 0;
+let isDeliveryPayment = false;
 
-// Mostrar modal de pago
+// Mostrar modal de pago para mesas
 function showPaymentModal(orderId, total, tableNumber) {
     currentOrderId = orderId;
+    currentDeliveryOrderId = null;
     currentTotal = total;
+    isDeliveryPayment = false;
 
     document.getElementById('paymentTableNumber').textContent = 'Mesa ' + tableNumber;
+    document.getElementById('paymentTotal').textContent = '$' + total.toFixed(2);
+    document.getElementById('amountPaid').value = total.toFixed(2);
+
+    calculateChange();
+
+    const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    modal.show();
+}
+
+// Mostrar modal de pago para delivery
+function showDeliveryPaymentModal(deliveryOrderId, total, orderNumber) {
+    currentOrderId = null;
+    currentDeliveryOrderId = deliveryOrderId;
+    currentTotal = total;
+    isDeliveryPayment = true;
+
+    document.getElementById('paymentTableNumber').textContent = orderNumber;
     document.getElementById('paymentTotal').textContent = '$' + total.toFixed(2);
     document.getElementById('amountPaid').value = total.toFixed(2);
 
@@ -470,14 +561,22 @@ async function processPayment() {
         }
     }
 
-    const data = {
+    const data = isDeliveryPayment ? {
+        delivery_order_id: currentDeliveryOrderId,
+        payment_method: paymentMethod,
+        amount_paid: amountPaid
+    } : {
         order_id: currentOrderId,
         payment_method: paymentMethod,
         amount_paid: amountPaid
     };
 
+    const url = isDeliveryPayment
+        ? '<?php echo e(route("tenant.path.cash.deliveryPayment", ["tenant" => request()->route("tenant")])); ?>'
+        : '<?php echo e(route("tenant.path.cash.payment", ["tenant" => request()->route("tenant")])); ?>';
+
     try {
-        const response = await fetch('<?php echo e(route("tenant.path.cash.payment", ["tenant" => request()->route("tenant")])); ?>', {
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\Category;
+use App\Models\Tenant\PreparationArea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -23,13 +24,15 @@ class ProductController extends Controller
     public function create($tenant)
     {
         $categories = Category::where('active', true)->orderBy('name')->get();
-        return view('tenant.products.create', compact('categories'));
+        $preparationAreas = PreparationArea::active()->ordered()->get();
+        return view('tenant.products.create', compact('categories', 'preparationAreas'));
     }
 
     public function store(Request $request, $tenant)
     {
         $validated = $request->validate([
             'category_id' => 'required|exists:tenant.categories,id',
+            'preparation_area_id' => 'required|exists:tenant.preparation_areas,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
@@ -66,13 +69,15 @@ class ProductController extends Controller
     public function edit($tenant, Product $product)
     {
         $categories = Category::where('active', true)->orderBy('name')->get();
-        return view('tenant.products.edit', compact('product', 'categories'));
+        $preparationAreas = PreparationArea::active()->ordered()->get();
+        return view('tenant.products.edit', compact('product', 'categories', 'preparationAreas'));
     }
 
     public function update(Request $request, $tenant, Product $product)
     {
         $validated = $request->validate([
             'category_id' => 'required|exists:tenant.categories,id',
+            'preparation_area_id' => 'required|exists:tenant.preparation_areas,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',

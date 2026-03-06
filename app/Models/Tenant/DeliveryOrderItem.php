@@ -18,6 +18,7 @@ class DeliveryOrderItem extends Model
         'price',
         'subtotal',
         'notes',
+        'preparation_status',
     ];
 
     protected $casts = [

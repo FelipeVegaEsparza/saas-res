@@ -1,3 +1,9 @@
+<?php
+use Illuminate\Support\Facades\Storage;
+?>
+
+
+
 <?php $__env->startSection('title', 'Tomar Pedido - Mesa ' . $table->number); ?>
 
 <?php $__env->startSection('page-style'); ?>
@@ -19,11 +25,35 @@
     .product-card {
         cursor: pointer;
         transition: all 0.2s;
-        height: 140px;
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
     .product-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .product-image {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .product-placeholder {
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .product-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
     }
     .order-item {
         border-bottom: 1px solid #eee;
@@ -109,14 +139,21 @@
                         <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="col-md-4 col-sm-6 product-item" data-category="<?php echo e($product->category_id); ?>" data-name="<?php echo e(strtolower($product->name)); ?>">
                                 <div class="card product-card" onclick="addToOrder(<?php echo e($product->id); ?>, '<?php echo e(addslashes($product->name)); ?>', <?php echo e($product->price); ?>)">
-                                    <div class="card-body d-flex flex-column justify-content-between">
-                                        <div>
-                                            <h6 class="mb-1"><?php echo e($product->name); ?></h6>
-                                            <small class="text-muted"><?php echo e($product->category->name); ?></small>
+                                    <?php if($product->image): ?>
+                                        <img src="<?php echo e(Storage::url($product->image)); ?>" alt="<?php echo e($product->name); ?>" class="product-image">
+                                    <?php else: ?>
+                                        <div class="product-placeholder">
+                                            <i class="ri ri-restaurant-line ri-2x text-muted"></i>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center mt-2">
-                                            <span class="h5 mb-0 text-primary"><?php echo \App\Helpers\Helpers::formatPrice($product->price); ?></span>
-                                            <button class="btn btn-sm btn-primary">
+                                    <?php endif; ?>
+                                    <div class="product-info">
+                                        <div class="mb-2">
+                                            <h6 class="mb-1" style="font-size: 0.95rem; line-height: 1.3;"><?php echo e($product->name); ?></h6>
+                                            <small class="text-muted" style="font-size: 0.75rem;"><?php echo e($product->category->name); ?></small>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                                            <span class="h5 mb-0 text-primary" style="font-size: 1.1rem;"><?php echo \App\Helpers\Helpers::formatPrice($product->price); ?></span>
+                                            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); addToOrder(<?php echo e($product->id); ?>, '<?php echo e(addslashes($product->name)); ?>', <?php echo e($product->price); ?>)">
                                                 <i class="ri ri-add-line"></i>
                                             </button>
                                         </div>

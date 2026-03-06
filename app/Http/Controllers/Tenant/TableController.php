@@ -7,6 +7,7 @@ use App\Models\Tenant\Table;
 use App\Models\Tenant\Order;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\Category;
+use App\Models\Tenant\PreparationArea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -214,7 +215,7 @@ class TableController extends Controller
 
         $order = $table->orders()
             ->whereIn('status', ['pending', 'preparing', 'ready', 'served', 'closed'])
-            ->with(['items.product', 'waiter'])
+            ->with(['items.product.preparationArea', 'waiter'])
             ->first();
 
         // Si no hay orden activa, redirigir al índice de mesas
@@ -224,8 +225,63 @@ class TableController extends Controller
                 ->with('info', 'Esta mesa no tiene un pedido activo');
         }
 
-        return view('tenant.tables.show-order', compact('table', 'order'));
+        // Obtener las áreas de preparación que tienen productos en este pedido
+        $preparationAreas = PreparationArea::whereHas('products', function($query) use ($order) {
+            $query->whereIn('id', $order->items->pluck('product_id'));
+        })->active()->ordered()->get();
+
+        return view('tenant.tables.show-order', compact('table', 'order', 'preparationAreas'));
     }
+
+    /**
+     * Imprimir comanda del pedido
+     */
+    public function printComanda($tenant, $table_id)
+    {
+        $table = Table::findOrFail($table_id);
+
+        $order = $table->orders()
+            ->whereIn('status', ['pending', 'preparing', 'ready', 'served', 'closed'])
+            ->with(['items.product', 'waiter'])
+            ->first();
+
+        if (!$order) {
+            return redirect()
+                ->route('tenant.path.tables.index', ['tenant' => request()->route('tenant')])
+                ->with('error', 'Esta mesa no tiene un pedido activo');
+        }
+
+        return view('tenant.tables.print-comanda', compact('table', 'order'));
+    }
+
+    public function printComandaByArea($tenant, $table_id, $area_id)
+    {
+        $table = Table::findOrFail($table_id);
+        $area = PreparationArea::findOrFail($area_id);
+
+        $order = $table->orders()
+            ->whereIn('status', ['pending', 'preparing', 'ready', 'served', 'closed'])
+            ->with(['items.product', 'waiter'])
+            ->first();
+
+        if (!$order) {
+            return redirect()
+                ->route('tenant.path.tables.index', ['tenant' => request()->route('tenant')])
+                ->with('error', 'Esta mesa no tiene un pedido activo');
+        }
+
+        // Filtrar solo los items que pertenecen a esta área
+        $items = $order->items()->whereHas('product', function($query) use ($area_id) {
+            $query->where('preparation_area_id', $area_id);
+        })->get();
+
+        if ($items->isEmpty()) {
+            return redirect()->back()->with('error', 'No hay productos de esta estación en el pedido');
+        }
+
+        return view('tenant.tables.print-comanda-area', compact('table', 'order', 'area', 'items'));
+    }
+
 
     /**
      * Actualizar estado del pedido

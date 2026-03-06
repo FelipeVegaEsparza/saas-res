@@ -14,6 +14,7 @@ class Product extends Model
 
     protected $fillable = [
         'category_id',
+        'preparation_area_id',
         'name',
         'slug',
         'description',
@@ -51,6 +52,14 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Relación con área de preparación
+     */
+    public function preparationArea()
+    {
+        return $this->belongsTo(PreparationArea::class);
     }
 
     /**

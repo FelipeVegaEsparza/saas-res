@@ -59,10 +59,42 @@ use Illuminate\Support\Facades\Storage;
 
                         <div class="col-md-6">
                             <div class="mb-3">
+                                <label for="preparation_area_id" class="form-label">Estación de Preparación *</label>
+                                <select class="form-select @error('preparation_area_id') is-invalid @enderror"
+                                        id="preparation_area_id" name="preparation_area_id" required>
+                                    <option value="">Seleccionar...</option>
+                                    @foreach($preparationAreas as $area)
+                                        <option value="{{ $area->id }}"
+                                                {{ old('preparation_area_id', $product->preparation_area_id) == $area->id ? 'selected' : '' }}>
+                                            {{ $area->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('preparation_area_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
                                 <label for="price" class="form-label">Precio *</label>
                                 <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror"
                                        id="price" name="price" value="{{ old('price', $product->price) }}" required>
                                 @error('price')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="preparation_time" class="form-label">Tiempo de Preparación (minutos)</label>
+                                <input type="number" class="form-control @error('preparation_time') is-invalid @enderror"
+                                       id="preparation_time" name="preparation_time" value="{{ old('preparation_time', $product->preparation_time) }}">
+                                @error('preparation_time')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -82,15 +114,6 @@ use Illuminate\Support\Facades\Storage;
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <small class="text-muted">Formato: JPG, PNG, WEBP. Máx: 2MB</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="preparation_time" class="form-label">Tiempo de Preparación (minutos)</label>
-                        <input type="number" class="form-control @error('preparation_time') is-invalid @enderror"
-                               id="preparation_time" name="preparation_time" value="{{ old('preparation_time', $product->preparation_time) }}">
-                        @error('preparation_time')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
                 </div>
 
