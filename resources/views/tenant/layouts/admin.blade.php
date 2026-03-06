@@ -34,8 +34,23 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
                     @php
                         $restaurant = tenant()->restaurant();
                     @endphp
-                    @if($restaurant->logo_horizontal)
-                        <img src="{{ Storage::url($restaurant->logo_horizontal) }}" alt="{{ $restaurant->name }}" style="max-height: 70px; max-width: 200px; object-fit: contain;">
+
+                    @if($restaurant->logo_horizontal || $restaurant->logo_square)
+                        <!-- Logo Horizontal (visible cuando el menú está expandido) -->
+                        @if($restaurant->logo_horizontal)
+                            <img src="{{ Storage::url($restaurant->logo_horizontal) }}"
+                                 alt="{{ $restaurant->name }}"
+                                 class="logo-horizontal"
+                                 style="max-height: 70px; max-width: 200px; object-fit: contain;">
+                        @endif
+
+                        <!-- Logo Cuadrado (visible cuando el menú está contraído) -->
+                        @if($restaurant->logo_square)
+                            <img src="{{ Storage::url($restaurant->logo_square) }}"
+                                 alt="{{ $restaurant->name }}"
+                                 class="logo-square"
+                                 style="max-height: 50px; max-width: 50px; object-fit: contain; display: none;">
+                        @endif
                     @else
                         <span class="app-brand-text demo menu-text fw-semibold" style="font-size: 1.5rem;">{{ $restaurant->name }}</span>
                     @endif
@@ -514,6 +529,55 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
 
     // Verificar inmediatamente al cargar la página
     setTimeout(checkNewOrders, 2000);
+})();
+
+// Control de logos según estado del menú lateral
+(function() {
+    const layoutMenu = document.getElementById('layout-menu');
+    const logoHorizontal = document.querySelector('.logo-horizontal');
+    const logoSquare = document.querySelector('.logo-square');
+
+    if (!logoHorizontal || !logoSquare) return;
+
+    function updateLogoVisibility() {
+        // Verificar si el menú está colapsado
+        const isCollapsed = layoutMenu.classList.contains('layout-menu-collapsed');
+
+        if (isCollapsed) {
+            // Menú contraído: mostrar logo cuadrado
+            logoHorizontal.style.display = 'none';
+            logoSquare.style.display = 'block';
+        } else {
+            // Menú expandido: mostrar logo horizontal
+            logoHorizontal.style.display = 'block';
+            logoSquare.style.display = 'none';
+        }
+    }
+
+    // Actualizar al cargar la página
+    updateLogoVisibility();
+
+    // Observar cambios en las clases del menú
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                updateLogoVisibility();
+            }
+        });
+    });
+
+    observer.observe(layoutMenu, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+
+    // También escuchar el evento de toggle del menú
+    const menuToggle = document.querySelector('.layout-menu-toggle');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            setTimeout(updateLogoVisibility, 300); // Esperar a que termine la animación
+        });
+    }
 })();
 </script>
 
