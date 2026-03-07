@@ -531,81 +531,49 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
     setTimeout(checkNewOrders, 2000);
 })();
 
-// Control de logos según estado del menú lateral
+// Control de logos segun estado del menu lateral
 (function() {
     function initLogoToggle() {
         const layoutMenu = document.getElementById('layout-menu');
         const logoHorizontal = document.querySelector('.logo-horizontal');
         const logoSquare = document.querySelector('.logo-square');
 
-        console.log('Logo Toggle Init:', {
-            layoutMenu: !!layoutMenu,
-            logoHorizontal: !!logoHorizontal,
-            logoSquare: !!logoSquare
-        });
-
-        if (!layoutMenu) {
-            console.error('Layout menu not found');
-            return;
-        }
-
-        if (!logoHorizontal && !logoSquare) {
-            console.log('No logos found');
-            return;
-        }
+        if (!layoutMenu || (!logoHorizontal && !logoSquare)) return;
 
         function updateLogoVisibility() {
-            const isCollapsed = layoutMenu.classList.contains('layout-menu-collapsed') ||
-                               layoutMenu.classList.contains('closed');
-
-            console.log('Menu collapsed:', isCollapsed);
+            console.log('Menu classes:', layoutMenu.className);
+            const menuWidth = layoutMenu.offsetWidth;
+            const isNarrow = menuWidth < 100;
+            console.log('Menu width:', menuWidth, 'isNarrow:', isNarrow);
 
             if (logoHorizontal && logoSquare) {
-                if (isCollapsed) {
-                    // Menú contraído: mostrar logo cuadrado
+                if (isNarrow) {
                     logoHorizontal.style.display = 'none';
                     logoSquare.style.display = 'block';
                 } else {
-                    // Menú expandido: mostrar logo horizontal
                     logoHorizontal.style.display = 'block';
                     logoSquare.style.display = 'none';
                 }
-            } else if (logoSquare && !logoHorizontal) {
-                // Solo tiene logo cuadrado
-                logoSquare.style.display = 'block';
-            } else if (logoHorizontal && !logoSquare) {
-                // Solo tiene logo horizontal
-                logoHorizontal.style.display = 'block';
             }
         }
 
-        // Actualizar inmediatamente
         updateLogoVisibility();
 
-        // Observar cambios en las clases del menú
-        const observer = new MutationObserver(function(mutations) {
-            updateLogoVisibility();
-        });
+        const observer = new MutationObserver(updateLogoVisibility);
+        observer.observe(layoutMenu, { attributes: true, attributeFilter: ['class', 'style'] });
 
-        observer.observe(layoutMenu, {
-            attributes: true,
-            attributeFilter: ['class']
-        });
-
-        // También escuchar clicks en el toggle
         const menuToggle = document.querySelector('.layout-menu-toggle');
         if (menuToggle) {
             menuToggle.addEventListener('click', function() {
                 setTimeout(updateLogoVisibility, 50);
                 setTimeout(updateLogoVisibility, 300);
+                setTimeout(updateLogoVisibility, 500);
             });
         }
 
-        // Actualizar periódicamente por si acaso
-        setInterval(updateLogoVisibility, 1000);
+        window.addEventListener('resize', updateLogoVisibility);
     }
 
-    // Inicializar cuando el DOM esté listo
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initLogoToggle);
     } else {
