@@ -533,50 +533,83 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
 
 // Control de logos según estado del menú lateral
 (function() {
-    const layoutMenu = document.getElementById('layout-menu');
-    const logoHorizontal = document.querySelector('.logo-horizontal');
-    const logoSquare = document.querySelector('.logo-square');
+    function initLogoToggle() {
+        const layoutMenu = document.getElementById('layout-menu');
+        const logoHorizontal = document.querySelector('.logo-horizontal');
+        const logoSquare = document.querySelector('.logo-square');
 
-    if (!logoHorizontal || !logoSquare) return;
+        console.log('Logo Toggle Init:', {
+            layoutMenu: !!layoutMenu,
+            logoHorizontal: !!logoHorizontal,
+            logoSquare: !!logoSquare
+        });
 
-    function updateLogoVisibility() {
-        // Verificar si el menú está colapsado
-        const isCollapsed = layoutMenu.classList.contains('layout-menu-collapsed');
-
-        if (isCollapsed) {
-            // Menú contraído: mostrar logo cuadrado
-            logoHorizontal.style.display = 'none';
-            logoSquare.style.display = 'block';
-        } else {
-            // Menú expandido: mostrar logo horizontal
-            logoHorizontal.style.display = 'block';
-            logoSquare.style.display = 'none';
+        if (!layoutMenu) {
+            console.error('Layout menu not found');
+            return;
         }
+
+        if (!logoHorizontal && !logoSquare) {
+            console.log('No logos found');
+            return;
+        }
+
+        function updateLogoVisibility() {
+            const isCollapsed = layoutMenu.classList.contains('layout-menu-collapsed') ||
+                               layoutMenu.classList.contains('closed');
+
+            console.log('Menu collapsed:', isCollapsed);
+
+            if (logoHorizontal && logoSquare) {
+                if (isCollapsed) {
+                    // Menú contraído: mostrar logo cuadrado
+                    logoHorizontal.style.display = 'none';
+                    logoSquare.style.display = 'block';
+                } else {
+                    // Menú expandido: mostrar logo horizontal
+                    logoHorizontal.style.display = 'block';
+                    logoSquare.style.display = 'none';
+                }
+            } else if (logoSquare && !logoHorizontal) {
+                // Solo tiene logo cuadrado
+                logoSquare.style.display = 'block';
+            } else if (logoHorizontal && !logoSquare) {
+                // Solo tiene logo horizontal
+                logoHorizontal.style.display = 'block';
+            }
+        }
+
+        // Actualizar inmediatamente
+        updateLogoVisibility();
+
+        // Observar cambios en las clases del menú
+        const observer = new MutationObserver(function(mutations) {
+            updateLogoVisibility();
+        });
+
+        observer.observe(layoutMenu, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        // También escuchar clicks en el toggle
+        const menuToggle = document.querySelector('.layout-menu-toggle');
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                setTimeout(updateLogoVisibility, 50);
+                setTimeout(updateLogoVisibility, 300);
+            });
+        }
+
+        // Actualizar periódicamente por si acaso
+        setInterval(updateLogoVisibility, 1000);
     }
 
-    // Actualizar al cargar la página
-    updateLogoVisibility();
-
-    // Observar cambios en las clases del menú
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.attributeName === 'class') {
-                updateLogoVisibility();
-            }
-        });
-    });
-
-    observer.observe(layoutMenu, {
-        attributes: true,
-        attributeFilter: ['class']
-    });
-
-    // También escuchar el evento de toggle del menú
-    const menuToggle = document.querySelector('.layout-menu-toggle');
-    if (menuToggle) {
-        menuToggle.addEventListener('click', function() {
-            setTimeout(updateLogoVisibility, 300); // Esperar a que termine la animación
-        });
+    // Inicializar cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLogoToggle);
+    } else {
+        initLogoToggle();
     }
 })();
 </script>
