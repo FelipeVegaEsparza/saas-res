@@ -77,13 +77,54 @@ class TableController extends Controller
             ->with('success', 'Mesa actualizada exitosamente');
     }
 
-    public function destroy($tenant, $table_id)
+    public function destroy(Request $request, $tenant, $table_id)
     {
-        $table = Table::findOrFail($table_id);
-        $table->delete();
+        try {
+            $table = Table::findOrFail($table_id);
 
-        return redirect()->route('tenant.path.tables.index', ['tenant' => request()->route('tenant')])
-            ->with('success', 'Mesa eliminada exitosamente');
+            // Verificar si la mesa tiene pedidos activos
+            $hasActiveOrder = $table->orders()
+                ->whereIn('status', ['pending', 'preparing', 'ready', 'served'])
+                ->exists();
+
+            if ($hasActiveOrder) {
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No se puede eliminar una mesa con pedidos activos'
+                    ], 400);
+                }
+
+                return redirect()
+                    ->route('tenant.path.tables.index', ['tenant' => request()->route('tenant')])
+                    ->with('error', 'No se puede eliminar una mesa con pedidos activos');
+            }
+
+            $table->delete();
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Mesa eliminada exitosamente'
+                ]);
+            }
+
+            return redirect()
+                ->route('tenant.path.tables.index', ['tenant' => request()->route('tenant')])
+                ->with('success', 'Mesa eliminada exitosamente');
+
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar la mesa: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()
+                ->route('tenant.path.tables.index', ['tenant' => request()->route('tenant')])
+                ->with('error', 'Error al eliminar la mesa: ' . $e->getMessage());
+        }
     }
 
     /**

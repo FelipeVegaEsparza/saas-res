@@ -384,6 +384,11 @@
         <i class="ri ri-arrow-up-down-line"></i>
         <span>Vertical</span>
     </div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item text-danger" data-action="delete">
+        <i class="ri ri-delete-bin-line"></i>
+        <span>Eliminar Mesa</span>
+    </div>
 </div>
 @endsection
 
@@ -533,14 +538,18 @@ document.querySelectorAll('.context-menu-item').forEach(item => {
 
         if (!contextMenuTarget) return;
 
-        const [type, value] = action.split('-');
+        if (action === 'delete') {
+            await deleteTable(contextMenuTarget);
+        } else {
+            const [type, value] = action.split('-');
 
-        if (type === 'shape') {
-            await updateTableShape(contextMenuTarget, value);
-        } else if (type === 'orientation') {
-            await updateTableOrientation(contextMenuTarget, value);
-        } else if (type === 'size') {
-            await updateTableSize(contextMenuTarget, value);
+            if (type === 'shape') {
+                await updateTableShape(contextMenuTarget, value);
+            } else if (type === 'orientation') {
+                await updateTableOrientation(contextMenuTarget, value);
+            } else if (type === 'size') {
+                await updateTableSize(contextMenuTarget, value);
+            }
         }
 
         contextMenu.classList.remove('show');
@@ -656,6 +665,64 @@ async function updateTableSize(element, size) {
         }
     } catch (error) {
         console.error('Error al actualizar tamaño:', error);
+    }
+}
+
+async function deleteTable(element) {
+    const tableId = element.dataset.tableId;
+    const tableNumber = element.querySelector('.table-info-map strong').textContent;
+
+    const result = await Swal.fire({
+        title: '¿Eliminar mesa?',
+        html: `¿Estás seguro de eliminar la <strong>Mesa ${tableNumber}</strong>?<br><small class="text-muted">Esta acción no se puede deshacer</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+        const response = await fetch(`{{ url('/') }}/{{ request()->route('tenant') }}/tables/${tableId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Remover elemento del DOM con animación
+            element.style.transition = 'all 0.3s ease';
+            element.style.opacity = '0';
+            element.style.transform = 'scale(0.8)';
+
+            setTimeout(() => {
+                element.remove();
+            }, 300);
+
+            Swal.fire({
+                icon: 'success',
+                title: '¡Eliminada!',
+                text: 'La mesa ha sido eliminada correctamente',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            throw new Error(data.message || 'Error al eliminar la mesa');
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'No se pudo eliminar la mesa'
+        });
     }
 }
 
