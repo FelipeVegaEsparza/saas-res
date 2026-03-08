@@ -217,11 +217,23 @@
         background: var(--bs-card-bg);
         border: 1px solid var(--bs-border-color);
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.25);
         padding: 8px 0;
         z-index: 2000;
-        min-width: 180px;
+        min-width: 200px;
         display: none;
+    }
+
+    /* Asegurar fondo sólido en modo claro */
+    [data-theme="light"] .context-menu {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+    }
+
+    /* Asegurar fondo sólido en modo oscuro */
+    [data-theme="dark"] .context-menu {
+        background: #2b2c40;
+        border: 1px solid #3a3b54;
     }
 
     .context-menu.show {
@@ -229,27 +241,50 @@
     }
 
     .context-menu-item {
-        padding: 8px 16px;
+        padding: 10px 16px;
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         transition: background 0.2s;
+        font-size: 0.9rem;
+        color: var(--bs-body-color);
     }
 
     .context-menu-item:hover {
         background: var(--bs-secondary-bg);
     }
 
+    [data-theme="light"] .context-menu-item:hover {
+        background: #f5f5f5;
+    }
+
+    [data-theme="dark"] .context-menu-item:hover {
+        background: #3a3b54;
+    }
+
     .context-menu-item i {
         width: 20px;
         text-align: center;
+        font-size: 1.1rem;
+    }
+
+    .context-menu-item.text-danger:hover {
+        background: rgba(255, 62, 29, 0.1);
     }
 
     .context-menu-divider {
         height: 1px;
         background: var(--bs-border-color);
-        margin: 4px 0;
+        margin: 6px 0;
+    }
+
+    [data-theme="light"] .context-menu-divider {
+        background: #e0e0e0;
+    }
+
+    [data-theme="dark"] .context-menu-divider {
+        background: #3a3b54;
     }
 </style>
 @endsection
