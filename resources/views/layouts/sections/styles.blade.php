@@ -39,6 +39,18 @@
 .layout-page .content-wrapper h1.mb-1 + p.text-muted {
   display: none;
 }
+
+/* Ocultar títulos h1 sin clase específica (settings, users, statistics, products, categories) */
+.layout-page .content-wrapper > div > h1,
+.layout-page .content-wrapper > div.mb-4 > h1,
+.layout-page .content-wrapper > div.d-flex > h1 {
+  display: none;
+}
+
+/* Ocultar párrafos descriptivos después de h1 en settings */
+.layout-page .content-wrapper > div.mb-4 > h1 + p.text-muted {
+  display: none;
+}
 </style>
 
 <!-- Custom Menu Styles -->
