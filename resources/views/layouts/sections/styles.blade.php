@@ -28,6 +28,19 @@
 @vite(['resources/css/app.css'])
 <!-- END: app CSS-->
 
+<!-- Hide page titles in dashboard -->
+<style>
+/* Ocultar títulos h1 en el contenido del dashboard */
+.layout-page .content-wrapper h1.mb-1 {
+  display: none;
+}
+
+/* También ocultar el párrafo descriptivo que suele acompañar al título */
+.layout-page .content-wrapper h1.mb-1 + p.text-muted {
+  display: none;
+}
+</style>
+
 <!-- Custom Menu Styles -->
 <style>
 /**
