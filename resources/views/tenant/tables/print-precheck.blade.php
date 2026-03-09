@@ -242,21 +242,16 @@
     </div>
 
     <div class="tips-section">
-        <div class="tips-title">PROPINA SUGERIDA</div>
+        <div class="tips-title">PROPINA SUGERIDA (10%)</div>
 
         <div class="tip-option">
-            <span class="tip-label">10%</span>
-            <span class="tip-total">@price($order->total + $tips[10])</span>
+            <span class="tip-label">Propina 10%:</span>
+            <span class="tip-total">@price($tip)</span>
         </div>
 
-        <div class="tip-option">
-            <span class="tip-label">15%</span>
-            <span class="tip-total">@price($order->total + $tips[15])</span>
-        </div>
-
-        <div class="tip-option">
-            <span class="tip-label">20%</span>
-            <span class="tip-total">@price($order->total + $tips[20])</span>
+        <div class="tip-option" style="background: #e8f5e9; font-weight: bold; margin-top: 8px;">
+            <span class="tip-label">TOTAL CON PROPINA:</span>
+            <span class="tip-total">@price($order->total + $tip)</span>
         </div>
     </div>
 

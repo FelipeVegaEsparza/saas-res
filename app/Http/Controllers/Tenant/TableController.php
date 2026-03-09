@@ -365,14 +365,10 @@ class TableController extends Controller
                 ->with('error', 'Esta mesa no tiene un pedido activo');
         }
 
-        // Calcular propinas sugeridas (10%, 15%, 20%)
-        $tips = [
-            10 => $order->total * 0.10,
-            15 => $order->total * 0.15,
-            20 => $order->total * 0.20,
-        ];
+        // Calcular propina sugerida (10%)
+        $tip = $order->total * 0.10;
 
-        return view('tenant.tables.print-precheck', compact('table', 'order', 'tips'));
+        return view('tenant.tables.print-precheck', compact('table', 'order', 'tip'));
     }
 
 
