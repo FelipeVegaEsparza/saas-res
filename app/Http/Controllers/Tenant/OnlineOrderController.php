@@ -22,6 +22,16 @@ class OnlineOrderController extends Controller
             return view('tenant.online.unavailable', compact('restaurant'));
         }
 
+        // Verificar que haya una sesión de caja abierta
+        $activeSession = \App\Models\Tenant\CashSession::where('status', 'open')->first();
+
+        if (!$activeSession) {
+            return view('tenant.online.unavailable', [
+                'restaurant' => $restaurant,
+                'message' => 'Lo sentimos, no estamos aceptando pedidos en este momento. Por favor intenta más tarde.'
+            ]);
+        }
+
         // Obtener categorías con productos activos y disponibles para delivery
         $categories = Category::with(['activeProducts' => function ($query) {
             $query->where('available_for_delivery', true)
@@ -45,6 +55,15 @@ class OnlineOrderController extends Controller
 
         if (!$restaurant->accepts_online_orders) {
             return response()->json(['error' => 'Pedidos online no disponibles'], 403);
+        }
+
+        // Verificar que haya una sesión de caja abierta
+        $activeSession = \App\Models\Tenant\CashSession::where('status', 'open')->first();
+
+        if (!$activeSession) {
+            return response()->json([
+                'error' => 'Lo sentimos, no estamos aceptando pedidos en este momento. Por favor intenta más tarde.'
+            ], 403);
         }
 
         $validated = $request->validate([

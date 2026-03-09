@@ -76,7 +76,7 @@ class CashRegisterController extends Controller
             return back()->with('error', 'Esta sesión ya está cerrada');
         }
 
-        // Verificar que no haya pedidos pendientes de mesas
+        // Verificar que no haya pedidos pendientes de mesas (sin cobrar)
         $pendingTableOrders = Order::whereIn('status', ['pending', 'preparing', 'ready', 'served', 'closed'])
             ->count();
 
@@ -84,10 +84,16 @@ class CashRegisterController extends Controller
             return back()->with('error', "No se puede cerrar la caja. Hay {$pendingTableOrders} pedido(s) de mesa pendiente(s) de cobrar o cerrar.");
         }
 
-        // Verificar que no haya pedidos de delivery pendientes
+        // Verificar que no haya pedidos de delivery pendientes de cobrar
+        // Solo considerar los que están en proceso O los que no han sido pagados
         $pendingDeliveryOrders = \App\Models\Tenant\DeliveryOrder::where(function($query) {
-                $query->whereIn('status', ['pending', 'confirmed', 'preparing', 'ready', 'on_delivery', 'delivered'])
-                      ->orWhere('payment_status', 'pending');
+                // Pedidos en proceso (no completados ni cancelados)
+                $query->whereIn('status', ['pending', 'confirmed', 'preparing', 'ready', 'on_delivery'])
+                      // O pedidos entregados pero no pagados
+                      ->orWhere(function($q) {
+                          $q->where('status', 'delivered')
+                            ->where('payment_status', 'pending');
+                      });
             })
             ->count();
 
