@@ -354,6 +354,28 @@
                     </div>
                     <small class="text-muted">Cambio: <span id="change" class="text-success fw-bold">$0.00</span></small>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Propina (opcional)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" id="tipAmount" class="form-control" step="0.01" min="0" placeholder="0.00" value="0">
+                    </div>
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setTipPercentage(10)">10%</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setTipPercentage(15)">15%</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setTipPercentage(20)">20%</button>
+                    </div>
+                </div>
+
+                <div class="card bg-light">
+                    <div class="card-body py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Total con propina:</small>
+                            <strong id="totalWithTip" class="text-primary">$0.00</strong>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -491,7 +513,9 @@ function showPaymentModal(orderId, total, tableNumber) {
     document.getElementById('paymentTableNumber').textContent = 'Mesa ' + tableNumber;
     document.getElementById('paymentTotal').textContent = '$' + total.toFixed(2);
     document.getElementById('amountPaid').value = total.toFixed(2);
+    document.getElementById('tipAmount').value = '0';
 
+    updateTotalWithTip();
     calculateChange();
 
     const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
@@ -508,7 +532,9 @@ function showDeliveryPaymentModal(deliveryOrderId, total, orderNumber) {
     document.getElementById('paymentTableNumber').textContent = orderNumber;
     document.getElementById('paymentTotal').textContent = '$' + total.toFixed(2);
     document.getElementById('amountPaid').value = total.toFixed(2);
+    document.getElementById('tipAmount').value = '0';
 
+    updateTotalWithTip();
     calculateChange();
 
     const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
@@ -517,10 +543,34 @@ function showDeliveryPaymentModal(deliveryOrderId, total, orderNumber) {
 
 // Calcular cambio
 document.getElementById('amountPaid')?.addEventListener('input', calculateChange);
+document.getElementById('tipAmount')?.addEventListener('input', function() {
+    updateTotalWithTip();
+    calculateChange();
+});
+
+// Establecer propina por porcentaje
+function setTipPercentage(percentage) {
+    const tip = currentTotal * (percentage / 100);
+    document.getElementById('tipAmount').value = tip.toFixed(2);
+    updateTotalWithTip();
+    calculateChange();
+}
+
+// Actualizar total con propina
+function updateTotalWithTip() {
+    const tip = parseFloat(document.getElementById('tipAmount')?.value) || 0;
+    const totalWithTip = currentTotal + tip;
+    const totalElement = document.getElementById('totalWithTip');
+    if (totalElement) {
+        totalElement.textContent = '$' + totalWithTip.toFixed(2);
+    }
+}
 
 function calculateChange() {
     const amountPaid = parseFloat(document.getElementById('amountPaid')?.value) || 0;
-    const change = amountPaid - currentTotal;
+    const tip = parseFloat(document.getElementById('tipAmount')?.value) || 0;
+    const totalWithTip = currentTotal + tip;
+    const change = amountPaid - totalWithTip;
 
     const changeElement = document.getElementById('change');
     if (changeElement) {
@@ -535,22 +585,25 @@ document.getElementById('paymentMethod')?.addEventListener('change', function() 
         cashSection.style.display = 'block';
     } else {
         cashSection.style.display = 'none';
-        document.getElementById('amountPaid').value = currentTotal.toFixed(2);
+        const tip = parseFloat(document.getElementById('tipAmount')?.value) || 0;
+        document.getElementById('amountPaid').value = (currentTotal + tip).toFixed(2);
     }
 });
 
 // Procesar pago
 async function processPayment() {
     const paymentMethod = document.getElementById('paymentMethod').value;
-    let amountPaid = currentTotal;
+    const tip = parseFloat(document.getElementById('tipAmount').value) || 0;
+    const totalWithTip = currentTotal + tip;
+    let amountPaid = totalWithTip;
 
     if (paymentMethod === 'cash') {
         amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
-        if (amountPaid < currentTotal) {
+        if (amountPaid < totalWithTip) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Monto Insuficiente',
-                text: 'El monto recibido es menor al total',
+                text: 'El monto recibido es menor al total con propina',
                 confirmButtonText: 'Entendido'
             });
             return;
@@ -560,11 +613,13 @@ async function processPayment() {
     const data = isDeliveryPayment ? {
         delivery_order_id: currentDeliveryOrderId,
         payment_method: paymentMethod,
-        amount_paid: amountPaid
+        amount_paid: amountPaid,
+        tip: tip
     } : {
         order_id: currentOrderId,
         payment_method: paymentMethod,
-        amount_paid: amountPaid
+        amount_paid: amountPaid,
+        tip: tip
     };
 
     const url = isDeliveryPayment

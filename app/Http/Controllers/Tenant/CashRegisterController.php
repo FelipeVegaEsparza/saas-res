@@ -159,6 +159,7 @@ class CashRegisterController extends Controller
             'order_id' => 'required|exists:tenant.orders,id',
             'payment_method' => 'required|in:cash,card,transfer',
             'amount_paid' => 'required|numeric|min:0',
+            'tip' => 'nullable|numeric|min:0',
         ]);
 
         $activeSession = CashSession::where('user_id', Auth::id())
@@ -178,6 +179,8 @@ class CashRegisterController extends Controller
         DB::connection('tenant')->beginTransaction();
 
         try {
+            $tip = $validated['tip'] ?? 0;
+
             // Crear pago
             $payment = Payment::create([
                 'order_id' => $order->id,
@@ -185,7 +188,8 @@ class CashRegisterController extends Controller
                 'payment_method' => $validated['payment_method'],
                 'amount' => $order->total,
                 'amount_paid' => $validated['amount_paid'],
-                'change' => $validated['amount_paid'] - $order->total,
+                'tip' => $tip,
+                'change' => $validated['amount_paid'] - $order->total - $tip,
                 'status' => 'completed',
                 'paid_at' => now(),
             ]);
@@ -229,6 +233,7 @@ class CashRegisterController extends Controller
             'delivery_order_id' => 'required|exists:tenant.delivery_orders,id',
             'payment_method' => 'required|in:cash,card,transfer',
             'amount_paid' => 'required|numeric|min:0',
+            'tip' => 'nullable|numeric|min:0',
         ]);
 
         $activeSession = CashSession::where('user_id', Auth::id())
@@ -248,6 +253,8 @@ class CashRegisterController extends Controller
         DB::connection('tenant')->beginTransaction();
 
         try {
+            $tip = $validated['tip'] ?? 0;
+
             // Crear pago
             $payment = Payment::create([
                 'delivery_order_id' => $deliveryOrder->id,
@@ -255,7 +262,8 @@ class CashRegisterController extends Controller
                 'payment_method' => $validated['payment_method'],
                 'amount' => $deliveryOrder->total,
                 'amount_paid' => $validated['amount_paid'],
-                'change' => $validated['amount_paid'] - $deliveryOrder->total,
+                'tip' => $tip,
+                'change' => $validated['amount_paid'] - $deliveryOrder->total - $tip,
                 'status' => 'completed',
                 'paid_at' => now(),
             ]);
@@ -294,13 +302,31 @@ class CashRegisterController extends Controller
             abort(403);
         }
 
-        $cashSession->load(['payments.order.items.product', 'payments.deliveryOrder.items.product']);
+        $cashSession->load(['payments.order.items.product', 'payments.order.waiter', 'payments.deliveryOrder.items.product']);
 
         $paymentsByMethod = $cashSession->payments()
             ->select('payment_method', DB::raw('COUNT(*) as count'), DB::raw('SUM(amount) as total'))
             ->groupBy('payment_method')
             ->get();
 
-        return view('tenant.cash.report', compact('cashSession', 'paymentsByMethod'));
+        // Calcular propinas por mesero
+        $tipsByWaiter = $cashSession->payments()
+            ->whereHas('order')
+            ->with('order.waiter')
+            ->get()
+            ->groupBy(function($payment) {
+                return $payment->order->waiter_id ?? 'sin_mesero';
+            })
+            ->map(function($payments) {
+                $waiter = $payments->first()->order->waiter ?? null;
+                return [
+                    'waiter_name' => $waiter ? $waiter->name : 'Sin Mesero',
+                    'total_tips' => $payments->sum('tip'),
+                    'orders_count' => $payments->count(),
+                ];
+            })
+            ->sortByDesc('total_tips');
+
+        return view('tenant.cash.report', compact('cashSession', 'paymentsByMethod', 'tipsByWaiter'));
     }
 }

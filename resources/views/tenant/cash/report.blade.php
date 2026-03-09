@@ -181,6 +181,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Propinas por Mesero -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Propinas por Mesero</h5>
+            </div>
+            <div class="card-body">
+                @if($tipsByWaiter->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Mesero</th>
+                                    <th class="text-end">Pedidos</th>
+                                    <th class="text-end">Total Propinas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($tipsByWaiter as $tipData)
+                                    <tr>
+                                        <td>{{ $tipData['waiter_name'] }}</td>
+                                        <td class="text-end">{{ $tipData['orders_count'] }}</td>
+                                        <td class="text-end"><strong>${{ number_format($tipData['total_tips'], 2) }}</strong></td>
+                                    </tr>
+                                @endforeach
+                                <tr class="table-active">
+                                    <td><strong>Total</strong></td>
+                                    <td class="text-end"><strong>{{ $tipsByWaiter->sum('orders_count') }}</strong></td>
+                                    <td class="text-end"><strong>${{ number_format($tipsByWaiter->sum('total_tips'), 2) }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-muted text-center py-3">No hay propinas registradas</p>
+                @endif
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="text-center mt-4">

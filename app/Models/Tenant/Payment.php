@@ -18,6 +18,7 @@ class Payment extends Model
         'payment_method',
         'amount',
         'amount_paid',
+        'tip',
         'change',
         'status',
         'transaction_id',
@@ -28,6 +29,7 @@ class Payment extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'amount_paid' => 'decimal:2',
+        'tip' => 'decimal:2',
         'change' => 'decimal:2',
         'paid_at' => 'datetime',
     ];
