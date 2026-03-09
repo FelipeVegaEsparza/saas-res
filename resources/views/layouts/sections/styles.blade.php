@@ -51,6 +51,36 @@
 .layout-page .content-wrapper > div.mb-4 > h1 + p.text-muted {
   display: none;
 }
+
+/* Fix pagination arrows - Ocultar SVG grandes */
+.pagination .page-link svg {
+  display: none !important;
+}
+
+/* Usar caracteres de texto para las flechas */
+.pagination .page-item:first-child .page-link::before {
+  content: '‹';
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.pagination .page-item:last-child .page-link::before {
+  content: '›';
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 300;
+}
+
+/* Asegurar que los botones del paginador tengan el tamaño correcto */
+.pagination .page-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0.5rem 0.75rem;
+}
 </style>
 
 <!-- Custom Menu Styles -->

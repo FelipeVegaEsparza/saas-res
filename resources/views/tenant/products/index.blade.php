@@ -94,37 +94,4 @@ use Illuminate\Support\Facades\Storage;
         </div>
     </div>
 </div>
-
-<style>
-/* Fix pagination arrows */
-.pagination .page-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 38px;
-    height: 38px;
-}
-
-.pagination svg {
-    width: 16px;
-    height: 16px;
-}
-
-/* Ocultar SVG y usar iconos de texto */
-.pagination .page-link svg {
-    display: none;
-}
-
-.pagination .page-item:first-child .page-link::before {
-    content: '‹';
-    font-size: 1.5rem;
-    line-height: 1;
-}
-
-.pagination .page-item:last-child .page-link::before {
-    content: '›';
-    font-size: 1.5rem;
-    line-height: 1;
-}
-</style>
 @endsection
