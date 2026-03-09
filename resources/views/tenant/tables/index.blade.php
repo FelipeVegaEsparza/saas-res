@@ -212,6 +212,21 @@
         z-index: 1000;
     }
 
+    .context-menu-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 9998;
+        display: none;
+    }
+
+    .context-menu-backdrop.show {
+        display: block;
+    }
+
     .context-menu {
         position: fixed;
         background: var(--bs-card-bg);
@@ -388,6 +403,7 @@
 </div>
 
 <!-- Menú Contextual -->
+<div id="contextMenuBackdrop" class="context-menu-backdrop"></div>
 <div id="contextMenu" class="context-menu">
     <div class="context-menu-item" data-action="shape-square">
         <i class="ri ri-checkbox-blank-line"></i>
@@ -558,6 +574,10 @@ function handleContextMenu(e) {
     e.preventDefault();
     contextMenuTarget = e.currentTarget;
 
+    const backdrop = document.getElementById('contextMenuBackdrop');
+    backdrop.style.display = 'block';
+    backdrop.classList.add('show');
+
     contextMenu.style.left = e.pageX + 'px';
     contextMenu.style.top = e.pageY + 'px';
     contextMenu.classList.add('show');
@@ -566,8 +586,22 @@ function handleContextMenu(e) {
 // Cerrar menú contextual al hacer click fuera
 document.addEventListener('click', function(e) {
     if (!contextMenu.contains(e.target)) {
+        const backdrop = document.getElementById('contextMenuBackdrop');
+        backdrop.classList.remove('show');
+        setTimeout(() => {
+            backdrop.style.display = 'none';
+        }, 200);
         contextMenu.classList.remove('show');
     }
+});
+
+// Cerrar backdrop al hacer click en él
+document.getElementById('contextMenuBackdrop').addEventListener('click', function() {
+    this.classList.remove('show');
+    setTimeout(() => {
+        this.style.display = 'none';
+    }, 200);
+    contextMenu.classList.remove('show');
 });
 
 // Manejar acciones del menú contextual
@@ -576,6 +610,14 @@ document.querySelectorAll('.context-menu-item').forEach(item => {
         const action = this.dataset.action;
 
         if (!contextMenuTarget) return;
+
+        // Cerrar menú y backdrop
+        const backdrop = document.getElementById('contextMenuBackdrop');
+        backdrop.classList.remove('show');
+        setTimeout(() => {
+            backdrop.style.display = 'none';
+        }, 200);
+        contextMenu.classList.remove('show');
 
         if (action === 'delete') {
             await deleteTable(contextMenuTarget);
@@ -590,8 +632,6 @@ document.querySelectorAll('.context-menu-item').forEach(item => {
                 await updateTableSize(contextMenuTarget, value);
             }
         }
-
-        contextMenu.classList.remove('show');
     });
 });
 
