@@ -12,13 +12,36 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index($tenant)
+    public function index(Request $request, $tenant)
     {
-        $products = Product::with('category')
-            ->latest()
-            ->paginate(20);
+        $query = Product::with('category');
 
-        return view('tenant.products.index', compact('products'));
+        // Filtro por búsqueda
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Filtro por categoría
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        // Filtro por disponibilidad
+        if ($request->filled('available')) {
+            $query->where('available', $request->available === '1');
+        }
+
+        // Filtro por destacado
+        if ($request->filled('featured')) {
+            $query->where('featured', $request->featured === '1');
+        }
+
+        $products = $query->latest()->paginate(20)->withQueryString();
+
+        // Obtener categorías para el filtro
+        $categories = Category::where('active', true)->orderBy('name')->get();
+
+        return view('tenant.products.index', compact('products', 'categories'));
     }
 
     public function create($tenant)

@@ -14,6 +14,59 @@ use Illuminate\Support\Facades\Storage;
     </a>
 </div>
 
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ route('tenant.path.products.index', ['tenant' => request()->route('tenant')]) }}">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" name="search" class="form-control" placeholder="Nombre del producto..." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Categoría</label>
+                    <select name="category" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Disponibilidad</label>
+                    <select name="available" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="1" {{ request('available') === '1' ? 'selected' : '' }}>Disponible</option>
+                        <option value="0" {{ request('available') === '0' ? 'selected' : '' }}>No disponible</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Destacado</label>
+                    <select name="featured" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="1" {{ request('featured') === '1' ? 'selected' : '' }}>Destacados</option>
+                        <option value="0" {{ request('featured') === '0' ? 'selected' : '' }}>No destacados</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ri ri-search-line"></i>
+                    </button>
+                </div>
+            </div>
+            @if(request()->hasAny(['search', 'category', 'available', 'featured']))
+                <div class="mt-3">
+                    <a href="{{ route('tenant.path.products.index', ['tenant' => request()->route('tenant')]) }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="ri ri-close-line me-1"></i> Limpiar filtros
+                    </a>
+                </div>
+            @endif
+        </form>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
