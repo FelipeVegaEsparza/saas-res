@@ -39,12 +39,30 @@ class DeliveryOrderController extends Controller
 
     public function create($tenant)
     {
+        // Verificar que haya una sesión de caja abierta
+        $activeSession = \App\Models\Tenant\CashSession::where('status', 'open')->first();
+
+        if (!$activeSession) {
+            return redirect()
+                ->route('tenant.path.cash.index', ['tenant' => request()->route('tenant')])
+                ->with('error', 'Debes abrir una sesión de caja antes de crear pedidos de delivery');
+        }
+
         $products = Product::where('available', true)->orderBy('name')->get();
         return view('tenant.delivery.create', compact('products'));
     }
 
     public function store(Request $request, $tenant)
     {
+        // Verificar que haya una sesión de caja abierta
+        $activeSession = \App\Models\Tenant\CashSession::where('status', 'open')->first();
+
+        if (!$activeSession) {
+            return back()
+                ->with('error', 'Debes abrir una sesión de caja antes de crear pedidos de delivery')
+                ->withInput();
+        }
+
         $validated = $request->validate([
             'type' => 'required|in:delivery,takeaway',
             'customer_name' => 'required|string|max:255',

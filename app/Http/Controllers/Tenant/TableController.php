@@ -132,6 +132,15 @@ class TableController extends Controller
      */
     public function takeOrder($tenant, $table_id)
     {
+        // Verificar que haya una sesión de caja abierta
+        $activeSession = \App\Models\Tenant\CashSession::where('status', 'open')->first();
+
+        if (!$activeSession) {
+            return redirect()
+                ->route('tenant.path.cash.index', ['tenant' => request()->route('tenant')])
+                ->with('error', 'Debes abrir una sesión de caja antes de tomar pedidos');
+        }
+
         $table = Table::findOrFail($table_id);
 
         // Obtener pedido activo de la mesa o crear uno nuevo
@@ -158,6 +167,22 @@ class TableController extends Controller
      */
     public function storeOrder(Request $request, $tenant, $table_id)
     {
+        // Verificar que haya una sesión de caja abierta
+        $activeSession = \App\Models\Tenant\CashSession::where('status', 'open')->first();
+
+        if (!$activeSession) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Debes abrir una sesión de caja antes de tomar pedidos'
+                ], 403);
+            }
+
+            return redirect()
+                ->route('tenant.path.cash.index', ['tenant' => request()->route('tenant')])
+                ->with('error', 'Debes abrir una sesión de caja antes de tomar pedidos');
+        }
+
         $table = Table::findOrFail($table_id);
 
         $validated = $request->validate([
