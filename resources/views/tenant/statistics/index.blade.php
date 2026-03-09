@@ -2,6 +2,27 @@
 
 @section('title', 'Estadísticas')
 
+@section('page-style')
+<style>
+/* Fix para iconos en avatares de estadísticas */
+.avatar.bg-label-success,
+.avatar.bg-label-primary,
+.avatar.bg-label-info,
+.avatar.bg-label-warning,
+.avatar.bg-label-danger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar i {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+@endsection
+
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Estadísticas de Ventas</h1>
