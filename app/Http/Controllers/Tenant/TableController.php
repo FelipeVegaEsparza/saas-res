@@ -347,6 +347,33 @@ class TableController extends Controller
 
         return view('tenant.tables.print-comanda-area', compact('table', 'order', 'area', 'items'));
     }
+    /**
+     * Imprimir precuenta del pedido
+     */
+    public function printPrecheck($tenant, $table_id)
+    {
+        $table = Table::findOrFail($table_id);
+
+        $order = $table->orders()
+            ->whereIn('status', ['pending', 'preparing', 'ready', 'served', 'closed'])
+            ->with(['items.product', 'waiter'])
+            ->first();
+
+        if (!$order) {
+            return redirect()
+                ->route('tenant.path.tables.index', ['tenant' => request()->route('tenant')])
+                ->with('error', 'Esta mesa no tiene un pedido activo');
+        }
+
+        // Calcular propinas sugeridas (10%, 15%, 20%)
+        $tips = [
+            10 => $order->total * 0.10,
+            15 => $order->total * 0.15,
+            20 => $order->total * 0.20,
+        ];
+
+        return view('tenant.tables.print-precheck', compact('table', 'order', 'tips'));
+    }
 
 
     /**

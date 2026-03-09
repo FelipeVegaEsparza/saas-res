@@ -127,6 +127,7 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
         Route::get('tables/{table_id}/show-order', [TableController::class, 'showOrder'])->where('table_id', '[0-9]+')->name('tenant.path.tables.showOrder');
         Route::get('tables/{table_id}/print-comanda', [TableController::class, 'printComanda'])->where('table_id', '[0-9]+')->name('tenant.path.tables.printComanda');
         Route::get('tables/{table_id}/print-comanda/{area_id}', [TableController::class, 'printComandaByArea'])->where(['table_id' => '[0-9]+', 'area_id' => '[0-9]+'])->name('tenant.path.tables.printComandaByArea');
+        Route::get('tables/{table_id}/print-precheck', [TableController::class, 'printPrecheck'])->where('table_id', '[0-9]+')->name('tenant.path.tables.printPrecheck');
         Route::post('tables/{table_id}/update-status', [TableController::class, 'updateOrderStatus'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateOrderStatus');
         Route::post('tables/{table_id}/update-shape', [TableController::class, 'updateShape'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateShape');
         Route::post('tables/{table_id}/update-orientation', [TableController::class, 'updateOrientation'])->where('table_id', '[0-9]+')->name('tenant.path.tables.updateOrientation');

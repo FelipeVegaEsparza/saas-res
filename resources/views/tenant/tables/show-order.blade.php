@@ -161,9 +161,16 @@
             <div class="card-body">
                 <!-- Botón Imprimir Comanda Completa -->
                 <a href="{{ route('tenant.path.tables.printComanda', ['tenant' => request()->route('tenant'), 'table_id' => $table->id]) }}"
-                   class="btn btn-outline-primary w-100 mb-3"
+                   class="btn btn-outline-primary w-100 mb-2"
                    target="_blank">
                     <i class="ri ri-printer-line me-1"></i> Imprimir Comanda Completa
+                </a>
+
+                <!-- Botón Imprimir Precuenta -->
+                <a href="{{ route('tenant.path.tables.printPrecheck', ['tenant' => request()->route('tenant'), 'table_id' => $table->id]) }}"
+                   class="btn btn-outline-success w-100 mb-3"
+                   target="_blank">
+                    <i class="ri ri-file-list-3-line me-1"></i> Imprimir Precuenta
                 </a>
 
                 @if($preparationAreas->isNotEmpty())
