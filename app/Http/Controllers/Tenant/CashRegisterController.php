@@ -38,7 +38,22 @@ class CashRegisterController extends Controller
             ->orderBy('updated_at', 'desc')
             ->get();
 
-        return view('tenant.cash.index', compact('activeSession', 'sessions', 'pendingOrders', 'pendingDeliveryOrders'));
+        // Calcular montos esperados por método de pago para la sesión activa
+        $expectedAmounts = null;
+        if ($activeSession) {
+            $payments = Payment::where('cash_session_id', $activeSession->id)->get();
+
+            $expectedAmounts = [
+                'cash' => $activeSession->opening_balance + $payments->where('payment_method', 'cash')->sum('amount_paid'),
+                'card' => $payments->where('payment_method', 'card')->sum('amount'),
+                'transfer' => $payments->where('payment_method', 'transfer')->sum('amount'),
+                'tips_cash' => $payments->where('payment_method', 'cash')->sum('tip'),
+                'tips_card' => $payments->where('payment_method', 'card')->sum('tip'),
+                'tips_transfer' => $payments->where('payment_method', 'transfer')->sum('tip'),
+            ];
+        }
+
+        return view('tenant.cash.index', compact('activeSession', 'sessions', 'pendingOrders', 'pendingDeliveryOrders', 'expectedAmounts'));
     }
 
     public function openSession(Request $request)
@@ -85,11 +100,8 @@ class CashRegisterController extends Controller
         }
 
         // Verificar que no haya pedidos de delivery pendientes de cobrar
-        // Solo considerar los que están en proceso O los que no han sido pagados
         $pendingDeliveryOrders = \App\Models\Tenant\DeliveryOrder::where(function($query) {
-                // Pedidos en proceso (no completados ni cancelados)
                 $query->whereIn('status', ['pending', 'confirmed', 'preparing', 'ready', 'on_delivery'])
-                      // O pedidos entregados pero no pagados
                       ->orWhere(function($q) {
                           $q->where('status', 'delivered')
                             ->where('payment_status', 'pending');
@@ -102,23 +114,56 @@ class CashRegisterController extends Controller
         }
 
         $validated = $request->validate([
-            'closing_balance' => 'required|numeric|min:0',
+            'counted_cash' => 'required|numeric|min:0',
+            'counted_card' => 'nullable|numeric|min:0',
+            'counted_transfer' => 'nullable|numeric|min:0',
             'closing_notes' => 'nullable|string',
         ]);
 
-        // Calcular totales de pagos en efectivo
+        // Calcular totales por método de pago
         $payments = Payment::where('cash_session_id', $cashSession->id)->get();
-        $totalCash = $payments->where('payment_method', 'cash')->sum('amount');
 
-        // El balance esperado es el balance inicial + efectivo recibido
-        $expectedBalance = $cashSession->opening_balance + $totalCash;
-        $difference = $validated['closing_balance'] - $expectedBalance;
+        $expectedCash = $cashSession->opening_balance + $payments->where('payment_method', 'cash')->sum('amount_paid');
+        $expectedCard = $payments->where('payment_method', 'card')->sum('amount');
+        $expectedTransfer = $payments->where('payment_method', 'transfer')->sum('amount');
+
+        // Calcular propinas por método de pago
+        $tipsCash = $payments->where('payment_method', 'cash')->sum('tip');
+        $tipsCard = $payments->where('payment_method', 'card')->sum('tip');
+        $tipsTransfer = $payments->where('payment_method', 'transfer')->sum('tip');
+
+        // Totales contados
+        $countedCash = $validated['counted_cash'];
+        $countedCard = $validated['counted_card'] ?? 0;
+        $countedTransfer = $validated['counted_transfer'] ?? 0;
+
+        // Calcular diferencias
+        $differenceCash = $countedCash - $expectedCash;
+        $differenceCard = $countedCard - $expectedCard;
+        $differenceTransfer = $countedTransfer - $expectedTransfer;
+
+        // Totales generales
+        $expectedBalance = $expectedCash + $expectedCard + $expectedTransfer;
+        $closingBalance = $countedCash + $countedCard + $countedTransfer;
+        $totalDifference = $closingBalance - $expectedBalance;
 
         $cashSession->update([
             'closed_at' => now(),
-            'closing_balance' => $validated['closing_balance'],
+            'closing_balance' => $closingBalance,
             'expected_balance' => $expectedBalance,
-            'difference' => $difference,
+            'difference' => $totalDifference,
+            'expected_cash' => $expectedCash,
+            'expected_card' => $expectedCard,
+            'expected_transfer' => $expectedTransfer,
+            'counted_cash' => $countedCash,
+            'counted_card' => $countedCard,
+            'counted_transfer' => $countedTransfer,
+            'difference_cash' => $differenceCash,
+            'difference_card' => $differenceCard,
+            'difference_transfer' => $differenceTransfer,
+            'tips_cash' => $tipsCash,
+            'tips_card' => $tipsCard,
+            'tips_transfer' => $tipsTransfer,
             'status' => 'closed',
             'closing_notes' => $validated['closing_notes'] ?? null,
         ]);
@@ -328,5 +373,72 @@ class CashRegisterController extends Controller
             ->sortByDesc('total_tips');
 
         return view('tenant.cash.report', compact('cashSession', 'paymentsByMethod', 'tipsByWaiter'));
+    }
+    public function printLetter($tenant, CashSession $cashSession)
+    {
+        if ($cashSession->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $cashSession->load(['payments.order.items.product', 'payments.order.waiter', 'payments.deliveryOrder.items.product']);
+
+        $paymentsByMethod = $cashSession->payments()
+            ->select('payment_method', DB::raw('COUNT(*) as count'), DB::raw('SUM(amount) as total'))
+            ->groupBy('payment_method')
+            ->get();
+
+        // Calcular propinas por mesero
+        $tipsByWaiter = $cashSession->payments()
+            ->whereHas('order')
+            ->with('order.waiter')
+            ->get()
+            ->groupBy(function($payment) {
+                return $payment->order->waiter_id ?? 'sin_mesero';
+            })
+            ->map(function($payments) {
+                $waiter = $payments->first()->order->waiter ?? null;
+                return [
+                    'waiter_name' => $waiter ? $waiter->name : 'Sin Mesero',
+                    'total_tips' => $payments->sum('tip'),
+                    'orders_count' => $payments->count(),
+                ];
+            })
+            ->sortByDesc('total_tips');
+
+        return view('tenant.cash.print-letter', compact('cashSession', 'paymentsByMethod', 'tipsByWaiter'));
+    }
+
+    public function printThermal($tenant, CashSession $cashSession)
+    {
+        if ($cashSession->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $cashSession->load(['payments.order.items.product', 'payments.order.waiter', 'payments.deliveryOrder.items.product']);
+
+        $paymentsByMethod = $cashSession->payments()
+            ->select('payment_method', DB::raw('COUNT(*) as count'), DB::raw('SUM(amount) as total'))
+            ->groupBy('payment_method')
+            ->get();
+
+        // Calcular propinas por mesero
+        $tipsByWaiter = $cashSession->payments()
+            ->whereHas('order')
+            ->with('order.waiter')
+            ->get()
+            ->groupBy(function($payment) {
+                return $payment->order->waiter_id ?? 'sin_mesero';
+            })
+            ->map(function($payments) {
+                $waiter = $payments->first()->order->waiter ?? null;
+                return [
+                    'waiter_name' => $waiter ? $waiter->name : 'Sin Mesero',
+                    'total_tips' => $payments->sum('tip'),
+                    'orders_count' => $payments->count(),
+                ];
+            })
+            ->sortByDesc('total_tips');
+
+        return view('tenant.cash.print-thermal', compact('cashSession', 'paymentsByMethod', 'tipsByWaiter'));
     }
 }

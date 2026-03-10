@@ -169,6 +169,8 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
             Route::post('/payment', [CashRegisterController::class, 'processPayment'])->name('payment');
             Route::post('/delivery-payment', [CashRegisterController::class, 'processDeliveryPayment'])->name('deliveryPayment');
             Route::get('/{cashSession}/report', [CashRegisterController::class, 'report'])->name('report');
+            Route::get('/{cashSession}/print-letter', [CashRegisterController::class, 'printLetter'])->name('printLetter');
+            Route::get('/{cashSession}/print-thermal', [CashRegisterController::class, 'printThermal'])->name('printThermal');
         });
 
         // Rutas de Stock

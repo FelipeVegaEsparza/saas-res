@@ -253,7 +253,7 @@
 <!-- Modal Cerrar Sesión -->
 @if($activeSession)
 <div class="modal fade" id="closeSessionModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ route('tenant.path.cash.close', ['tenant' => request()->route('tenant'), 'cashSession' => $activeSession]) }}" method="POST">
                 @csrf
@@ -267,7 +267,7 @@
                     <div class="alert alert-warning d-flex align-items-start">
                         <i class="ri ri-alert-line me-2 mt-1"></i>
                         <div>
-                            <strong>Atención:</strong> Asegúrate de contar todo el efectivo en caja antes de cerrar la sesión. Esta acción no se puede deshacer.
+                            <strong>Atención:</strong> Cuenta cada método de pago por separado antes de cerrar la sesión. Esta acción no se puede deshacer.
                         </div>
                     </div>
 
@@ -286,20 +286,84 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Efectivo Final *</label>
-                        <div class="input-group">
-                            <span class="input-group-text">$</span>
-                            <input type="number" name="closing_balance" class="form-control" step="0.01" min="0"
-                                   placeholder="0.00" required autofocus>
+                    @if($expectedAmounts)
+                    <!-- Montos Esperados -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Montos Esperados por Método de Pago</h6>
                         </div>
-                        <small class="text-muted">Monto total de efectivo contado en caja</small>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="text-center p-2 bg-success bg-opacity-10 rounded">
+                                        <i class="ri ri-cash-line text-success mb-1"></i>
+                                        <div class="small text-muted">Efectivo</div>
+                                        <div class="fw-bold">${{ number_format($expectedAmounts['cash'], 2) }}</div>
+                                        @if($expectedAmounts['tips_cash'] > 0)
+                                            <div class="small text-success">+ ${{ number_format($expectedAmounts['tips_cash'], 2) }} propinas</div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-2 bg-primary bg-opacity-10 rounded">
+                                        <i class="ri ri-bank-card-line text-primary mb-1"></i>
+                                        <div class="small text-muted">Tarjeta</div>
+                                        <div class="fw-bold">${{ number_format($expectedAmounts['card'], 2) }}</div>
+                                        @if($expectedAmounts['tips_card'] > 0)
+                                            <div class="small text-primary">+ ${{ number_format($expectedAmounts['tips_card'], 2) }} propinas</div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-2 bg-info bg-opacity-10 rounded">
+                                        <i class="ri ri-exchange-line text-info mb-1"></i>
+                                        <div class="small text-muted">Transferencia</div>
+                                        <div class="fw-bold">${{ number_format($expectedAmounts['transfer'], 2) }}</div>
+                                        @if($expectedAmounts['tips_transfer'] > 0)
+                                            <div class="small text-info">+ ${{ number_format($expectedAmounts['tips_transfer'], 2) }} propinas</div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Campos de Conteo -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Efectivo Contado *</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri ri-cash-line"></i></span>
+                                <input type="number" name="counted_cash" class="form-control" step="0.01" min="0"
+                                       placeholder="0.00" required autofocus>
+                            </div>
+                            <small class="text-muted">Incluye propinas en efectivo</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tarjeta Registrada</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri ri-bank-card-line"></i></span>
+                                <input type="number" name="counted_card" class="form-control" step="0.01" min="0"
+                                       placeholder="0.00" value="{{ $expectedAmounts['card'] ?? 0 }}">
+                            </div>
+                            <small class="text-muted">Monto procesado por tarjeta</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Transferencia Registrada</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri ri-exchange-line"></i></span>
+                                <input type="number" name="counted_transfer" class="form-control" step="0.01" min="0"
+                                       placeholder="0.00" value="{{ $expectedAmounts['transfer'] ?? 0 }}">
+                            </div>
+                            <small class="text-muted">Monto por transferencia</small>
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Notas de Cierre (opcional)</label>
                         <textarea name="closing_notes" class="form-control" rows="3"
-                                  placeholder="Observaciones sobre el cierre, incidencias, etc..."></textarea>
+                                  placeholder="Observaciones sobre el cierre, incidencias, diferencias encontradas, etc..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

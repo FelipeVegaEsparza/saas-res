@@ -224,8 +224,15 @@
 </div>
 
 <div class="text-center mt-4">
-    <button class="btn btn-primary" onclick="window.print()">
-        <i class="ri ri-printer-line me-1"></i> Imprimir Reporte
-    </button>
+    <div class="btn-group" role="group">
+        <a href="{{ route('tenant.path.cash.printLetter', ['tenant' => request()->route('tenant'), 'cashSession' => $cashSession]) }}"
+           class="btn btn-primary" target="_blank">
+            <i class="ri ri-printer-line me-1"></i> Imprimir Formato Carta
+        </a>
+        <a href="{{ route('tenant.path.cash.printThermal', ['tenant' => request()->route('tenant'), 'cashSession' => $cashSession]) }}"
+           class="btn btn-outline-primary" target="_blank">
+            <i class="ri ri-printer-line me-1"></i> Imprimir Formato Térmico
+        </a>
+    </div>
 </div>
 @endsection
