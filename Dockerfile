@@ -48,12 +48,21 @@ server {
     access_log /var/log/nginx/access.log;
     root /var/www/public;
 
-    # Handle storage files
+    # Handle storage files directly
     location /storage/ {
         alias /var/www/storage/app/public/;
         expires 1y;
         add_header Cache-Control "public, immutable";
+        add_header Access-Control-Allow-Origin "*";
         try_files \$uri =404;
+    }
+
+    # Also handle direct access to storage files
+    location ~ ^/storage/(.*)$ {
+        alias /var/www/storage/app/public/\$1;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        add_header Access-Control-Allow-Origin "*";
     }
 
     location ~ \.php$ {
@@ -93,18 +102,29 @@ RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage \
     && chmod -R 755 /var/www/bootstrap/cache \
     && mkdir -p /var/www/storage/app/public/products \
+    && chmod -R 755 /var/www/storage/app/public \
     && chown -R www-data:www-data /var/www/storage/app/public
 
 # Create entrypoint script
 COPY <<EOF /usr/local/bin/start.sh
 #!/bin/bash
-# Ensure storage link exists
-if [ ! -L /var/www/public/storage ]; then
-    php artisan storage:link
-fi
+# Ensure storage directories exist
+mkdir -p /var/www/storage/app/public/products
+chmod -R 755 /var/www/storage/app/public
+chown -R www-data:www-data /var/www/storage/app/public
+
+# Remove existing storage link if it exists
+rm -f /var/www/public/storage
+
+# Create storage link
+php artisan storage:link
+
+# Cache configuration
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
+# Start services
 supervisord -c /etc/supervisor/conf.d/supervisord.conf
 EOF
 
