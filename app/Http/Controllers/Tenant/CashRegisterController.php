@@ -164,27 +164,29 @@ class CashRegisterController extends Controller
         $tipsCard = $payments->where('payment_method', 'card')->sum('tip') ?? 0;
         $tipsTransfer = $payments->where('payment_method', 'transfer')->sum('tip') ?? 0;
 
-        // Calcular diferencias
-        $differenceCash = $validated['counted_cash'] - $expectedCash;
-        $differenceCard = $validated['counted_card'] - $expectedCard;
-        $differenceTransfer = $validated['counted_transfer'] - $expectedTransfer;
-
-        // Totales generales
-        $expectedBalance = $cashSession->opening_balance + $expectedCash;
-
+        // Calcular diferencias y totales según disponibilidad de campos
         if ($hasDetailedFields) {
+            // Calcular diferencias por método de pago
+            $differenceCash = $validated['counted_cash'] - $expectedCash;
+            $differenceCard = $validated['counted_card'] - $expectedCard;
+            $differenceTransfer = $validated['counted_transfer'] - $expectedTransfer;
+
             $closingBalance = $validated['counted_cash'];
             $totalDifference = $differenceCash + $differenceCard + $differenceTransfer;
         } else {
-            // Compatibilidad con versión anterior
+            // Compatibilidad con versión anterior - solo efectivo
             $closingBalance = $validated['counted_cash'] ?? $validated['closing_balance'] ?? 0;
+            $expectedBalance = $cashSession->opening_balance + $expectedCash;
             $totalDifference = $closingBalance - $expectedBalance;
+
+            // Valores por defecto para campos no disponibles
+            $differenceCash = $totalDifference;
+            $differenceCard = 0;
+            $differenceTransfer = 0;
         }
 
-        // Verificar qué campos existen en la tabla
-        $hasDetailedFields = Schema::hasColumns('cash_sessions', [
-            'expected_cash', 'expected_card', 'expected_transfer'
-        ]);
+        // Totales generales
+        $expectedBalance = $cashSession->opening_balance + $expectedCash;
 
         // Actualizar sesión con campos básicos
         $updateData = [
