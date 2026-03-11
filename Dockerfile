@@ -36,6 +36,9 @@ RUN composer install --no-dev --optimize-autoloader
 # Install Node dependencies and build assets
 RUN npm install --legacy-peer-deps && npm run build
 
+# Create storage link
+RUN php artisan storage:link
+
 # Copy nginx config
 COPY <<EOF /etc/nginx/sites-available/default
 server {
@@ -44,6 +47,15 @@ server {
     error_log  /var/log/nginx/error.log;
     access_log /var/log/nginx/access.log;
     root /var/www/public;
+
+    # Handle storage files
+    location /storage/ {
+        alias /var/www/storage/app/public/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files \$uri =404;
+    }
+
     location ~ \.php$ {
         try_files \$uri =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
@@ -79,11 +91,17 @@ EOF
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache
+    && chmod -R 755 /var/www/bootstrap/cache \
+    && mkdir -p /var/www/storage/app/public/products \
+    && chown -R www-data:www-data /var/www/storage/app/public
 
 # Create entrypoint script
 COPY <<EOF /usr/local/bin/start.sh
 #!/bin/bash
+# Ensure storage link exists
+if [ ! -L /var/www/public/storage ]; then
+    php artisan storage:link
+fi
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
