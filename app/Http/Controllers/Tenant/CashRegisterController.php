@@ -41,16 +41,30 @@ class CashRegisterController extends Controller
         // Calcular montos esperados por método de pago para la sesión activa
         $expectedAmounts = null;
         if ($activeSession) {
-            $payments = Payment::where('cash_session_id', $activeSession->id)->get();
+            try {
+                $payments = Payment::where('cash_session_id', $activeSession->id)->get();
 
-            $expectedAmounts = [
-                'cash' => $activeSession->opening_balance + $payments->where('payment_method', 'cash')->sum('amount_paid'),
-                'card' => $payments->where('payment_method', 'card')->sum('amount'),
-                'transfer' => $payments->where('payment_method', 'transfer')->sum('amount'),
-                'tips_cash' => $payments->where('payment_method', 'cash')->sum('tip'),
-                'tips_card' => $payments->where('payment_method', 'card')->sum('tip'),
-                'tips_transfer' => $payments->where('payment_method', 'transfer')->sum('tip'),
-            ];
+                $expectedAmounts = [
+                    'cash' => $activeSession->opening_balance + $payments->where('payment_method', 'cash')->sum('amount_paid'),
+                    'card' => $payments->where('payment_method', 'card')->sum('amount'),
+                    'transfer' => $payments->where('payment_method', 'transfer')->sum('amount'),
+                    'tips_cash' => $payments->where('payment_method', 'cash')->sum('tip'),
+                    'tips_card' => $payments->where('payment_method', 'card')->sum('tip'),
+                    'tips_transfer' => $payments->where('payment_method', 'transfer')->sum('tip'),
+                ];
+            } catch (\Exception $e) {
+                // Si hay error (campo tip no existe), usar valores por defecto
+                $payments = Payment::where('cash_session_id', $activeSession->id)->get();
+
+                $expectedAmounts = [
+                    'cash' => $activeSession->opening_balance + $payments->where('payment_method', 'cash')->sum('amount'),
+                    'card' => $payments->where('payment_method', 'card')->sum('amount'),
+                    'transfer' => $payments->where('payment_method', 'transfer')->sum('amount'),
+                    'tips_cash' => 0,
+                    'tips_card' => 0,
+                    'tips_transfer' => 0,
+                ];
+            }
         }
 
         return view('tenant.cash.index', compact('activeSession', 'sessions', 'pendingOrders', 'pendingDeliveryOrders', 'expectedAmounts'));
@@ -113,57 +127,35 @@ class CashRegisterController extends Controller
             return back()->with('error', "No se puede cerrar la caja. Hay {$pendingDeliveryOrders} pedido(s) de delivery pendiente(s) de cobrar o completar.");
         }
 
+        // Formato simple (compatible con estructura actual)
         $validated = $request->validate([
-            'counted_cash' => 'required|numeric|min:0',
-            'counted_card' => 'nullable|numeric|min:0',
-            'counted_transfer' => 'nullable|numeric|min:0',
+            'closing_balance' => 'nullable|numeric|min:0',
+            'counted_cash' => 'nullable|numeric|min:0', // Aceptar ambos campos
             'closing_notes' => 'nullable|string',
         ]);
 
-        // Calcular totales por método de pago
+        // Usar counted_cash si está presente, sino closing_balance
+        $closingBalance = $validated['counted_cash'] ?? $validated['closing_balance'] ?? 0;
+
+        // Calcular totales de pagos en efectivo
         $payments = Payment::where('cash_session_id', $cashSession->id)->get();
 
-        $expectedCash = $cashSession->opening_balance + $payments->where('payment_method', 'cash')->sum('amount_paid');
-        $expectedCard = $payments->where('payment_method', 'card')->sum('amount');
-        $expectedTransfer = $payments->where('payment_method', 'transfer')->sum('amount');
+        // Usar amount_paid si existe el campo tip, sino usar amount
+        try {
+            $totalCash = $payments->where('payment_method', 'cash')->sum('amount_paid');
+        } catch (\Exception $e) {
+            $totalCash = $payments->where('payment_method', 'cash')->sum('amount');
+        }
 
-        // Calcular propinas por método de pago
-        $tipsCash = $payments->where('payment_method', 'cash')->sum('tip');
-        $tipsCard = $payments->where('payment_method', 'card')->sum('tip');
-        $tipsTransfer = $payments->where('payment_method', 'transfer')->sum('tip');
-
-        // Totales contados
-        $countedCash = $validated['counted_cash'];
-        $countedCard = $validated['counted_card'] ?? 0;
-        $countedTransfer = $validated['counted_transfer'] ?? 0;
-
-        // Calcular diferencias
-        $differenceCash = $countedCash - $expectedCash;
-        $differenceCard = $countedCard - $expectedCard;
-        $differenceTransfer = $countedTransfer - $expectedTransfer;
-
-        // Totales generales
-        $expectedBalance = $expectedCash + $expectedCard + $expectedTransfer;
-        $closingBalance = $countedCash + $countedCard + $countedTransfer;
-        $totalDifference = $closingBalance - $expectedBalance;
+        // El balance esperado es el balance inicial + efectivo recibido
+        $expectedBalance = $cashSession->opening_balance + $totalCash;
+        $difference = $closingBalance - $expectedBalance;
 
         $cashSession->update([
             'closed_at' => now(),
             'closing_balance' => $closingBalance,
             'expected_balance' => $expectedBalance,
-            'difference' => $totalDifference,
-            'expected_cash' => $expectedCash,
-            'expected_card' => $expectedCard,
-            'expected_transfer' => $expectedTransfer,
-            'counted_cash' => $countedCash,
-            'counted_card' => $countedCard,
-            'counted_transfer' => $countedTransfer,
-            'difference_cash' => $differenceCash,
-            'difference_card' => $differenceCard,
-            'difference_transfer' => $differenceTransfer,
-            'tips_cash' => $tipsCash,
-            'tips_card' => $tipsCard,
-            'tips_transfer' => $tipsTransfer,
+            'difference' => $difference,
             'status' => 'closed',
             'closing_notes' => $validated['closing_notes'] ?? null,
         ]);

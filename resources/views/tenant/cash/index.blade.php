@@ -286,7 +286,7 @@
                         </div>
                     </div>
 
-                    @if($expectedAmounts)
+                    @if($expectedAmounts && isset($expectedAmounts['cash']))
                     <!-- Montos Esperados -->
                     <div class="card mb-3">
                         <div class="card-header">
@@ -327,7 +327,6 @@
                             </div>
                         </div>
                     </div>
-                    @endif
 
                     <!-- Campos de Conteo -->
                     <div class="row g-3 mb-3">
@@ -359,6 +358,18 @@
                             <small class="text-muted">Monto por transferencia</small>
                         </div>
                     </div>
+                    @else
+                    <!-- Formato Simple (Compatibilidad) -->
+                    <div class="mb-3">
+                        <label class="form-label">Efectivo Final *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="counted_cash" class="form-control" step="0.01" min="0"
+                                   placeholder="0.00" required autofocus>
+                        </div>
+                        <small class="text-muted">Monto total de efectivo contado en caja</small>
+                    </div>
+                    @endif
 
                     <div class="mb-3">
                         <label class="form-label">Notas de Cierre (opcional)</label>

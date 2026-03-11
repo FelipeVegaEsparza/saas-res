@@ -54,6 +54,9 @@ class MigrateTenantDirectCommand extends Command
             ]
         ]);
 
+        // Purgar la conexión para asegurar que use la nueva configuración
+        \DB::purge('tenant_temp');
+
         // Ejecutar migraciones
         try {
             $this->info("Ejecutando migraciones...");
