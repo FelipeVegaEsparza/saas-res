@@ -25,10 +25,10 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Create app directory
-WORKDIR /var/www
+WORKDIR /var/www/html
 
 # Copy existing application directory contents
-COPY . /var/www
+COPY . /var/www/html
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
@@ -46,11 +46,11 @@ server {
     index index.php index.html;
     error_log  /var/log/nginx/error.log;
     access_log /var/log/nginx/access.log;
-    root /var/www/public;
+    root /var/www/html/public;
 
     # Handle storage files directly
     location /storage/ {
-        alias /var/www/storage/app/public/;
+        alias /var/www/html/storage/app/public/;
         expires 1y;
         add_header Cache-Control "public, immutable";
         add_header Access-Control-Allow-Origin "*";
@@ -59,7 +59,7 @@ server {
 
     # Also handle direct access to storage files
     location ~ ^/storage/(.*)$ {
-        alias /var/www/storage/app/public/\$1;
+        alias /var/www/html/storage/app/public/\$1;
         expires 1y;
         add_header Cache-Control "public, immutable";
         add_header Access-Control-Allow-Origin "*";
@@ -98,23 +98,23 @@ autorestart=true
 EOF
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache \
-    && mkdir -p /var/www/storage/app/public/products \
-    && chmod -R 755 /var/www/storage/app/public \
-    && chown -R www-data:www-data /var/www/storage/app/public
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache \
+    && mkdir -p /var/www/html/storage/app/public/products \
+    && chmod -R 755 /var/www/html/storage/app/public \
+    && chown -R www-data:www-data /var/www/html/storage/app/public
 
 # Create entrypoint script
 COPY <<EOF /usr/local/bin/start.sh
 #!/bin/bash
 # Ensure storage directories exist
-mkdir -p /var/www/storage/app/public/products
-chmod -R 755 /var/www/storage/app/public
-chown -R www-data:www-data /var/www/storage/app/public
+mkdir -p /var/www/html/storage/app/public/products
+chmod -R 755 /var/www/html/storage/app/public
+chown -R www-data:www-data /var/www/html/storage/app/public
 
 # Remove existing storage link if it exists
-rm -f /var/www/public/storage
+rm -f /var/www/html/public/storage
 
 # Create storage link
 php artisan storage:link
