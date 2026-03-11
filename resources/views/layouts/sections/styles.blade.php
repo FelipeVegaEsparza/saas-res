@@ -52,16 +52,112 @@
   display: none;
 }
 
-/* ===== SOLUCIÓN DEFINITIVA PARA FLECHAS DE PAGINACIÓN ===== */
+/* ===== SOLUCIÓN DEFINITIVA PARA FLECHAS GIGANTES ===== */
 
-/* 1. Ocultar TODOS los elementos problemáticos en paginación */
+/* 1. OCULTAR COMPLETAMENTE ELEMENTOS SWIPER QUE CAUSAN LAS FLECHAS GIGANTES */
+.swiper-button-prev,
+.swiper-button-next {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+}
+
+/* 2. Ocultar cualquier elemento con estas clases que pueda aparecer */
+[class*="swiper-button"],
+.swiper-button-prev,
+.swiper-button-next,
+.swiper .swiper-button-prev,
+.swiper .swiper-button-next {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+}
+
+/* 3. Prevenir que se creen dinámicamente */
+body::before,
+body::after {
+  content: none !important;
+}
+
+/* 4. Ocultar elementos que puedan tener pseudo-elementos con flechas */
+*::before,
+*::after {
+  content: none !important;
+}
+
+/* 5. Restablecer pseudo-elementos solo donde sea necesario */
+.pagination .page-item:first-child .page-link::before {
+  content: '‹' !important;
+  font-size: 1.2rem !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.pagination .page-item:last-child .page-link::before {
+  content: '›' !important;
+  font-size: 1.2rem !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 6. Asegurar que la paginación funcione correctamente */
+.pagination .page-link {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 38px !important;
+  height: 38px !important;
+  padding: 0.5rem 0.75rem !important;
+  position: relative !important;
+  overflow: hidden !important;
+  text-align: center !important;
+  line-height: 1 !important;
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+  font-size: 0 !important; /* Ocultar texto original */
+}
+
+/* 7. Ocultar TODOS los elementos problemáticos en paginación */
 .pagination .page-link svg,
 .pagination .page-link i,
 .pagination .page-link [class*="ri-"],
 .pagination .page-link [class*="bx-"],
 .pagination .page-link [class*="fa-"],
 .pagination .page-link [class*="icon-"],
-.pagination .page-link::after,
 .page-item .page-link svg,
 .page-item .page-link i,
 .page-item .page-link [class*="ri-"],
@@ -76,101 +172,68 @@
   font-size: 0 !important;
 }
 
-/* 2. Resetear completamente los botones de paginación */
-.pagination .page-link {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 38px !important;
-  height: 38px !important;
-  padding: 0.5rem 0.75rem !important;
-  position: relative !important;
-  overflow: hidden !important;
-  text-align: center !important;
-  line-height: 1 !important;
-}
+<script>
+// Script para eliminar dinámicamente elementos swiper problemáticos
+(function() {
+    function removeSwiperButtons() {
+        // Buscar y eliminar todos los elementos swiper-button
+        const swiperButtons = document.querySelectorAll('.swiper-button-prev, .swiper-button-next, [class*="swiper-button"]');
+        swiperButtons.forEach(function(button) {
+            if (button && button.parentNode) {
+                button.parentNode.removeChild(button);
+            }
+        });
+    }
 
-/* 3. Limpiar contenido existente y agregar flechas con texto */
-.pagination .page-item:first-child .page-link {
-  font-size: 0 !important; /* Ocultar texto original */
-}
+    // Ejecutar inmediatamente
+    removeSwiperButtons();
 
-.pagination .page-item:first-child .page-link::before {
-  content: '‹' !important;
-  font-size: 1.2rem !important;
-  line-height: 1 !important;
-  font-weight: 400 !important;
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
+    // Ejecutar cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', removeSwiperButtons);
+    }
 
-.pagination .page-item:last-child .page-link {
-  font-size: 0 !important; /* Ocultar texto original */
-}
+    // Ejecutar cuando la página esté completamente cargada
+    window.addEventListener('load', removeSwiperButtons);
 
-.pagination .page-item:last-child .page-link::before {
-  content: '›' !important;
-  font-size: 1.2rem !important;
-  line-height: 1 !important;
-  font-weight: 400 !important;
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
+    // Observar cambios en el DOM para eliminar elementos que se creen dinámicamente
+    if (typeof MutationObserver !== 'undefined') {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) { // Element node
+                            // Verificar si el nodo agregado es un botón swiper
+                            if (node.classList && (node.classList.contains('swiper-button-prev') || node.classList.contains('swiper-button-next'))) {
+                                if (node.parentNode) {
+                                    node.parentNode.removeChild(node);
+                                }
+                            }
+                            // Verificar si contiene botones swiper
+                            const swiperButtons = node.querySelectorAll && node.querySelectorAll('.swiper-button-prev, .swiper-button-next');
+                            if (swiperButtons) {
+                                swiperButtons.forEach(function(button) {
+                                    if (button.parentNode) {
+                                        button.parentNode.removeChild(button);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
 
-/* 4. Asegurar que no haya elementos flotantes o superpuestos */
-.pagination {
-  position: relative !important;
-  z-index: 1 !important;
-}
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
 
-.pagination .page-link * {
-  max-width: 0 !important;
-  max-height: 0 !important;
-  overflow: hidden !important;
-}
-
-/* 5. Prevenir conflictos con Swiper */
-.pagination .page-link:not(.swiper-button-prev):not(.swiper-button-next) {
-  background-image: none !important;
-}
-
-/* 6. Ocultar cualquier pseudo-elemento problemático */
-.pagination .page-link::after {
-  display: none !important;
-  content: none !important;
-}
-
-/* 7. Prevenir conflictos con efectos Waves */
-.pagination .page-link .waves-ripple {
-  display: none !important;
-}
-
-/* 8. Asegurar que elementos superpuestos no aparezcan fuera del contenedor */
-body .pagination .page-link > *,
-body .page-item .page-link > * {
-  position: static !important;
-  transform: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  opacity: 0 !important;
-  overflow: hidden !important;
-}
+    // Ejecutar periódicamente como respaldo
+    setInterval(removeSwiperButtons, 1000);
+})();
+</script>
 </style>
 
 <!-- Custom Menu Styles -->
