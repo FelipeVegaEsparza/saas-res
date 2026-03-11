@@ -11,6 +11,7 @@ use App\Models\Tenant\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class CashRegisterController extends Controller
 {
@@ -128,7 +129,7 @@ class CashRegisterController extends Controller
         }
 
         // Verificar qué campos existen en la tabla para validación condicional
-        $hasDetailedFields = \Schema::hasColumns('cash_sessions', [
+        $hasDetailedFields = Schema::hasColumns('cash_sessions', [
             'expected_cash', 'expected_card', 'expected_transfer'
         ]);
 
@@ -181,7 +182,7 @@ class CashRegisterController extends Controller
         }
 
         // Verificar qué campos existen en la tabla
-        $hasDetailedFields = \Schema::hasColumns('cash_sessions', [
+        $hasDetailedFields = Schema::hasColumns('cash_sessions', [
             'expected_cash', 'expected_card', 'expected_transfer'
         ]);
 
