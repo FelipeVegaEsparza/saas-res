@@ -52,55 +52,124 @@
   display: none;
 }
 
-/* Fix pagination arrows - Ocultar SVG grandes */
-.pagination .page-link svg {
-  display: none !important;
-}
+/* ===== SOLUCIÓN DEFINITIVA PARA FLECHAS DE PAGINACIÓN ===== */
 
-/* Usar caracteres de texto para las flechas */
-.pagination .page-item:first-child .page-link::before {
-  content: '‹';
-  font-size: 1.5rem;
-  line-height: 1;
-  font-weight: 300;
-}
-
-.pagination .page-item:last-child .page-link::before {
-  content: '›';
-  font-size: 1.5rem;
-  line-height: 1;
-  font-weight: 300;
-}
-
-/* Asegurar que los botones del paginador tengan el tamaño correcto */
-.pagination .page-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 38px;
-  height: 38px;
-  padding: 0.5rem 0.75rem;
-}
-
-/* Fix para íconos gigantes - Enfoque específico para paginación */
+/* 1. Ocultar TODOS los elementos problemáticos en paginación */
 .pagination .page-link svg,
 .pagination .page-link i,
 .pagination .page-link [class*="ri-"],
 .pagination .page-link [class*="bx-"],
-.pagination .page-link [class*="fa-"] {
-  display: none !important;
-}
-
-/* Asegurar que no aparezcan elementos extraños en la paginación */
-.pagination .page-link * {
-  max-width: 20px !important;
-  max-height: 20px !important;
-}
-
-/* Si hay elementos de paginación fuera del contenedor normal */
+.pagination .page-link [class*="fa-"],
+.pagination .page-link [class*="icon-"],
+.pagination .page-link::after,
 .page-item .page-link svg,
-.page-item .page-link i {
+.page-item .page-link i,
+.page-item .page-link [class*="ri-"],
+.page-item .page-link [class*="bx-"],
+.page-item .page-link [class*="fa-"],
+.page-item .page-link [class*="icon-"] {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  font-size: 0 !important;
+}
+
+/* 2. Resetear completamente los botones de paginación */
+.pagination .page-link {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 38px !important;
+  height: 38px !important;
+  padding: 0.5rem 0.75rem !important;
+  position: relative !important;
+  overflow: hidden !important;
+  text-align: center !important;
+  line-height: 1 !important;
+}
+
+/* 3. Limpiar contenido existente y agregar flechas con texto */
+.pagination .page-item:first-child .page-link {
+  font-size: 0 !important; /* Ocultar texto original */
+}
+
+.pagination .page-item:first-child .page-link::before {
+  content: '‹' !important;
+  font-size: 1.2rem !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.pagination .page-item:last-child .page-link {
+  font-size: 0 !important; /* Ocultar texto original */
+}
+
+.pagination .page-item:last-child .page-link::before {
+  content: '›' !important;
+  font-size: 1.2rem !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 4. Asegurar que no haya elementos flotantes o superpuestos */
+.pagination {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.pagination .page-link * {
+  max-width: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* 5. Prevenir conflictos con Swiper */
+.pagination .page-link:not(.swiper-button-prev):not(.swiper-button-next) {
+  background-image: none !important;
+}
+
+/* 6. Ocultar cualquier pseudo-elemento problemático */
+.pagination .page-link::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* 7. Prevenir conflictos con efectos Waves */
+.pagination .page-link .waves-ripple {
+  display: none !important;
+}
+
+/* 8. Asegurar que elementos superpuestos no aparezcan fuera del contenedor */
+body .pagination .page-link > *,
+body .page-item .page-link > * {
+  position: static !important;
+  transform: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
 }
 </style>
 
