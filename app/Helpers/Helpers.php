@@ -336,4 +336,29 @@ CSS;
 
     return $symbol . $formattedAmount;
   }
+
+  /**
+   * Generate storage URL for images with fallback
+   *
+   * @param string|null $path Image path from storage
+   * @return string Full URL to the image or placeholder
+   */
+  public static function getImageUrl($path)
+  {
+    if (!$path) {
+      return asset('images/placeholder.svg'); // Fallback to placeholder
+    }
+
+    // Try different URL generation methods
+    $baseUrl = config('app.url');
+
+    // Method 1: Standard Laravel Storage URL
+    try {
+      $url = \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+      return $url;
+    } catch (\Exception $e) {
+      // Method 2: Manual URL construction
+      return $baseUrl . '/storage/' . $path;
+    }
+  }
 }

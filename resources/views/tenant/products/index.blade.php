@@ -87,8 +87,9 @@ use Illuminate\Support\Facades\Storage;
                         <tr>
                             <td>
                                 @if($product->image)
-                                    <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}"
-                                         class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                    <img src="{{ \App\Helpers\Helpers::getImageUrl($product->image) }}" alt="{{ $product->name }}"
+                                         class="rounded" style="width: 50px; height: 50px; object-fit: cover;"
+                                         onerror="this.src='{{ asset('images/placeholder.svg') }}';">
                                 @else
                                     <div class="bg-light rounded d-flex align-items-center justify-content-center"
                                          style="width: 50px; height: 50px;">
