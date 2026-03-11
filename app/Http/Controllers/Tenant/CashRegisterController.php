@@ -127,38 +127,68 @@ class CashRegisterController extends Controller
             return back()->with('error', "No se puede cerrar la caja. Hay {$pendingDeliveryOrders} pedido(s) de delivery pendiente(s) de cobrar o completar.");
         }
 
-        // Formato simple (compatible con estructura actual)
+        // Validar campos de cierre detallado por método de pago
         $validated = $request->validate([
-            'closing_balance' => 'nullable|numeric|min:0',
-            'counted_cash' => 'nullable|numeric|min:0', // Aceptar ambos campos
+            'counted_cash' => 'required|numeric|min:0',
+            'counted_card' => 'required|numeric|min:0',
+            'counted_transfer' => 'required|numeric|min:0',
             'closing_notes' => 'nullable|string',
         ]);
 
-        // Usar counted_cash si está presente, sino closing_balance
-        $closingBalance = $validated['counted_cash'] ?? $validated['closing_balance'] ?? 0;
-
-        // Calcular totales de pagos en efectivo
+        // Calcular totales esperados por método de pago
         $payments = Payment::where('cash_session_id', $cashSession->id)->get();
 
-        // Usar amount_paid si existe el campo tip, sino usar amount
-        try {
-            $totalCash = $payments->where('payment_method', 'cash')->sum('amount_paid');
-        } catch (\Exception $e) {
-            $totalCash = $payments->where('payment_method', 'cash')->sum('amount');
-        }
+        // Calcular montos esperados por método de pago (incluyendo propinas)
+        $expectedCash = $payments->where('payment_method', 'cash')->sum('amount_paid') ?? 0;
+        $expectedCard = $payments->where('payment_method', 'card')->sum('amount_paid') ?? 0;
+        $expectedTransfer = $payments->where('payment_method', 'transfer')->sum('amount_paid') ?? 0;
 
-        // El balance esperado es el balance inicial + efectivo recibido
-        $expectedBalance = $cashSession->opening_balance + $totalCash;
-        $difference = $closingBalance - $expectedBalance;
+        // Calcular propinas por método de pago
+        $tipsCash = $payments->where('payment_method', 'cash')->sum('tip') ?? 0;
+        $tipsCard = $payments->where('payment_method', 'card')->sum('tip') ?? 0;
+        $tipsTransfer = $payments->where('payment_method', 'transfer')->sum('tip') ?? 0;
 
-        $cashSession->update([
+        // Calcular diferencias
+        $differenceCash = $validated['counted_cash'] - $expectedCash;
+        $differenceCard = $validated['counted_card'] - $expectedCard;
+        $differenceTransfer = $validated['counted_transfer'] - $expectedTransfer;
+
+        // Totales generales
+        $expectedBalance = $cashSession->opening_balance + $expectedCash;
+        $closingBalance = $validated['counted_cash'];
+        $totalDifference = $differenceCash + $differenceCard + $differenceTransfer;
+
+        // Actualizar sesión con campos detallados
+        $updateData = [
             'closed_at' => now(),
             'closing_balance' => $closingBalance,
             'expected_balance' => $expectedBalance,
-            'difference' => $difference,
+            'difference' => $totalDifference,
             'status' => 'closed',
             'closing_notes' => $validated['closing_notes'] ?? null,
-        ]);
+        ];
+
+        // Agregar campos detallados si existen en la tabla
+        try {
+            $updateData = array_merge($updateData, [
+                'expected_cash' => $expectedCash,
+                'expected_card' => $expectedCard,
+                'expected_transfer' => $expectedTransfer,
+                'counted_cash' => $validated['counted_cash'],
+                'counted_card' => $validated['counted_card'],
+                'counted_transfer' => $validated['counted_transfer'],
+                'difference_cash' => $differenceCash,
+                'difference_card' => $differenceCard,
+                'difference_transfer' => $differenceTransfer,
+                'tips_cash' => $tipsCash,
+                'tips_card' => $tipsCard,
+                'tips_transfer' => $tipsTransfer,
+            ]);
+        } catch (\Exception $e) {
+            // Si los campos no existen, usar solo los campos básicos
+        }
+
+        $cashSession->update($updateData);
 
         return redirect()
             ->route('tenant.path.cash.report', ['tenant' => request()->route('tenant'), 'cashSession' => $cashSession])
