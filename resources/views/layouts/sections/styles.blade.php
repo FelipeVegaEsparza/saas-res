@@ -82,41 +82,25 @@
   padding: 0.5rem 0.75rem;
 }
 
-/* Fix para íconos gigantes - Limitar tamaño máximo de todos los íconos */
-i[class*="ri-"],
-i[class*="bx-"],
-i[class*="fa-"],
-.ri,
-.bx,
-.fa {
-  max-width: 2rem !important;
-  max-height: 2rem !important;
-  font-size: inherit !important;
-  display: inline-block !important;
+/* Fix para íconos gigantes - Enfoque específico para paginación */
+.pagination .page-link svg,
+.pagination .page-link i,
+.pagination .page-link [class*="ri-"],
+.pagination .page-link [class*="bx-"],
+.pagination .page-link [class*="fa-"] {
+  display: none !important;
 }
 
-/* Específicamente para íconos de Remix Icon que pueden crecer demasiado */
-i[class*="ri-"] {
-  font-size: 1.25rem !important;
-  width: auto !important;
-  height: auto !important;
-  max-width: 2rem !important;
-  max-height: 2rem !important;
+/* Asegurar que no aparezcan elementos extraños en la paginación */
+.pagination .page-link * {
+  max-width: 20px !important;
+  max-height: 20px !important;
 }
 
-/* Para íconos con clases de tamaño específico, respetarlas pero con límite */
-.ri-24px { font-size: 1.5rem !important; max-width: 1.5rem !important; max-height: 1.5rem !important; }
-.ri-36px { font-size: 2.25rem !important; max-width: 2.25rem !important; max-height: 2.25rem !important; }
-.ri-48px { font-size: 3rem !important; max-width: 3rem !important; max-height: 3rem !important; }
-
-/* Prevenir que cualquier elemento con clase de ícono crezca descontroladamente */
-[class*="icon-"],
-[class*="ri-"],
-[class*="bx-"],
-[class*="fa-"] {
-  max-width: 4rem !important;
-  max-height: 4rem !important;
-  overflow: hidden !important;
+/* Si hay elementos de paginación fuera del contenedor normal */
+.page-item .page-link svg,
+.page-item .page-link i {
+  display: none !important;
 }
 </style>
 
