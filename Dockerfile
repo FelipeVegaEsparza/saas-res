@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     nginx \
     supervisor \
-    mariadb-client
+    mariadb-client \
+    nodejs \
+    npm
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -30,6 +32,9 @@ COPY . /var/www
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
+
+# Install Node dependencies and build assets
+RUN npm install && npm run build
 
 # Copy nginx config
 COPY <<EOF /etc/nginx/sites-available/default
