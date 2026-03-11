@@ -127,13 +127,28 @@ class CashRegisterController extends Controller
             return back()->with('error', "No se puede cerrar la caja. Hay {$pendingDeliveryOrders} pedido(s) de delivery pendiente(s) de cobrar o completar.");
         }
 
-        // Validar campos de cierre detallado por método de pago
-        $validated = $request->validate([
-            'counted_cash' => 'required|numeric|min:0',
-            'counted_card' => 'required|numeric|min:0',
-            'counted_transfer' => 'required|numeric|min:0',
-            'closing_notes' => 'nullable|string',
+        // Verificar qué campos existen en la tabla para validación condicional
+        $hasDetailedFields = \Schema::hasColumns('cash_sessions', [
+            'expected_cash', 'expected_card', 'expected_transfer'
         ]);
+
+        // Validar campos según disponibilidad
+        if ($hasDetailedFields) {
+            // Validar campos de cierre detallado por método de pago
+            $validated = $request->validate([
+                'counted_cash' => 'required|numeric|min:0',
+                'counted_card' => 'required|numeric|min:0',
+                'counted_transfer' => 'required|numeric|min:0',
+                'closing_notes' => 'nullable|string',
+            ]);
+        } else {
+            // Validación básica para compatibilidad con versiones anteriores
+            $validated = $request->validate([
+                'closing_balance' => 'nullable|numeric|min:0',
+                'counted_cash' => 'nullable|numeric|min:0',
+                'closing_notes' => 'nullable|string',
+            ]);
+        }
 
         // Calcular totales esperados por método de pago
         $payments = Payment::where('cash_session_id', $cashSession->id)->get();
@@ -155,10 +170,22 @@ class CashRegisterController extends Controller
 
         // Totales generales
         $expectedBalance = $cashSession->opening_balance + $expectedCash;
-        $closingBalance = $validated['counted_cash'];
-        $totalDifference = $differenceCash + $differenceCard + $differenceTransfer;
 
-        // Actualizar sesión con campos detallados
+        if ($hasDetailedFields) {
+            $closingBalance = $validated['counted_cash'];
+            $totalDifference = $differenceCash + $differenceCard + $differenceTransfer;
+        } else {
+            // Compatibilidad con versión anterior
+            $closingBalance = $validated['counted_cash'] ?? $validated['closing_balance'] ?? 0;
+            $totalDifference = $closingBalance - $expectedBalance;
+        }
+
+        // Verificar qué campos existen en la tabla
+        $hasDetailedFields = \Schema::hasColumns('cash_sessions', [
+            'expected_cash', 'expected_card', 'expected_transfer'
+        ]);
+
+        // Actualizar sesión con campos básicos
         $updateData = [
             'closed_at' => now(),
             'closing_balance' => $closingBalance,
@@ -168,8 +195,8 @@ class CashRegisterController extends Controller
             'closing_notes' => $validated['closing_notes'] ?? null,
         ];
 
-        // Agregar campos detallados si existen en la tabla
-        try {
+        // Agregar campos detallados solo si existen en la tabla
+        if ($hasDetailedFields) {
             $updateData = array_merge($updateData, [
                 'expected_cash' => $expectedCash,
                 'expected_card' => $expectedCard,
@@ -184,8 +211,6 @@ class CashRegisterController extends Controller
                 'tips_card' => $tipsCard,
                 'tips_transfer' => $tipsTransfer,
             ]);
-        } catch (\Exception $e) {
-            // Si los campos no existen, usar solo los campos básicos
         }
 
         $cashSession->update($updateData);
