@@ -99,19 +99,34 @@ EOF
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache \
     && mkdir -p /var/www/html/storage/app/public/products \
-    && chmod -R 755 /var/www/html/storage/app/public \
-    && chown -R www-data:www-data /var/www/html/storage/app/public
+    && mkdir -p /var/www/html/storage/framework/cache \
+    && mkdir -p /var/www/html/storage/framework/sessions \
+    && mkdir -p /var/www/html/storage/framework/views \
+    && mkdir -p /var/www/html/storage/logs \
+    && chmod -R 775 /var/www/html/storage \
+    && chown -R www-data:www-data /var/www/html/storage
 
 # Create entrypoint script
 COPY <<EOF /usr/local/bin/start.sh
 #!/bin/bash
-# Ensure storage directories exist
+# Ensure storage directories exist with correct permissions
 mkdir -p /var/www/html/storage/app/public/products
-chmod -R 755 /var/www/html/storage/app/public
-chown -R www-data:www-data /var/www/html/storage/app/public
+mkdir -p /var/www/html/storage/framework/cache
+mkdir -p /var/www/html/storage/framework/sessions
+mkdir -p /var/www/html/storage/framework/views
+mkdir -p /var/www/html/storage/logs
+
+# Set correct permissions for all storage directories
+chmod -R 775 /var/www/html/storage
+chown -R www-data:www-data /var/www/html/storage
+
+# Ensure bootstrap/cache has correct permissions
+mkdir -p /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/bootstrap/cache
 
 # Remove existing storage link if it exists
 rm -f /var/www/html/public/storage
@@ -119,7 +134,12 @@ rm -f /var/www/html/public/storage
 # Create storage link
 php artisan storage:link
 
-# Cache configuration
+# Cache configuration (clear first to avoid permission issues)
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
