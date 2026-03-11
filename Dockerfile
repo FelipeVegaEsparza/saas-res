@@ -34,7 +34,7 @@ COPY . /var/www
 RUN composer install --no-dev --optimize-autoloader
 
 # Install Node dependencies and build assets
-RUN npm install && npm run build
+RUN npm install --legacy-peer-deps && npm run build
 
 # Copy nginx config
 COPY <<EOF /etc/nginx/sites-available/default
