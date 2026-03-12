@@ -27,7 +27,7 @@
                         <div class="vr"></div>
                         <div>
                             <small class="opacity-75">Efectivo Inicial:</small>
-                            <strong class="ms-1">${{ number_format($activeSession->opening_balance, 2) }}</strong>
+                            <strong class="ms-1">@price($activeSession->opening_balance)</strong>
                         </div>
                         <div class="vr"></div>
                         <div>
@@ -88,7 +88,7 @@
 
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <span class="text-muted">Total:</span>
-                                        <h4 class="mb-0 text-primary">${{ number_format($order->total, 2) }}</h4>
+                                        <h4 class="mb-0 text-primary">@price($order->total)</h4>
                                     </div>
 
                                     <button class="btn btn-success w-100" onclick="showPaymentModal({{ $order->id }}, {{ $order->total }}, '{{ $order->table->number }}')">
@@ -157,7 +157,7 @@
 
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <span class="text-muted">Total:</span>
-                                        <h4 class="mb-0 text-primary">${{ number_format($deliveryOrder->total, 2) }}</h4>
+                                        <h4 class="mb-0 text-primary">@price($deliveryOrder->total)</h4>
                                     </div>
 
                                     <button class="btn btn-success w-100" onclick="showDeliveryPaymentModal({{ $deliveryOrder->id }}, {{ $deliveryOrder->total }}, '{{ $deliveryOrder->order_number }}')">
@@ -276,7 +276,7 @@
                             <div class="row">
                                 <div class="col-6">
                                     <small class="text-muted">Efectivo Inicial</small>
-                                    <h6 class="mb-0">${{ number_format($activeSession->opening_balance, 2) }}</h6>
+                                    <h6 class="mb-0">@price($activeSession->opening_balance)</h6>
                                 </div>
                                 <div class="col-6">
                                     <small class="text-muted">Duración</small>
@@ -298,9 +298,9 @@
                                     <div class="text-center p-2 bg-success bg-opacity-10 rounded">
                                         <i class="ri ri-cash-line text-success mb-1"></i>
                                         <div class="small text-muted">Efectivo</div>
-                                        <div class="fw-bold">${{ number_format($expectedAmounts['cash'], 2) }}</div>
+                                        <div class="fw-bold">@price($expectedAmounts['cash'])</div>
                                         @if($expectedAmounts['tips_cash'] > 0)
-                                            <div class="small text-success">+ ${{ number_format($expectedAmounts['tips_cash'], 2) }} propinas</div>
+                                            <div class="small text-success">+ @price($expectedAmounts['tips_cash']) propinas</div>
                                         @endif
                                     </div>
                                 </div>
@@ -308,9 +308,9 @@
                                     <div class="text-center p-2 bg-primary bg-opacity-10 rounded">
                                         <i class="ri ri-bank-card-line text-primary mb-1"></i>
                                         <div class="small text-muted">Tarjeta</div>
-                                        <div class="fw-bold">${{ number_format($expectedAmounts['card'], 2) }}</div>
+                                        <div class="fw-bold">@price($expectedAmounts['card'])</div>
                                         @if($expectedAmounts['tips_card'] > 0)
-                                            <div class="small text-primary">+ ${{ number_format($expectedAmounts['tips_card'], 2) }} propinas</div>
+                                            <div class="small text-primary">+ @price($expectedAmounts['tips_card']) propinas</div>
                                         @endif
                                     </div>
                                 </div>
@@ -318,9 +318,9 @@
                                     <div class="text-center p-2 bg-info bg-opacity-10 rounded">
                                         <i class="ri ri-exchange-line text-info mb-1"></i>
                                         <div class="small text-muted">Transferencia</div>
-                                        <div class="fw-bold">${{ number_format($expectedAmounts['transfer'], 2) }}</div>
+                                        <div class="fw-bold">@price($expectedAmounts['transfer'])</div>
                                         @if($expectedAmounts['tips_transfer'] > 0)
-                                            <div class="small text-info">+ ${{ number_format($expectedAmounts['tips_transfer'], 2) }} propinas</div>
+                                            <div class="small text-info">+ @price($expectedAmounts['tips_transfer']) propinas</div>
                                         @endif
                                     </div>
                                 </div>
@@ -513,10 +513,10 @@
                                                 <span class="badge bg-label-success">En curso</span>
                                             @endif
                                         </td>
-                                        <td><strong>${{ number_format($session->opening_balance, 2) }}</strong></td>
+                                        <td><strong>@price($session->opening_balance)</strong></td>
                                         <td>
                                             @if($session->status === 'closed')
-                                                <strong>${{ number_format($session->closing_balance ?? 0, 2) }}</strong>
+                                                <strong>@price($session->closing_balance ?? 0)</strong>
                                             @else
                                                 <span class="text-muted">-</span>
                                             @endif
@@ -524,7 +524,7 @@
                                         <td>
                                             @if($session->status === 'closed' && $session->difference !== null)
                                                 <span class="badge bg-label-{{ $session->difference >= 0 ? 'success' : 'danger' }}">
-                                                    ${{ number_format($session->difference, 2) }}
+                                                    @price($session->difference)
                                                 </span>
                                             @else
                                                 <span class="text-muted">-</span>

@@ -246,15 +246,15 @@
                 <div class="method-icon">💵</div>
                 <div class="method-title">EFECTIVO</div>
                 <div class="method-amounts">
-                    Inicial: ${{ number_format($cashSession->opening_balance, 2) }}<br>
-                    Ventas: ${{ number_format($cashSession->expected_cash - $cashSession->opening_balance, 2) }}<br>
-                    Propinas: ${{ number_format($cashSession->tips_cash, 2) }}
+                    Inicial: @price($cashSession->opening_balance)<br>
+                    Ventas: @price($cashSession->expected_cash - $cashSession->opening_balance)<br>
+                    Propinas: @price($cashSession->tips_cash)
                 </div>
                 <div class="method-total">
-                    Esperado: ${{ number_format($cashSession->expected_cash, 2) }}<br>
-                    Contado: ${{ number_format($cashSession->counted_cash, 2) }}<br>
+                    Esperado: @price($cashSession->expected_cash)<br>
+                    Contado: @price($cashSession->counted_cash)<br>
                     <span class="{{ $cashSession->difference_cash >= 0 ? 'difference-positive' : 'difference-negative' }}">
-                        Diferencia: ${{ number_format($cashSession->difference_cash, 2) }}
+                        Diferencia: @price($cashSession->difference_cash)
                     </span>
                 </div>
             </div>
@@ -263,14 +263,14 @@
                 <div class="method-icon">💳</div>
                 <div class="method-title">TARJETA</div>
                 <div class="method-amounts">
-                    Ventas: ${{ number_format($cashSession->expected_card, 2) }}<br>
-                    Propinas: ${{ number_format($cashSession->tips_card, 2) }}
+                    Ventas: @price($cashSession->expected_card)<br>
+                    Propinas: @price($cashSession->tips_card)
                 </div>
                 <div class="method-total">
-                    Esperado: ${{ number_format($cashSession->expected_card, 2) }}<br>
-                    Registrado: ${{ number_format($cashSession->counted_card, 2) }}<br>
+                    Esperado: @price($cashSession->expected_card)<br>
+                    Registrado: @price($cashSession->counted_card)<br>
                     <span class="{{ $cashSession->difference_card >= 0 ? 'difference-positive' : 'difference-negative' }}">
-                        Diferencia: ${{ number_format($cashSession->difference_card, 2) }}
+                        Diferencia: @price($cashSession->difference_card)
                     </span>
                 </div>
             </div>
@@ -279,14 +279,14 @@
                 <div class="method-icon">🏦</div>
                 <div class="method-title">TRANSFERENCIA</div>
                 <div class="method-amounts">
-                    Ventas: ${{ number_format($cashSession->expected_transfer, 2) }}<br>
-                    Propinas: ${{ number_format($cashSession->tips_transfer, 2) }}
+                    Ventas: @price($cashSession->expected_transfer)<br>
+                    Propinas: @price($cashSession->tips_transfer)
                 </div>
                 <div class="method-total">
-                    Esperado: ${{ number_format($cashSession->expected_transfer, 2) }}<br>
-                    Registrado: ${{ number_format($cashSession->counted_transfer, 2) }}<br>
+                    Esperado: @price($cashSession->expected_transfer)<br>
+                    Registrado: @price($cashSession->counted_transfer)<br>
                     <span class="{{ $cashSession->difference_transfer >= 0 ? 'difference-positive' : 'difference-negative' }}">
-                        Diferencia: ${{ number_format($cashSession->difference_transfer, 2) }}
+                        Diferencia: @price($cashSession->difference_transfer)
                     </span>
                 </div>
             </div>
@@ -318,13 +318,13 @@
                                 @endif
                             </td>
                             <td class="text-center">{{ $payment->count }}</td>
-                            <td class="text-end">${{ number_format($payment->total, 2) }}</td>
+                            <td class="text-end">@price($payment->total)</td>
                         </tr>
                     @endforeach
                     <tr style="background: #f8f9fa; font-weight: bold;">
                         <td>TOTAL</td>
                         <td class="text-center">{{ $paymentsByMethod->sum('count') }}</td>
-                        <td class="text-end">${{ number_format($paymentsByMethod->sum('total'), 2) }}</td>
+                        <td class="text-end">@price($paymentsByMethod->sum('total'))</td>
                     </tr>
                 </tbody>
             </table>
@@ -348,13 +348,13 @@
                     <tr>
                         <td>{{ $tipData['waiter_name'] }}</td>
                         <td class="text-center">{{ $tipData['orders_count'] }}</td>
-                        <td class="text-end">${{ number_format($tipData['total_tips'], 2) }}</td>
+                        <td class="text-end">@price($tipData['total_tips'])</td>
                     </tr>
                 @endforeach
                 <tr style="background: #f8f9fa; font-weight: bold;">
                     <td>TOTAL</td>
                     <td class="text-center">{{ $tipsByWaiter->sum('orders_count') }}</td>
-                    <td class="text-end">${{ number_format($tipsByWaiter->sum('total_tips'), 2) }}</td>
+                    <td class="text-end">@price($tipsByWaiter->sum('total_tips'))</td>
                 </tr>
             </tbody>
         </table>
@@ -365,16 +365,16 @@
     <div class="totals-section">
         <div class="total-row">
             <span>Total Esperado:</span>
-            <span>${{ number_format($cashSession->expected_balance, 2) }}</span>
+            <span>@price($cashSession->expected_balance)</span>
         </div>
         <div class="total-row">
             <span>Total Contado:</span>
-            <span>${{ number_format($cashSession->closing_balance, 2) }}</span>
+            <span>@price($cashSession->closing_balance)</span>
         </div>
         <div class="total-row final">
             <span>Diferencia Total:</span>
             <span class="{{ $cashSession->difference >= 0 ? 'difference-positive' : 'difference-negative' }}">
-                ${{ number_format($cashSession->difference, 2) }}
+                @price($cashSession->difference)
             </span>
         </div>
     </div>

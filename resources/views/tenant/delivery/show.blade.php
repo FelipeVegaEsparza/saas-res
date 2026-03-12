@@ -109,7 +109,7 @@
                             @if($deliveryOrder->delivery_fee > 0)
                             <tr>
                                 <td colspan="3" class="text-end"><strong>Envío:</strong></td>
-                                <td class="text-end"><strong>${{ number_format($deliveryOrder->delivery_fee, 2) }}</strong></td>
+                                <td class="text-end"><strong>@price($deliveryOrder->delivery_fee)</strong></td>
                             </tr>
                             @endif
                             <tr class="table-active">

@@ -331,8 +331,23 @@ CSS;
       }
     }
 
-    // Format without decimals
-    $formattedAmount = number_format($amount, 0, ',', '.');
+    // Determine decimal places based on currency
+    $decimals = 0; // Default for CLP and most currencies
+
+    // Currencies that typically use decimals
+    $currenciesWithDecimals = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'];
+
+    if (in_array(strtoupper($currency), $currenciesWithDecimals)) {
+      $decimals = 2;
+    }
+
+    // Format amount based on currency
+    if ($decimals > 0) {
+      $formattedAmount = number_format($amount, $decimals, ',', '.');
+    } else {
+      // For CLP and similar currencies, format without decimals
+      $formattedAmount = number_format($amount, 0, ',', '.');
+    }
 
     return $symbol . $formattedAmount;
   }

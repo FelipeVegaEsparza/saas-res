@@ -195,28 +195,28 @@
             <div class="method-header">💵 EFECTIVO</div>
             <div class="method-row">
                 <span>Inicial:</span>
-                <span>${{ number_format($cashSession->opening_balance, 2) }}</span>
+                <span>@price($cashSession->opening_balance)</span>
             </div>
             <div class="method-row">
                 <span>Ventas:</span>
-                <span>${{ number_format($cashSession->expected_cash - $cashSession->opening_balance, 2) }}</span>
+                <span>@price($cashSession->expected_cash - $cashSession->opening_balance)</span>
             </div>
             <div class="method-row">
                 <span>Propinas:</span>
-                <span>${{ number_format($cashSession->tips_cash, 2) }}</span>
+                <span>@price($cashSession->tips_cash)</span>
             </div>
             <div class="method-total">
                 <div class="method-row">
                     <span>Esperado:</span>
-                    <span>${{ number_format($cashSession->expected_cash, 2) }}</span>
+                    <span>@price($cashSession->expected_cash)</span>
                 </div>
                 <div class="method-row">
                     <span>Contado:</span>
-                    <span>${{ number_format($cashSession->counted_cash, 2) }}</span>
+                    <span>@price($cashSession->counted_cash)</span>
                 </div>
                 <div class="method-row">
                     <span>Diferencia:</span>
-                    <span>${{ number_format($cashSession->difference_cash, 2) }}</span>
+                    <span>@price($cashSession->difference_cash)</span>
                 </div>
             </div>
         </div>
@@ -229,24 +229,24 @@
             <div class="method-header">💳 TARJETA</div>
             <div class="method-row">
                 <span>Ventas:</span>
-                <span>${{ number_format($cashSession->expected_card, 2) }}</span>
+                <span>@price($cashSession->expected_card)</span>
             </div>
             <div class="method-row">
                 <span>Propinas:</span>
-                <span>${{ number_format($cashSession->tips_card, 2) }}</span>
+                <span>@price($cashSession->tips_card)</span>
             </div>
             <div class="method-total">
                 <div class="method-row">
                     <span>Esperado:</span>
-                    <span>${{ number_format($cashSession->expected_card, 2) }}</span>
+                    <span>@price($cashSession->expected_card)</span>
                 </div>
                 <div class="method-row">
                     <span>Registrado:</span>
-                    <span>${{ number_format($cashSession->counted_card, 2) }}</span>
+                    <span>@price($cashSession->counted_card)</span>
                 </div>
                 <div class="method-row">
                     <span>Diferencia:</span>
-                    <span>${{ number_format($cashSession->difference_card, 2) }}</span>
+                    <span>@price($cashSession->difference_card)</span>
                 </div>
             </div>
         </div>
@@ -260,24 +260,24 @@
             <div class="method-header">🏦 TRANSFERENCIA</div>
             <div class="method-row">
                 <span>Ventas:</span>
-                <span>${{ number_format($cashSession->expected_transfer, 2) }}</span>
+                <span>@price($cashSession->expected_transfer)</span>
             </div>
             <div class="method-row">
                 <span>Propinas:</span>
-                <span>${{ number_format($cashSession->tips_transfer, 2) }}</span>
+                <span>@price($cashSession->tips_transfer)</span>
             </div>
             <div class="method-total">
                 <div class="method-row">
                     <span>Esperado:</span>
-                    <span>${{ number_format($cashSession->expected_transfer, 2) }}</span>
+                    <span>@price($cashSession->expected_transfer)</span>
                 </div>
                 <div class="method-row">
                     <span>Registrado:</span>
-                    <span>${{ number_format($cashSession->counted_transfer, 2) }}</span>
+                    <span>@price($cashSession->counted_transfer)</span>
                 </div>
                 <div class="method-row">
                     <span>Diferencia:</span>
-                    <span>${{ number_format($cashSession->difference_transfer, 2) }}</span>
+                    <span>@price($cashSession->difference_transfer)</span>
                 </div>
             </div>
         </div>
@@ -305,13 +305,13 @@
                     @endif
                 </span>
                 <span>{{ $payment->count }}</span>
-                <span>${{ number_format($payment->total, 2) }}</span>
+                <span>@price($payment->total)</span>
             </div>
         @endforeach
         <div class="table-row" style="font-weight: bold; border-top: 1px solid #000; padding-top: 2px;">
             <span>TOTAL</span>
             <span>{{ $paymentsByMethod->sum('count') }}</span>
-            <span>${{ number_format($paymentsByMethod->sum('total'), 2) }}</span>
+            <span>@price($paymentsByMethod->sum('total'))</span>
         </div>
     </div>
     @endif
@@ -329,13 +329,13 @@
             <div class="table-row">
                 <span>{{ Str::limit($tipData['waiter_name'], 12) }}</span>
                 <span>{{ $tipData['orders_count'] }}</span>
-                <span>${{ number_format($tipData['total_tips'], 2) }}</span>
+                <span>@price($tipData['total_tips'])</span>
             </div>
         @endforeach
         <div class="table-row" style="font-weight: bold; border-top: 1px solid #000; padding-top: 2px;">
             <span>TOTAL</span>
             <span>{{ $tipsByWaiter->sum('orders_count') }}</span>
-            <span>${{ number_format($tipsByWaiter->sum('total_tips'), 2) }}</span>
+            <span>@price($tipsByWaiter->sum('total_tips'))</span>
         </div>
     </div>
     @endif
@@ -344,15 +344,15 @@
     <div class="total-section">
         <div class="total-row">
             <span>Total Esperado:</span>
-            <span>${{ number_format($cashSession->expected_balance, 2) }}</span>
+            <span>@price($cashSession->expected_balance)</span>
         </div>
         <div class="total-row">
             <span>Total Contado:</span>
-            <span>${{ number_format($cashSession->closing_balance, 2) }}</span>
+            <span>@price($cashSession->closing_balance)</span>
         </div>
         <div class="total-row total-final">
             <span>DIFERENCIA:</span>
-            <span>${{ number_format($cashSession->difference, 2) }}</span>
+            <span>@price($cashSession->difference)</span>
         </div>
     </div>
 

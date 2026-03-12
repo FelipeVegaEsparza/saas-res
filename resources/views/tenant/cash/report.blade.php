@@ -61,21 +61,21 @@
                 <div class="row g-3">
                     <div class="col-6">
                         <label class="form-label text-muted small">Efectivo Inicial</label>
-                        <p class="mb-0"><strong>${{ number_format($cashSession->opening_balance, 2) }}</strong></p>
+                        <p class="mb-0"><strong>@price($cashSession->opening_balance)</strong></p>
                     </div>
                     <div class="col-6">
                         <label class="form-label text-muted small">Efectivo Final</label>
-                        <p class="mb-0"><strong>${{ number_format($cashSession->closing_balance, 2) }}</strong></p>
+                        <p class="mb-0"><strong>@price($cashSession->closing_balance)</strong></p>
                     </div>
                     <div class="col-6">
                         <label class="form-label text-muted small">Efectivo Esperado</label>
-                        <p class="mb-0"><strong>${{ number_format($cashSession->expected_balance, 2) }}</strong></p>
+                        <p class="mb-0"><strong>@price($cashSession->expected_balance)</strong></p>
                     </div>
                     <div class="col-6">
                         <label class="form-label text-muted small">Diferencia</label>
                         <p class="mb-0">
                             <strong class="{{ $cashSession->difference >= 0 ? 'text-success' : 'text-danger' }}">
-                                ${{ number_format($cashSession->difference, 2) }}
+                                @price($cashSession->difference)
                             </strong>
                         </p>
                     </div>
@@ -121,13 +121,13 @@
                                             @endif
                                         </td>
                                         <td class="text-end">{{ $payment->count }}</td>
-                                        <td class="text-end"><strong>${{ number_format($payment->total, 2) }}</strong></td>
+                                        <td class="text-end"><strong>@price($payment->total)</strong></td>
                                     </tr>
                                 @endforeach
                                 <tr class="table-active">
                                     <td><strong>Total</strong></td>
                                     <td class="text-end"><strong>{{ $paymentsByMethod->sum('count') }}</strong></td>
-                                    <td class="text-end"><strong>${{ number_format($paymentsByMethod->sum('total'), 2) }}</strong></td>
+                                    <td class="text-end"><strong>@price($paymentsByMethod->sum('total'))</strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -169,7 +169,7 @@
                                             @endif
                                         </td>
                                         <td>{{ $payment->created_at->format('H:i') }}</td>
-                                        <td class="text-end">${{ number_format($payment->amount, 2) }}</td>
+                                        <td class="text-end">@price($payment->amount)</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -204,13 +204,13 @@
                                     <tr>
                                         <td>{{ $tipData['waiter_name'] }}</td>
                                         <td class="text-end">{{ $tipData['orders_count'] }}</td>
-                                        <td class="text-end"><strong>${{ number_format($tipData['total_tips'], 2) }}</strong></td>
+                                        <td class="text-end"><strong>@price($tipData['total_tips'])</strong></td>
                                     </tr>
                                 @endforeach
                                 <tr class="table-active">
                                     <td><strong>Total</strong></td>
                                     <td class="text-end"><strong>{{ $tipsByWaiter->sum('orders_count') }}</strong></td>
-                                    <td class="text-end"><strong>${{ number_format($tipsByWaiter->sum('total_tips'), 2) }}</strong></td>
+                                    <td class="text-end"><strong>@price($tipsByWaiter->sum('total_tips'))</strong></td>
                                 </tr>
                             </tbody>
                         </table>

@@ -83,7 +83,7 @@
                                                 <small class="text-muted">{{ $product->category->name }}</small>
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center mt-2">
-                                                <span class="h5 mb-0 text-primary">${{ number_format($product->price, 2) }}</span>
+                                                <span class="h5 mb-0 text-primary">@price($product->price)</span>
                                                 <button class="btn btn-sm btn-primary">
                                                     <i class="ri ri-add-line"></i>
                                                 </button>
