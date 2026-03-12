@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 @section('title', 'Tomar Pedido - Mesa ' . $table->number)
 
 @section('page-style')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     .products-grid {
         height: calc(100vh - 350px);
@@ -62,6 +63,21 @@ use Illuminate\Support\Facades\Storage;
     .order-item:last-child {
         border-bottom: none;
     }
+
+    /* Select2 customization */
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #d9dee3;
+        border-radius: 0.375rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+        padding-left: 12px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+        right: 10px;
+    }
 </style>
 @endsection
 
@@ -95,6 +111,13 @@ use Illuminate\Support\Facades\Storage;
                             <span class="badge bg-warning">
                                 <i class="ri ri-restaurant-line me-1"></i>Pedido en curso
                             </span>
+                        </div>
+                    @endif
+                    @if($order && $order->customer)
+                        <div class="vr"></div>
+                        <div>
+                            <small class="opacity-75">Cliente:</small>
+                            <strong class="ms-1">{{ $order->customer->name }}</strong>
                         </div>
                     @endif
                 </div>
@@ -180,6 +203,17 @@ use Illuminate\Support\Facades\Storage;
                     </div>
                 @endif
 
+                <!-- Selector de Cliente -->
+                @if(!$order)
+                    <div class="mb-3">
+                        <label class="form-label">Cliente (Opcional)</label>
+                        <select id="customerSelect" class="form-select" name="customer_id">
+                            <option value="">Cliente anónimo</option>
+                        </select>
+                        <small class="form-text text-muted">Selecciona un cliente para asociar el pedido</small>
+                    </div>
+                @endif
+
                 <div class="order-items mb-3" id="orderItems">
                     @if($order && $order->items->count() > 0)
                         @foreach($order->items as $item)
@@ -246,9 +280,74 @@ use Illuminate\Support\Facades\Storage;
 @endsection
 
 @section('page-script')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 let newItems = [];
 const existingTotal = {{ $order ? $order->total : 0 }};
+
+// Inicializar selector de clientes
+document.addEventListener('DOMContentLoaded', function() {
+    initCustomerSelect();
+});
+
+function initCustomerSelect() {
+    const customerSelect = document.getElementById('customerSelect');
+    if (!customerSelect) return;
+
+    // Convertir a select2 para búsqueda
+    $(customerSelect).select2({
+        placeholder: 'Buscar cliente...',
+        allowClear: true,
+        ajax: {
+            url: '{{ route("tenant.path.customers.search", ["tenant" => request()->route("tenant")]) }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.results.map(function(customer) {
+                        return {
+                            id: customer.id,
+                            text: customer.text,
+                            name: customer.name,
+                            phone: customer.phone,
+                            credit_available: customer.credit_available,
+                            credit_limit: customer.credit_limit
+                        };
+                    })
+                };
+            },
+            cache: true
+        },
+        templateResult: function(customer) {
+            if (customer.loading) return customer.text;
+
+            if (!customer.name) return $('<span>' + customer.text + '</span>');
+
+            var $container = $(
+                '<div class="d-flex justify-content-between align-items-center">' +
+                    '<div>' +
+                        '<div class="fw-medium">' + customer.name + '</div>' +
+                        '<small class="text-muted">' + (customer.phone || 'Sin teléfono') + '</small>' +
+                    '</div>' +
+                    '<div class="text-end">' +
+                        '<small class="text-success">Crédito: $' + Math.round(customer.credit_available).toLocaleString('es-CL') + '</small>' +
+                    '</div>' +
+                '</div>'
+            );
+
+            return $container;
+        },
+        templateSelection: function(customer) {
+            if (!customer.name) return customer.text;
+            return customer.name + (customer.phone ? ' (' + customer.phone + ')' : '');
+        }
+    });
+}
 
 // Función para formatear precios sin decimales y con separadores de miles
 function formatPrice(amount) {
@@ -430,7 +529,8 @@ async function sendOrder() {
             product_id: item.id,
             quantity: item.quantity
         })),
-        kitchen_notes: kitchenNotes
+        kitchen_notes: kitchenNotes,
+        customer_id: document.getElementById('customerSelect') ? document.getElementById('customerSelect').value || null : null
     };
 
     try {

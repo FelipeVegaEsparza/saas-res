@@ -251,9 +251,13 @@ class CashRegisterController extends Controller
     public function processPayment(Request $request)
     {
         $validated = $request->validate([
-            'order_id' => 'required|exists:tenant.orders,id',
-            'payment_method' => 'required|in:cash,card,transfer',
+            'items' => 'required|array',
+            'items.*.product_id' => 'required|exists:tenant.products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric|min:0',
+            'payment_method' => 'required|in:cash,card,transfer,credit',
             'amount_paid' => 'required|numeric|min:0',
+            'customer_id' => 'nullable|exists:tenant.customers,id',
             'tip' => 'nullable|numeric|min:0',
         ]);
 
@@ -265,60 +269,111 @@ class CashRegisterController extends Controller
             return response()->json(['error' => 'No hay sesión de caja abierta'], 400);
         }
 
-        $order = Order::with(['table', 'items.product'])->findOrFail($validated['order_id']);
+        // Validar crédito directo
+        if ($validated['payment_method'] === 'credit') {
+            if (!$validated['customer_id']) {
+                return response()->json(['error' => 'Cliente requerido para pago con crédito'], 400);
+            }
 
-        if (!$order->canBePaid()) {
-            return response()->json(['error' => 'Esta orden no puede ser pagada'], 400);
+            $customer = \App\Models\Tenant\Customer::findOrFail($validated['customer_id']);
+            $total = collect($validated['items'])->sum(function ($item) {
+                return $item['price'] * $item['quantity'];
+            });
+
+            if (!$customer->hasAvailableCredit($total)) {
+                return response()->json(['error' => 'Crédito insuficiente'], 400);
+            }
         }
 
         DB::connection('tenant')->beginTransaction();
 
         try {
-            $tip = $validated['tip'] ?? 0;
-
-            // Crear pago
-            $payment = Payment::create([
-                'order_id' => $order->id,
-                'cash_session_id' => $activeSession->id,
-                'payment_method' => $validated['payment_method'],
-                'amount' => $order->total,
-                'amount_paid' => $validated['amount_paid'],
-                'tip' => $tip,
-                'change' => $validated['amount_paid'] - $order->total - $tip,
-                'status' => 'completed',
+            // Crear orden directa (sin mesa)
+            $order = Order::create([
+                'order_number' => 'POS-' . strtoupper(uniqid()),
+                'customer_id' => $validated['customer_id'],
+                'user_id' => Auth::id(),
+                'type' => 'pos',
+                'status' => 'paid',
+                'subtotal' => 0,
+                'total' => 0,
                 'paid_at' => now(),
             ]);
 
-            // Rebajar stock de productos
-            foreach ($order->items as $item) {
-                if ($item->product && $item->product->track_stock) {
-                    $item->product->reduceStock($item->quantity);
+            $subtotal = 0;
+
+            // Crear items de la orden
+            foreach ($validated['items'] as $itemData) {
+                $product = \App\Models\Tenant\Product::findOrFail($itemData['product_id']);
+                $itemSubtotal = $itemData['price'] * $itemData['quantity'];
+                $subtotal += $itemSubtotal;
+
+                \App\Models\Tenant\OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'quantity' => $itemData['quantity'],
+                    'price' => $itemData['price'],
+                    'subtotal' => $itemSubtotal,
+                ]);
+
+                // Rebajar stock
+                if ($product->track_stock) {
+                    $product->reduceStock($itemData['quantity']);
                 }
             }
 
-            // Marcar orden como pagada
+            // Actualizar totales de la orden
             $order->update([
-                'status' => 'paid',
-                'paid_at' => now(),
+                'subtotal' => $subtotal,
+                'total' => $subtotal,
             ]);
 
-            // Liberar mesa
-            if ($order->table) {
-                $order->table->free();
+            $tip = $validated['tip'] ?? 0;
+
+            // Procesar pago según método
+            if ($validated['payment_method'] === 'credit') {
+                // Usar crédito del cliente
+                $customer = \App\Models\Tenant\Customer::findOrFail($validated['customer_id']);
+                $customer->useCredit($subtotal, "Compra POS - {$order->order_number}", $order->id);
+
+                // Crear registro de pago
+                \App\Models\Tenant\Payment::create([
+                    'order_id' => $order->id,
+                    'cash_session_id' => $activeSession->id,
+                    'payment_method' => 'credit',
+                    'amount' => $subtotal,
+                    'amount_paid' => $subtotal,
+                    'tip' => $tip,
+                    'change' => 0,
+                    'status' => 'completed',
+                    'paid_at' => now(),
+                ]);
+            } else {
+                // Pago tradicional
+                \App\Models\Tenant\Payment::create([
+                    'order_id' => $order->id,
+                    'cash_session_id' => $activeSession->id,
+                    'payment_method' => $validated['payment_method'],
+                    'amount' => $subtotal,
+                    'amount_paid' => $validated['amount_paid'],
+                    'tip' => $tip,
+                    'change' => $validated['amount_paid'] - $subtotal - $tip,
+                    'status' => 'completed',
+                    'paid_at' => now(),
+                ]);
             }
 
             DB::connection('tenant')->commit();
 
             return response()->json([
                 'success' => true,
-                'order' => $order,
-                'payment' => $payment,
-                'message' => 'Pago procesado exitosamente',
+                'order' => $order->load(['items.product', 'customer']),
+                'message' => 'Venta procesada exitosamente',
             ]);
 
         } catch (\Exception $e) {
             DB::connection('tenant')->rollBack();
-            return response()->json(['error' => 'Error al procesar el pago: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Error al procesar la venta: ' . $e->getMessage()], 500);
         }
     }
 

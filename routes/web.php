@@ -71,6 +71,7 @@ use App\Http\Controllers\Tenant\DeliveryOrderController;
 use App\Http\Controllers\Tenant\CashRegisterController;
 use App\Http\Controllers\Tenant\StockController;
 use App\Http\Controllers\Tenant\UserController;
+use App\Http\Controllers\Tenant\CustomerController;
 use App\Http\Controllers\Tenant\StatisticsController;
 use App\Http\Controllers\Tenant\SettingsController;
 
@@ -189,6 +190,21 @@ Route::prefix('{tenant}')->middleware(['tenant.path'])->group(function () {
             'update' => 'tenant.path.users.update',
             'destroy' => 'tenant.path.users.destroy',
         ]);
+
+        // Rutas de Clientes
+        Route::resource('customers', CustomerController::class)->names([
+            'index' => 'tenant.path.customers.index',
+            'create' => 'tenant.path.customers.create',
+            'store' => 'tenant.path.customers.store',
+            'show' => 'tenant.path.customers.show',
+            'edit' => 'tenant.path.customers.edit',
+            'update' => 'tenant.path.customers.update',
+            'destroy' => 'tenant.path.customers.destroy',
+        ]);
+        Route::post('customers/{customer}/add-payment', [CustomerController::class, 'addPayment'])->name('tenant.path.customers.add-payment');
+        Route::post('customers/{customer}/adjust-credit', [CustomerController::class, 'adjustCredit'])->name('tenant.path.customers.adjust-credit');
+        Route::get('customers-search', [CustomerController::class, 'search'])->name('tenant.path.customers.search');
+        Route::get('credit-report', [CustomerController::class, 'creditReport'])->name('tenant.path.customers.credit-report');
 
         // Rutas de Estadísticas
         Route::get('/statistics', [StatisticsController::class, 'index'])->name('tenant.path.statistics.index');

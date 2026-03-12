@@ -16,6 +16,7 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'table_id',
+        'customer_id',
         'waiter_id',
         'user_id',
         'customer_name',
@@ -65,6 +66,14 @@ class Order extends Model
     public function table()
     {
         return $this->belongsTo(Table::class);
+    }
+
+    /**
+     * Relación con cliente
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     /**

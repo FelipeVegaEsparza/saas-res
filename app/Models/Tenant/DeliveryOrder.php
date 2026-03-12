@@ -14,6 +14,7 @@ class DeliveryOrder extends Model
 
     protected $fillable = [
         'order_number',
+        'customer_id',
         'type',
         'status',
         'payment_status',
@@ -45,6 +46,11 @@ class DeliveryOrder extends Model
     public function items()
     {
         return $this->hasMany(DeliveryOrderItem::class);
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     public static function generateOrderNumber()

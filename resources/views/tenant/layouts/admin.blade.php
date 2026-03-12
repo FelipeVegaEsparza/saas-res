@@ -193,6 +193,19 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
                     </a>
                 </li>
 
+                <li class="menu-item {{ request()->routeIs('tenant.path.customers.*') ? 'active' : '' }}">
+                    <a href="{{ route('tenant.path.customers.index', ['tenant' => request()->route('tenant')]) }}" class="menu-link">
+                        <i class="menu-icon icon-base ri ri-user-heart-line"></i>
+                        <div>Clientes</div>
+                        @php
+                            $customersWithDebt = \App\Models\Tenant\Customer::where('credit_used', '>', 0)->count();
+                        @endphp
+                        @if($customersWithDebt > 0)
+                            <span class="badge rounded-pill bg-warning ms-auto">{{ $customersWithDebt }}</span>
+                        @endif
+                    </a>
+                </li>
+
                 <li class="menu-item {{ request()->routeIs('tenant.path.settings.*') ? 'active' : '' }}">
                     <a href="{{ route('tenant.path.settings.index', ['tenant' => request()->route('tenant')]) }}" class="menu-link">
                         <i class="menu-icon icon-base ri ri-settings-3-line"></i>

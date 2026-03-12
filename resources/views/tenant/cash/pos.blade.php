@@ -3,6 +3,7 @@
 @section('title', 'Punto de Venta')
 
 @section('page-style')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     .pos-container {
         height: calc(100vh - 120px);
@@ -40,6 +41,22 @@
     }
     .category-btn {
         white-space: nowrap;
+    }
+
+    /* Select2 customization */
+    .select2-container--default .select2-selection--single {
+        height: 32px;
+        border: 1px solid #d9dee3;
+        border-radius: 0.375rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 30px;
+        padding-left: 8px;
+        font-size: 0.875rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 30px;
+        right: 8px;
     }
 </style>
 @endsection
@@ -129,6 +146,7 @@
                                 <option value="cash">Efectivo</option>
                                 <option value="card">Tarjeta</option>
                                 <option value="transfer">Transferencia</option>
+                                <option value="credit">Crédito Directo</option>
                             </select>
                         </div>
 
@@ -136,6 +154,21 @@
                             <label class="form-label small">Monto Recibido</label>
                             <input type="number" id="amountPaid" class="form-control" step="0.01" min="0">
                             <small class="text-muted">Cambio: <span id="change">$0.00</span></small>
+                        </div>
+
+                        <div class="mb-3" id="creditPaymentSection" style="display: none;">
+                            <label class="form-label small">Cliente *</label>
+                            <select id="creditCustomer" class="form-select">
+                                <option value="">Seleccionar cliente...</option>
+                            </select>
+                            <div id="creditInfo" class="mt-2" style="display: none;">
+                                <div class="alert alert-info p-2">
+                                    <small>
+                                        <strong>Crédito disponible:</strong> <span id="creditAvailable">$0</span><br>
+                                        <strong>Límite total:</strong> <span id="creditLimit">$0</span>
+                                    </small>
+                                </div>
+                            </div>
                         </div>
 
                         <button class="btn btn-success w-100 mb-2" onclick="processPayment()" id="btnPay" disabled>
@@ -153,8 +186,15 @@
 @endsection
 
 @section('page-script')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 let cart = [];
+let selectedCustomer = null;
+
+// Inicializar cuando carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    initCreditCustomerSelect();
+});
 
 // Filtrar por categoría
 document.querySelectorAll('.category-btn').forEach(btn => {
@@ -247,6 +287,9 @@ function updateCart() {
         });
         cartContainer.innerHTML = html;
         document.getElementById('btnPay').disabled = false;
+
+        // Validar crédito si está seleccionado
+        validateCreditPayment();
     }
 
     updateTotals();
@@ -301,12 +344,131 @@ function calculateChange() {
 }
 
 // Mostrar/ocultar sección de efectivo
+// Inicializar selector de clientes para crédito
+function initCreditCustomerSelect() {
+    const creditCustomer = document.getElementById('creditCustomer');
+    if (!creditCustomer) return;
+
+    $(creditCustomer).select2({
+        placeholder: 'Buscar cliente...',
+        allowClear: true,
+        ajax: {
+            url: '{{ route("tenant.path.customers.search", ["tenant" => request()->route("tenant")]) }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.results.filter(customer => customer.credit_limit > 0).map(function(customer) {
+                        return {
+                            id: customer.id,
+                            text: customer.text,
+                            name: customer.name,
+                            phone: customer.phone,
+                            credit_available: customer.credit_available,
+                            credit_limit: customer.credit_limit
+                        };
+                    })
+                };
+            },
+            cache: true
+        },
+        templateResult: function(customer) {
+            if (customer.loading) return customer.text;
+
+            if (!customer.name) return $('<span>' + customer.text + '</span>');
+
+            var $container = $(
+                '<div class="d-flex justify-content-between align-items-center">' +
+                    '<div>' +
+                        '<div class="fw-medium">' + customer.name + '</div>' +
+                        '<small class="text-muted">' + (customer.phone || 'Sin teléfono') + '</small>' +
+                    '</div>' +
+                    '<div class="text-end">' +
+                        '<small class="text-success">$' + Math.round(customer.credit_available).toLocaleString('es-CL') + '</small>' +
+                    '</div>' +
+                '</div>'
+            );
+
+            return $container;
+        },
+        templateSelection: function(customer) {
+            if (!customer.name) return customer.text;
+            return customer.name + (customer.phone ? ' (' + customer.phone + ')' : '');
+        }
+    });
+
+    // Manejar selección de cliente
+    $(creditCustomer).on('select2:select', function (e) {
+        const customer = e.params.data;
+        selectedCustomer = customer;
+        updateCreditInfo(customer);
+        validateCreditPayment();
+    });
+
+    // Manejar deselección de cliente
+    $(creditCustomer).on('select2:clear', function (e) {
+        selectedCustomer = null;
+        document.getElementById('creditInfo').style.display = 'none';
+        validateCreditPayment();
+    });
+}
+
+function updateCreditInfo(customer) {
+    document.getElementById('creditAvailable').textContent = '$' + Math.round(customer.credit_available).toLocaleString('es-CL');
+    document.getElementById('creditLimit').textContent = '$' + Math.round(customer.credit_limit).toLocaleString('es-CL');
+    document.getElementById('creditInfo').style.display = 'block';
+}
+
+function validateCreditPayment() {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    const btnPay = document.getElementById('btnPay');
+
+    if (paymentMethod === 'credit') {
+        if (!selectedCustomer) {
+            btnPay.disabled = true;
+            return false;
+        }
+
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        if (selectedCustomer.credit_available < total) {
+            btnPay.disabled = true;
+            Swal.fire({
+                icon: 'warning',
+                title: 'Crédito insuficiente',
+                text: `El cliente solo tiene $${Math.round(selectedCustomer.credit_available).toLocaleString('es-CL')} disponible`,
+                timer: 3000,
+                showConfirmButton: false
+            });
+            return false;
+        }
+
+        btnPay.disabled = cart.length === 0;
+        return true;
+    }
+
+    return true;
+}
+
+// Mostrar/ocultar secciones de pago
 document.getElementById('paymentMethod').addEventListener('change', function() {
     const cashSection = document.getElementById('cashPaymentSection');
+    const creditSection = document.getElementById('creditPaymentSection');
+
+    // Ocultar todas las secciones
+    cashSection.style.display = 'none';
+    creditSection.style.display = 'none';
+
     if (this.value === 'cash') {
         cashSection.style.display = 'block';
+    } else if (this.value === 'credit') {
+        creditSection.style.display = 'block';
+        validateCreditPayment();
     } else {
-        cashSection.style.display = 'none';
         document.getElementById('amountPaid').value = '';
     }
 });
@@ -338,6 +500,26 @@ async function processPayment() {
             });
             return;
         }
+    } else if (paymentMethod === 'credit') {
+        if (!selectedCustomer) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cliente requerido',
+                text: 'Selecciona un cliente para el pago con crédito',
+                confirmButtonText: 'Aceptar'
+            });
+            return;
+        }
+
+        if (selectedCustomer.credit_available < total) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Crédito insuficiente',
+                text: `El cliente solo tiene $${Math.round(selectedCustomer.credit_available).toLocaleString('es-CL')} disponible`,
+                confirmButtonText: 'Aceptar'
+            });
+            return;
+        }
     }
 
     const data = {
@@ -347,7 +529,8 @@ async function processPayment() {
             price: item.price
         })),
         payment_method: paymentMethod,
-        amount_paid: amountPaid
+        amount_paid: amountPaid,
+        customer_id: paymentMethod === 'credit' ? selectedCustomer.id : null
     };
 
     try {

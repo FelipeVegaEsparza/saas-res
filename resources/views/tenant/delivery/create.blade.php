@@ -2,6 +2,26 @@
 
 @section('title', 'Nuevo Pedido Delivery')
 
+@section('page-style')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Select2 customization */
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #d9dee3;
+        border-radius: 0.375rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+        padding-left: 12px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+        right: 10px;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="mb-4">
     <h1 class="mb-1">Nuevo Pedido</h1>
@@ -56,9 +76,16 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Cliente (Opcional)</label>
+                            <select id="customerSelect" class="form-select" name="customer_id">
+                                <option value="">Cliente nuevo</option>
+                            </select>
+                            <small class="form-text text-muted">Selecciona un cliente existente o deja vacío para crear uno nuevo</small>
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label">Nombre Completo *</label>
-                            <input type="text" name="customer_name" class="form-control @error('customer_name') is-invalid @enderror"
+                            <input type="text" name="customer_name" id="customerName" class="form-control @error('customer_name') is-invalid @enderror"
                                    value="{{ old('customer_name') }}" required>
                             @error('customer_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -66,7 +93,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Teléfono *</label>
-                            <input type="tel" name="customer_phone" class="form-control @error('customer_phone') is-invalid @enderror"
+                            <input type="tel" name="customer_phone" id="customerPhone" class="form-control @error('customer_phone') is-invalid @enderror"
                                    value="{{ old('customer_phone') }}" required>
                             @error('customer_phone')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -74,7 +101,7 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label">Email (opcional)</label>
-                            <input type="email" name="customer_email" class="form-control @error('customer_email') is-invalid @enderror"
+                            <input type="email" name="customer_email" id="customerEmail" class="form-control @error('customer_email') is-invalid @enderror"
                                    value="{{ old('customer_email') }}">
                             @error('customer_email')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -167,9 +194,102 @@
 @endsection
 
 @section('page-script')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 let productIndex = 0;
 const products = @json($products);
+
+// Inicializar selector de clientes
+document.addEventListener('DOMContentLoaded', function() {
+    initCustomerSelect();
+});
+
+function initCustomerSelect() {
+    const customerSelect = document.getElementById('customerSelect');
+    if (!customerSelect) return;
+
+    // Convertir a select2 para búsqueda
+    $(customerSelect).select2({
+        placeholder: 'Buscar cliente existente...',
+        allowClear: true,
+        ajax: {
+            url: '{{ route("tenant.path.customers.search", ["tenant" => request()->route("tenant")]) }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term
+                };
+            },
+            processResults: function (data) {
+                return {
+                    results: data.results.map(function(customer) {
+                        return {
+                            id: customer.id,
+                            text: customer.text,
+                            name: customer.name,
+                            phone: customer.phone,
+                            email: customer.email || '',
+                            credit_available: customer.credit_available,
+                            credit_limit: customer.credit_limit
+                        };
+                    })
+                };
+            },
+            cache: true
+        },
+        templateResult: function(customer) {
+            if (customer.loading) return customer.text;
+
+            if (!customer.name) return $('<span>' + customer.text + '</span>');
+
+            var $container = $(
+                '<div class="d-flex justify-content-between align-items-center">' +
+                    '<div>' +
+                        '<div class="fw-medium">' + customer.name + '</div>' +
+                        '<small class="text-muted">' + (customer.phone || 'Sin teléfono') + '</small>' +
+                    '</div>' +
+                    '<div class="text-end">' +
+                        '<small class="text-success">Crédito: $' + Math.round(customer.credit_available).toLocaleString('es-CL') + '</small>' +
+                    '</div>' +
+                '</div>'
+            );
+
+            return $container;
+        },
+        templateSelection: function(customer) {
+            if (!customer.name) return customer.text;
+            return customer.name + (customer.phone ? ' (' + customer.phone + ')' : '');
+        }
+    });
+
+    // Manejar selección de cliente
+    $(customerSelect).on('select2:select', function (e) {
+        const customer = e.params.data;
+        if (customer.name) {
+            document.getElementById('customerName').value = customer.name;
+            document.getElementById('customerPhone').value = customer.phone || '';
+            document.getElementById('customerEmail').value = customer.email || '';
+
+            // Hacer campos readonly cuando se selecciona un cliente
+            document.getElementById('customerName').readOnly = true;
+            document.getElementById('customerPhone').readOnly = true;
+            document.getElementById('customerEmail').readOnly = true;
+        }
+    });
+
+    // Manejar deselección de cliente
+    $(customerSelect).on('select2:clear', function (e) {
+        document.getElementById('customerName').value = '';
+        document.getElementById('customerPhone').value = '';
+        document.getElementById('customerEmail').value = '';
+
+        // Hacer campos editables cuando se deselecciona
+        document.getElementById('customerName').readOnly = false;
+        document.getElementById('customerPhone').readOnly = false;
+        document.getElementById('customerEmail').readOnly = false;
+    });
+}
 
 // Mostrar/ocultar información de delivery
 document.querySelectorAll('input[name="type"]').forEach(radio => {

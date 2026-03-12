@@ -191,6 +191,7 @@ class TableController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.notes' => 'nullable|string',
             'kitchen_notes' => 'nullable|string',
+            'customer_id' => 'nullable|exists:tenant.customers,id',
         ]);
 
         DB::connection('tenant')->beginTransaction();
@@ -205,6 +206,7 @@ class TableController extends Controller
                 $order = Order::create([
                     'order_number' => 'ORD-' . now()->format('YmdHis') . '-' . $table->number,
                     'table_id' => $table->id,
+                    'customer_id' => $validated['customer_id'],
                     'waiter_id' => Auth::id(),
                     'status' => 'pending',
                     'kitchen_notes' => $validated['kitchen_notes'] ?? null,

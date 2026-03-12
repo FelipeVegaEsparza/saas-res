@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant\DeliveryOrder;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\PreparationArea;
+use App\Models\Tenant\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -49,7 +50,8 @@ class DeliveryOrderController extends Controller
         }
 
         $products = Product::where('available', true)->orderBy('name')->get();
-        return view('tenant.delivery.create', compact('products'));
+        $customers = Customer::orderBy('name')->get();
+        return view('tenant.delivery.create', compact('products', 'customers'));
     }
 
     public function store(Request $request, $tenant)
@@ -65,6 +67,7 @@ class DeliveryOrderController extends Controller
 
         $validated = $request->validate([
             'type' => 'required|in:delivery,takeaway',
+            'customer_id' => 'nullable|exists:tenant.customers,id',
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
             'customer_email' => 'nullable|email|max:255',
@@ -105,6 +108,7 @@ class DeliveryOrderController extends Controller
                 'order_number' => DeliveryOrder::generateOrderNumber(),
                 'type' => $validated['type'],
                 'status' => 'pending',
+                'customer_id' => $validated['customer_id'] ?? null,
                 'customer_name' => $validated['customer_name'],
                 'customer_phone' => $validated['customer_phone'],
                 'customer_email' => $validated['customer_email'] ?? null,
