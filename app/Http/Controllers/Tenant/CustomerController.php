@@ -55,13 +55,25 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        $customer->load(['transactions', 'orders', 'deliveryOrders']);
+        try {
+            $customer->load(['transactions', 'orders', 'deliveryOrders']);
 
-        $recentTransactions = $customer->transactions()->recent()->limit(10)->get();
-        $recentOrders = $customer->orders()->latest()->limit(5)->get();
-        $recentDeliveryOrders = $customer->deliveryOrders()->latest()->limit(5)->get();
+            $recentTransactions = $customer->transactions()->orderBy('created_at', 'desc')->limit(10)->get();
+            $recentOrders = $customer->orders()->latest()->limit(5)->get();
+            $recentDeliveryOrders = $customer->deliveryOrders()->latest()->limit(5)->get();
 
-        return view('tenant.customers.show', compact('customer', 'recentTransactions', 'recentOrders', 'recentDeliveryOrders'));
+            return view('tenant.customers.show', compact('customer', 'recentTransactions', 'recentOrders', 'recentDeliveryOrders'));
+        } catch (\Exception $e) {
+            \Log::error('Error en CustomerController@show: ' . $e->getMessage());
+
+            // Fallback con datos básicos
+            return view('tenant.customers.show', [
+                'customer' => $customer,
+                'recentTransactions' => collect(),
+                'recentOrders' => collect(),
+                'recentDeliveryOrders' => collect()
+            ]);
+        }
     }
 
     public function edit(Customer $customer)
@@ -160,7 +172,7 @@ class CustomerController extends Controller
             'results' => $customers->map(function ($customer) {
                 return [
                     'id' => $customer->id,
-                    'text' => $customer->full_name,
+                    'text' => $customer->name . ($customer->phone ? ' (' . $customer->phone . ')' : ''),
                     'name' => $customer->name,
                     'phone' => $customer->phone,
                     'credit_available' => $customer->credit_available,
@@ -172,24 +184,35 @@ class CustomerController extends Controller
 
     public function creditReport()
     {
-        $customersWithDebt = Customer::where('credit_used', '>', 0)
-            ->orderBy('credit_used', 'desc')
-            ->get();
+        try {
+            $customersWithDebt = Customer::where('credit_used', '>', 0)
+                ->orderBy('credit_used', 'desc')
+                ->get();
 
-        $totalDebt = $customersWithDebt->sum('credit_used');
-        $totalCreditLimit = Customer::sum('credit_limit');
+            $totalDebt = $customersWithDebt->sum('credit_used');
+            $totalCreditLimit = Customer::sum('credit_limit');
 
-        $recentTransactions = CustomerTransaction::with('customer')
-            ->recent(7)
-            ->orderBy('created_at', 'desc')
-            ->limit(20)
-            ->get();
+            $recentTransactions = CustomerTransaction::with('customer')
+                ->where('created_at', '>=', now()->subDays(7))
+                ->orderBy('created_at', 'desc')
+                ->limit(20)
+                ->get();
 
-        return view('tenant.customers.credit-report', compact(
-            'customersWithDebt',
-            'totalDebt',
-            'totalCreditLimit',
-            'recentTransactions'
-        ));
+            return view('tenant.customers.credit-report', compact(
+                'customersWithDebt',
+                'totalDebt',
+                'totalCreditLimit',
+                'recentTransactions'
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Error en CustomerController@creditReport: ' . $e->getMessage());
+
+            return view('tenant.customers.credit-report', [
+                'customersWithDebt' => collect(),
+                'totalDebt' => 0,
+                'totalCreditLimit' => 0,
+                'recentTransactions' => collect()
+            ]);
+        }
     }
 }
