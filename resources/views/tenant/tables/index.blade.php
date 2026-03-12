@@ -8,11 +8,33 @@
         position: relative;
         width: 100%;
         height: calc(100vh - 250px);
-        min-height: 600px;
+        min-height: 500px;
         background: var(--bs-body-bg);
         border: 2px dashed var(--bs-border-color);
         border-radius: 8px;
-        overflow: hidden;
+        overflow: auto; /* Permitir scroll si es necesario */
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+        .restaurant-map {
+            height: calc(100vh - 200px);
+            min-height: 450px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .restaurant-map {
+            height: calc(100vh - 180px);
+            min-height: 400px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .restaurant-map {
+            height: calc(100vh - 160px);
+            min-height: 350px;
+        }
     }
 
     .map-stats {
@@ -21,24 +43,54 @@
         left: 10px;
         z-index: 100;
         display: flex;
-        gap: 10px;
+        gap: 8px;
         flex-wrap: wrap;
+        max-width: calc(100% - 20px);
     }
 
     .stat-badge {
         background: var(--bs-card-bg);
-        padding: 8px 16px;
-        border-radius: 8px;
+        padding: 6px 12px;
+        border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 0.9rem;
+        gap: 6px;
+        font-size: 0.8rem;
         border: 1px solid var(--bs-border-color);
+        white-space: nowrap;
+    }
+
+    /* Responsive stats */
+    @media (max-width: 768px) {
+        .stat-badge {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            gap: 4px;
+        }
+
+        .stat-badge i {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .map-stats {
+            gap: 4px;
+        }
+
+        .stat-badge {
+            padding: 3px 6px;
+            font-size: 0.7rem;
+        }
+
+        .stat-badge strong {
+            font-size: 0.8rem;
+        }
     }
 
     .stat-badge i {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
 
     .stat-badge.available {
@@ -64,6 +116,30 @@
         cursor: pointer;
         user-select: none;
         transition: box-shadow 0.2s;
+        min-width: 60px;
+        min-height: 60px;
+    }
+
+    /* Responsive table sizes */
+    @media (max-width: 1200px) {
+        .table-item {
+            width: 90px;
+            height: 90px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .table-item {
+            width: 80px;
+            height: 80px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-item {
+            width: 70px;
+            height: 70px;
+        }
     }
 
     /* Tamaños */
@@ -82,6 +158,41 @@
         height: 120px;
     }
 
+    /* Responsive size adjustments */
+    @media (max-width: 768px) {
+        .table-item.size-small {
+            width: 60px;
+            height: 60px;
+        }
+
+        .table-item.size-medium {
+            width: 80px;
+            height: 80px;
+        }
+
+        .table-item.size-large {
+            width: 100px;
+            height: 100px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-item.size-small {
+            width: 50px;
+            height: 50px;
+        }
+
+        .table-item.size-medium {
+            width: 70px;
+            height: 70px;
+        }
+
+        .table-item.size-large {
+            width: 90px;
+            height: 90px;
+        }
+    }
+
     /* Formas rectangulares */
     .table-item.rectangle.size-small {
         width: 110px;
@@ -98,6 +209,41 @@
         height: 95px;
     }
 
+    /* Responsive rectangles */
+    @media (max-width: 768px) {
+        .table-item.rectangle.size-small {
+            width: 90px;
+            height: 55px;
+        }
+
+        .table-item.rectangle.size-medium {
+            width: 110px;
+            height: 65px;
+        }
+
+        .table-item.rectangle.size-large {
+            width: 130px;
+            height: 75px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-item.rectangle.size-small {
+            width: 80px;
+            height: 45px;
+        }
+
+        .table-item.rectangle.size-medium {
+            width: 100px;
+            height: 55px;
+        }
+
+        .table-item.rectangle.size-large {
+            width: 120px;
+            height: 65px;
+        }
+    }
+
     /* Rectangulares verticales */
     .table-item.rectangle.vertical.size-small {
         width: 65px;
@@ -112,6 +258,41 @@
     .table-item.rectangle.vertical.size-large {
         width: 95px;
         height: 170px;
+    }
+
+    /* Responsive vertical rectangles */
+    @media (max-width: 768px) {
+        .table-item.rectangle.vertical.size-small {
+            width: 55px;
+            height: 90px;
+        }
+
+        .table-item.rectangle.vertical.size-medium {
+            width: 65px;
+            height: 110px;
+        }
+
+        .table-item.rectangle.vertical.size-large {
+            width: 75px;
+            height: 130px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-item.rectangle.vertical.size-small {
+            width: 45px;
+            height: 80px;
+        }
+
+        .table-item.rectangle.vertical.size-medium {
+            width: 55px;
+            height: 100px;
+        }
+
+        .table-item.rectangle.vertical.size-large {
+            width: 65px;
+            height: 120px;
+        }
     }
 
     /* Forma redonda */
@@ -146,12 +327,19 @@
 
     .table-visual-map {
         width: 100%;
-        height: 70px;
+        height: 70%;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 8px 8px 0 0;
         position: relative;
+    }
+
+    /* Responsive visual map */
+    @media (max-width: 576px) {
+        .table-visual-map {
+            height: 65%;
+        }
     }
 
     .table-visual-map::before {
@@ -162,6 +350,13 @@
         border: 2px solid currentColor;
         border-radius: 6px;
         opacity: 0.3;
+    }
+
+    /* Responsive border */
+    @media (max-width: 576px) {
+        .table-visual-map::before {
+            border-width: 1px;
+        }
     }
 
     .table-visual-map.shape-round::before {
@@ -192,17 +387,50 @@
 
     .table-info-map {
         background: var(--bs-card-bg);
-        padding: 8px;
+        padding: 6px;
         text-align: center;
         border-radius: 0 0 8px 8px;
         border: 1px solid var(--bs-border-color);
         border-top: none;
+        height: 30%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* Responsive info map */
+    @media (max-width: 576px) {
+        .table-info-map {
+            padding: 4px;
+            height: 35%;
+        }
+
+        .table-info-map strong {
+            font-size: 0.8rem;
+        }
+
+        .table-info-map small {
+            font-size: 0.65rem;
+        }
     }
 
     .table-icon-map {
-        font-size: 2rem;
+        font-size: 1.8rem;
         position: relative;
         z-index: 1;
+    }
+
+    /* Responsive icon */
+    @media (max-width: 768px) {
+        .table-icon-map {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-icon-map {
+            font-size: 1.2rem;
+        }
     }
 
     .edit-mode-badge {
@@ -210,6 +438,31 @@
         top: 80px;
         right: 20px;
         z-index: 1000;
+    }
+
+    /* Responsive edit badge */
+    @media (max-width: 768px) {
+        .edit-mode-badge {
+            top: 70px;
+            right: 10px;
+        }
+
+        .edit-mode-badge .alert {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .edit-mode-badge {
+            top: 60px;
+            right: 5px;
+        }
+
+        .edit-mode-badge .alert {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+        }
     }
 
     .context-menu-backdrop {
@@ -235,9 +488,17 @@
         box-shadow: 0 8px 24px rgba(0,0,0,0.25);
         padding: 8px 0;
         z-index: 9999;
-        min-width: 200px;
+        min-width: 180px;
         display: none;
         backdrop-filter: none;
+    }
+
+    /* Responsive context menu */
+    @media (max-width: 576px) {
+        .context-menu {
+            min-width: 160px;
+            font-size: 0.85rem;
+        }
     }
 
     /* Asegurar fondo sólido 100% opaco en modo claro */
@@ -259,15 +520,24 @@
     }
 
     .context-menu-item {
-        padding: 10px 16px;
+        padding: 8px 12px;
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         transition: background 0.2s;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: var(--bs-body-color);
         background: transparent;
+    }
+
+    /* Responsive context menu items */
+    @media (max-width: 576px) {
+        .context-menu-item {
+            padding: 6px 10px;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
     }
 
     .context-menu-item:hover {
@@ -283,9 +553,9 @@
     }
 
     .context-menu-item i {
-        width: 20px;
+        width: 18px;
         text-align: center;
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
 
     .context-menu-item.text-danger:hover {
@@ -295,7 +565,7 @@
     .context-menu-divider {
         height: 1px;
         background: var(--bs-border-color);
-        margin: 6px 0;
+        margin: 4px 0;
     }
 
     [data-theme="light"] .context-menu-divider {
@@ -304,6 +574,34 @@
 
     [data-theme="dark"] .context-menu-divider {
         background: #3a3b54;
+    }
+
+    /* Responsive header buttons */
+    @media (max-width: 768px) {
+        .d-flex.gap-2 {
+            gap: 0.5rem !important;
+        }
+
+        .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .d-flex.gap-2 {
+            flex-direction: column;
+            gap: 0.25rem !important;
+        }
+
+        .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .btn i {
+            font-size: 0.9rem;
+        }
     }
 </style>
 @endsection
