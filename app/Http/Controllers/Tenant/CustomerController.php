@@ -32,7 +32,7 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
@@ -43,7 +43,11 @@ class CustomerController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        Customer::create($request->all());
+        // Agregar campos por defecto
+        $validated['active'] = true;
+        $validated['credit_used'] = 0;
+
+        Customer::create($validated);
 
         return redirect()->route('tenant.path.customers.index', ['tenant' => request()->route('tenant')])
             ->with('success', 'Cliente creado exitosamente');
