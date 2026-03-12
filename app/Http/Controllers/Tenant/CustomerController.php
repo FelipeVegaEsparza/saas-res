@@ -16,10 +16,6 @@ class CustomerController extends Controller
             $customers = Customer::orderBy('name')->paginate(20);
             return view('tenant.customers.index', compact('customers'));
         } catch (\Exception $e) {
-            // Log del error para debugging
-            \Log::error('Error en CustomerController@index: ' . $e->getMessage());
-
-            // Retornar vista con colección vacía
             $customers = collect()->paginate(20);
             return view('tenant.customers.index', compact('customers'));
         }
@@ -43,7 +39,6 @@ class CustomerController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        // Agregar campos por defecto
         $validated['active'] = true;
         $validated['credit_used'] = 0;
 
@@ -55,25 +50,7 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        try {
-            $customer->load(['transactions', 'orders', 'deliveryOrders']);
-
-            $recentTransactions = $customer->transactions()->orderBy('created_at', 'desc')->limit(10)->get();
-            $recentOrders = $customer->orders()->latest()->limit(5)->get();
-            $recentDeliveryOrders = $customer->deliveryOrders()->latest()->limit(5)->get();
-
-            return view('tenant.customers.show', compact('customer', 'recentTransactions', 'recentOrders', 'recentDeliveryOrders'));
-        } catch (\Exception $e) {
-            \Log::error('Error en CustomerController@show: ' . $e->getMessage());
-
-            // Fallback con datos básicos
-            return view('tenant.customers.show', [
-                'customer' => $customer,
-                'recentTransactions' => collect(),
-                'recentOrders' => collect(),
-                'recentDeliveryOrders' => collect()
-            ]);
-        }
+        return view('tenant.customers.show', compact('customer'));
     }
 
     public function edit(Customer $customer)
@@ -83,7 +60,7 @@ class CustomerController extends Controller
 
     public function update(Request $request, Customer $customer)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
@@ -95,7 +72,7 @@ class CustomerController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        $customer->update($request->all());
+        $customer->update($validated);
 
         return redirect()->route('tenant.path.customers.show', ['tenant' => request()->route('tenant'), 'customer' => $customer])
             ->with('success', 'Cliente actualizado exitosamente');
@@ -105,10 +82,6 @@ class CustomerController extends Controller
     {
         if ($customer->credit_used > 0) {
             return back()->with('error', 'No se puede eliminar un cliente con deuda pendiente');
-        }
-
-        if ($customer->orders()->count() > 0 || $customer->deliveryOrders()->count() > 0) {
-            return back()->with('error', 'No se puede eliminar un cliente con órdenes registradas');
         }
 
         $customer->delete();
@@ -126,15 +99,13 @@ class CustomerController extends Controller
 
         try {
             DB::beginTransaction();
-
             $customer->addPayment($request->amount, $request->description);
-
             DB::commit();
 
             return back()->with('success', 'Pago registrado exitosamente');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error al registrar el pago: ' . $e->getMessage());
+            return back()->with('error', 'Error al registrar el pago');
         }
     }
 
@@ -147,15 +118,13 @@ class CustomerController extends Controller
 
         try {
             DB::beginTransaction();
-
             $customer->adjustCredit($request->amount, $request->description);
-
             DB::commit();
 
-            return back()->with('success', 'Ajuste de crédito realizado exitosamente');
+            return back()->with('success', 'Ajuste realizado exitosamente');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error al realizar el ajuste: ' . $e->getMessage());
+            return back()->with('error', 'Error al realizar el ajuste');
         }
     }
 
@@ -163,8 +132,12 @@ class CustomerController extends Controller
     {
         $search = $request->get('q', '');
 
-        $customers = Customer::active()
-            ->search($search)
+        $customers = Customer::where('active', true)
+            ->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            })
             ->limit(10)
             ->get(['id', 'name', 'phone', 'credit_limit', 'credit_used']);
 
@@ -175,7 +148,7 @@ class CustomerController extends Controller
                     'text' => $customer->name . ($customer->phone ? ' (' . $customer->phone . ')' : ''),
                     'name' => $customer->name,
                     'phone' => $customer->phone,
-                    'credit_available' => $customer->credit_available,
+                    'credit_available' => $customer->credit_limit - $customer->credit_used,
                     'credit_limit' => $customer->credit_limit
                 ];
             })
@@ -192,26 +165,16 @@ class CustomerController extends Controller
             $totalDebt = $customersWithDebt->sum('credit_used');
             $totalCreditLimit = Customer::sum('credit_limit');
 
-            $recentTransactions = CustomerTransaction::with('customer')
-                ->where('created_at', '>=', now()->subDays(7))
-                ->orderBy('created_at', 'desc')
-                ->limit(20)
-                ->get();
-
             return view('tenant.customers.credit-report', compact(
                 'customersWithDebt',
                 'totalDebt',
-                'totalCreditLimit',
-                'recentTransactions'
+                'totalCreditLimit'
             ));
         } catch (\Exception $e) {
-            \Log::error('Error en CustomerController@creditReport: ' . $e->getMessage());
-
             return view('tenant.customers.credit-report', [
                 'customersWithDebt' => collect(),
                 'totalDebt' => 0,
-                'totalCreditLimit' => 0,
-                'recentTransactions' => collect()
+                'totalCreditLimit' => 0
             ]);
         }
     }
