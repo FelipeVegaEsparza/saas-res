@@ -42,55 +42,50 @@
         }
     }
 
-    /* Contenedor de mesas con grid responsive por defecto */
+    /* Contenedor de mesas - mantener posiciones relativas pero escalables */
     .tables-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 20px;
+        position: relative;
         width: 100%;
         height: 100%;
-        align-content: start;
         padding-top: 60px; /* Espacio para las estadísticas */
-    }
-
-    @media (max-width: 1200px) {
-        .tables-container {
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 15px;
-        }
+        transform-origin: top left;
     }
 
     @media (max-width: 768px) {
         .tables-container {
-            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-            gap: 12px;
             padding-top: 50px;
+            transform: scale(0.8);
         }
     }
 
     @media (max-width: 576px) {
         .tables-container {
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 10px;
             padding-top: 45px;
+            transform: scale(0.7);
         }
     }
 
-    /* Cuando está en modo edición, usar posicionamiento absoluto */
+    @media (max-width: 480px) {
+        .tables-container {
+            padding-top: 40px;
+            transform: scale(0.6);
+        }
+    }
+
+    /* En modo normal, mantener posiciones pero escaladas */
+    .restaurant-map:not(.edit-mode) .table-item {
+        position: absolute !important;
+        transition: transform 0.3s ease;
+    }
+
+    /* Cuando está en modo edición, usar posicionamiento absoluto normal */
     .restaurant-map.edit-mode .tables-container {
-        display: block;
+        transform: none;
         padding-top: 60px;
     }
 
     .restaurant-map.edit-mode .table-item {
         position: absolute !important;
-    }
-
-    /* En modo normal, las mesas no tienen posición absoluta */
-    .restaurant-map:not(.edit-mode) .table-item {
-        position: relative !important;
-        left: auto !important;
-        top: auto !important;
     }
 
     .map-stats {
@@ -842,7 +837,7 @@ toggleEditBtn.addEventListener('click', function() {
         editModeBadge.style.display = 'none';
         restaurantMap.classList.remove('edit-mode');
         disableDragging();
-        removeAbsolutePositions();
+        applyResponsivePositions();
     }
 });
 
@@ -856,11 +851,31 @@ function applyAbsolutePositions() {
     });
 }
 
-function removeAbsolutePositions() {
+function applyResponsivePositions() {
+    // Mantener las posiciones pero permitir escalado responsive
     tableItems.forEach(item => {
-        item.style.left = '';
-        item.style.top = '';
-        item.style.position = '';
+        const x = item.dataset.positionX || '20';
+        const y = item.dataset.positionY || '80';
+        item.style.left = x + 'px';
+        item.style.top = y + 'px';
+        item.style.position = 'absolute';
+    });
+}
+
+// Aplicar posiciones iniciales al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    applyResponsivePositions();
+});
+
+function removeAbsolutePositions() {
+    // En lugar de remover las posiciones, mantenerlas pero aplicar el escalado responsive
+    tableItems.forEach(item => {
+        // Mantener las posiciones absolutas pero permitir que el CSS maneje el escalado
+        const x = item.dataset.positionX || '20';
+        const y = item.dataset.positionY || '80';
+        item.style.left = x + 'px';
+        item.style.top = y + 'px';
+        item.style.position = 'absolute';
     });
 }
 
