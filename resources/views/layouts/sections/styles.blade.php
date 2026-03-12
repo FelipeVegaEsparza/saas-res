@@ -52,17 +52,15 @@
   display: none;
 }
 
-/* ===== SOLUCIÓN DEFINITIVA PARA FLECHAS GIGANTES ===== */
+/* ===== FIX PARA ELEMENTOS SWIPER PROBLEMÁTICOS ===== */
 
-/* 1. OCULTAR COMPLETAMENTE ELEMENTOS SWIPER QUE CAUSAN LAS FLECHAS GIGANTES */
+/* Ocultar completamente elementos swiper que causan flechas gigantes */
 .swiper-button-prev,
 .swiper-button-next,
 [class*="swiper-button"] {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
-  width: 0 !important;
-  height: 0 !important;
   position: absolute !important;
   left: -9999px !important;
   top: -9999px !important;
@@ -70,105 +68,42 @@
   pointer-events: none !important;
 }
 
-/* 2. Asegurar que la paginación funcione correctamente */
+/* Estilos básicos para paginación */
 .pagination .page-link {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 38px !important;
-  height: 38px !important;
-  padding: 0.5rem 0.75rem !important;
-  position: relative !important;
-  overflow: hidden !important;
-  text-align: center !important;
-  line-height: 1 !important;
-}
-
-/* 3. Ocultar elementos problemáticos SOLO en paginación */
-.pagination .page-link svg,
-.pagination .page-link i:not(.pagination-icon),
-.pagination .page-link [class*="ri-"],
-.pagination .page-link [class*="bx-"],
-.pagination .page-link [class*="fa-"],
-.page-item .page-link svg,
-.page-item .page-link i:not(.pagination-icon) {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  width: 0 !important;
-  height: 0 !important;
-}
-
-/* 4. Agregar flechas simples a la paginación */
-.pagination .page-item:first-child .page-link {
-  font-size: 0 !important;
-}
-
-.pagination .page-item:first-child .page-link::before {
-  content: '‹' !important;
-  font-size: 1.2rem !important;
-  line-height: 1 !important;
-  font-weight: 400 !important;
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.pagination .page-item:last-child .page-link {
-  font-size: 0 !important;
-}
-
-.pagination .page-item:last-child .page-link::before {
-  content: '›' !important;
-  font-size: 1.2rem !important;
-  line-height: 1 !important;
-  font-weight: 400 !important;
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  min-width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
 }
 
 <script>
-// Script para eliminar dinámicamente elementos swiper problemáticos
+// Eliminar elementos swiper dinámicamente
 (function() {
-    function removeSwiperButtons() {
-        const swiperButtons = document.querySelectorAll('.swiper-button-prev, .swiper-button-next, [class*="swiper-button"]');
-        swiperButtons.forEach(function(button) {
-            if (button && button.parentNode) {
-                button.style.display = 'none';
-                button.style.visibility = 'hidden';
-                button.style.opacity = '0';
-                button.style.position = 'absolute';
-                button.style.left = '-9999px';
-                button.style.zIndex = '-9999';
-            }
+    function hideSwiper() {
+        const elements = document.querySelectorAll('.swiper-button-prev, .swiper-button-next, [class*="swiper-button"]');
+        elements.forEach(el => {
+            el.style.display = 'none';
+            el.style.visibility = 'hidden';
+            el.style.opacity = '0';
+            el.style.position = 'absolute';
+            el.style.left = '-9999px';
         });
     }
 
-    // Ejecutar múltiples veces
-    removeSwiperButtons();
-    setTimeout(removeSwiperButtons, 100);
-    setTimeout(removeSwiperButtons, 500);
-    setTimeout(removeSwiperButtons, 1000);
+    hideSwiper();
+    setTimeout(hideSwiper, 100);
+    setTimeout(hideSwiper, 500);
+    setTimeout(hideSwiper, 1000);
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', removeSwiperButtons);
+        document.addEventListener('DOMContentLoaded', hideSwiper);
     }
+    window.addEventListener('load', hideSwiper);
 
-    window.addEventListener('load', removeSwiperButtons);
-
-    // Observador de mutaciones
     if (typeof MutationObserver !== 'undefined') {
-        const observer = new MutationObserver(removeSwiperButtons);
-        observer.observe(document.body, {
+        new MutationObserver(hideSwiper).observe(document.body, {
             childList: true,
             subtree: true
         });

@@ -143,9 +143,49 @@ use Illuminate\Support\Facades\Storage;
             </table>
         </div>
 
+        <!-- Paginación personalizada sin elementos problemáticos -->
+        @if ($products->hasPages())
         <div class="mt-3">
-            {{ $products->links() }}
+            <nav aria-label="Paginación de productos">
+                <ul class="pagination justify-content-center">
+                    {{-- Botón Anterior --}}
+                    @if ($products->onFirstPage())
+                        <li class="page-item disabled">
+                            <span class="page-link">‹</span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $products->previousPageUrl() }}" rel="prev">‹</a>
+                        </li>
+                    @endif
+
+                    {{-- Números de página --}}
+                    @foreach(range(1, $products->lastPage()) as $page)
+                        @if ($page == $products->currentPage())
+                            <li class="page-item active">
+                                <span class="page-link">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $products->url($page) }}">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endforeach
+
+                    {{-- Botón Siguiente --}}
+                    @if ($products->hasMorePages())
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $products->nextPageUrl() }}" rel="next">›</a>
+                        </li>
+                    @else
+                        <li class="page-item disabled">
+                            <span class="page-link">›</span>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
         </div>
+        @endif
     </div>
 </div>
 @endsection
