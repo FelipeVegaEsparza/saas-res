@@ -198,7 +198,11 @@ console.log('Helpers available:', typeof window.Helpers !== 'undefined');
                         <i class="menu-icon icon-base ri ri-user-heart-line"></i>
                         <div>Clientes</div>
                         @php
-                            $customersWithDebt = \App\Models\Tenant\Customer::where('credit_used', '>', 0)->count();
+                            try {
+                                $customersWithDebt = \App\Models\Tenant\Customer::where('credit_used', '>', 0)->count();
+                            } catch (\Exception $e) {
+                                $customersWithDebt = 0;
+                            }
                         @endphp
                         @if($customersWithDebt > 0)
                             <span class="badge rounded-pill bg-warning ms-auto">{{ $customersWithDebt }}</span>
