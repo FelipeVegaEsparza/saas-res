@@ -168,58 +168,78 @@
     </div>
 </div>
 
-@push('scripts')
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     // URL del link de pedidos online
     const orderUrl = '{{ url("/" . request()->route("tenant") . "/order") }}';
     const restaurantName = '{{ tenant()->restaurant()->name ?? "Nuestro Restaurante" }}';
 
-    function shareWhatsApp() {
+    window.shareWhatsApp = function() {
         const message = `🍽️ ¡Haz tu pedido online en ${restaurantName}!\n\n📱 Ordena fácil y rápido desde tu celular:\n${orderUrl}\n\n🚚 Delivery y para llevar disponible`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     }
 
-    function shareFacebook() {
+    window.shareFacebook = function() {
         const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(orderUrl)}&quote=${encodeURIComponent(`¡Haz tu pedido online en ${restaurantName}! 🍽️`)}`;
         window.open(facebookUrl, '_blank', 'width=600,height=400');
     }
 
-    function shareTwitter() {
+    window.shareTwitter = function() {
         const message = `🍽️ ¡Haz tu pedido online en ${restaurantName}! Delivery y para llevar disponible 🚚`;
         const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(orderUrl)}`;
         window.open(twitterUrl, '_blank', 'width=600,height=400');
     }
 
-    function shareInstagram() {
-        // Instagram no permite compartir links directamente, así que copiamos el link
+    window.shareInstagram = function() {
         copyLink();
-        Swal.fire({
-            icon: 'info',
-            title: 'Link copiado',
-            text: 'El link se ha copiado al portapapeles. Puedes pegarlo en tu historia o post de Instagram.',
-            confirmButtonText: 'Entendido'
-        });
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'info',
+                title: 'Link copiado',
+                text: 'El link se ha copiado al portapapeles. Puedes pegarlo en tu historia o post de Instagram.',
+                confirmButtonText: 'Entendido'
+            });
+        } else {
+            alert('Link copiado al portapapeles. Puedes pegarlo en Instagram.');
+        }
     }
 
-    function copyLink() {
-        navigator.clipboard.writeText(orderUrl).then(function() {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Link copiado!',
-                text: 'El link de pedidos se ha copiado al portapapeles',
-                timer: 2000,
-                showConfirmButton: false
+    window.copyLink = function() {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(orderUrl).then(function() {
+                showCopySuccess();
+            }).catch(function() {
+                fallbackCopyTextToClipboard(orderUrl);
             });
-        }).catch(function() {
-            // Fallback para navegadores que no soportan clipboard API
-            const textArea = document.createElement('textarea');
-            textArea.value = orderUrl;
-            document.body.appendChild(textArea);
-            textArea.select();
+        } else {
+            fallbackCopyTextToClipboard(orderUrl);
+        }
+    }
+
+    function fallbackCopyTextToClipboard(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.position = 'fixed';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
             document.execCommand('copy');
-            document.body.removeChild(textArea);
+            showCopySuccess();
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+            alert('No se pudo copiar el link automáticamente. URL: ' + text);
+        }
 
+        document.body.removeChild(textArea);
+    }
+
+    function showCopySuccess() {
+        if (typeof Swal !== 'undefined') {
             Swal.fire({
                 icon: 'success',
                 title: '¡Link copiado!',
@@ -227,8 +247,10 @@
                 timer: 2000,
                 showConfirmButton: false
             });
-        });
+        } else {
+            alert('¡Link copiado al portapapeles!');
+        }
     }
+});
 </script>
-@endpush
 @endsection
