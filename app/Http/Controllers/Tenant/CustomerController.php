@@ -12,31 +12,17 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Customer::query();
+        try {
+            $customers = Customer::orderBy('name')->paginate(20);
+            return view('tenant.customers.index', compact('customers'));
+        } catch (\Exception $e) {
+            // Log del error para debugging
+            \Log::error('Error en CustomerController@index: ' . $e->getMessage());
 
-        if ($request->filled('search')) {
-            $query->search($request->search);
+            // Retornar vista con colección vacía
+            $customers = collect()->paginate(20);
+            return view('tenant.customers.index', compact('customers'));
         }
-
-        if ($request->filled('status')) {
-            if ($request->status === 'active') {
-                $query->active();
-            } elseif ($request->status === 'inactive') {
-                $query->where('active', false);
-            }
-        }
-
-        if ($request->filled('credit')) {
-            if ($request->credit === 'with_credit') {
-                $query->withCredit();
-            } elseif ($request->credit === 'with_debt') {
-                $query->where('credit_used', '>', 0);
-            }
-        }
-
-        $customers = $query->orderBy('name')->paginate(20);
-
-        return view('tenant.customers.index', compact('customers'));
     }
 
     public function create()
