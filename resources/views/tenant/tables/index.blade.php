@@ -12,7 +12,9 @@
         background: var(--bs-body-bg);
         border: 2px dashed var(--bs-border-color);
         border-radius: 8px;
-        overflow: auto; /* Permitir scroll si es necesario */
+        overflow: auto;
+        padding: 20px;
+        box-sizing: border-box;
     }
 
     /* Responsive adjustments */
@@ -20,6 +22,7 @@
         .restaurant-map {
             height: calc(100vh - 200px);
             min-height: 450px;
+            padding: 15px;
         }
     }
 
@@ -27,6 +30,7 @@
         .restaurant-map {
             height: calc(100vh - 180px);
             min-height: 400px;
+            padding: 10px;
         }
     }
 
@@ -34,7 +38,59 @@
         .restaurant-map {
             height: calc(100vh - 160px);
             min-height: 350px;
+            padding: 8px;
         }
+    }
+
+    /* Contenedor de mesas con grid responsive por defecto */
+    .tables-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 20px;
+        width: 100%;
+        height: 100%;
+        align-content: start;
+        padding-top: 60px; /* Espacio para las estadísticas */
+    }
+
+    @media (max-width: 1200px) {
+        .tables-container {
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .tables-container {
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 12px;
+            padding-top: 50px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .tables-container {
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            padding-top: 45px;
+        }
+    }
+
+    /* Cuando está en modo edición, usar posicionamiento absoluto */
+    .restaurant-map.edit-mode .tables-container {
+        display: block;
+        padding-top: 60px;
+    }
+
+    .restaurant-map.edit-mode .table-item {
+        position: absolute !important;
+    }
+
+    /* En modo normal, las mesas no tienen posición absoluta */
+    .restaurant-map:not(.edit-mode) .table-item {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
     }
 
     .map-stats {
@@ -661,27 +717,31 @@
                 </div>
 
                 <!-- Mesas -->
-                @foreach($tables as $table)
-                    <div class="table-item card {{ $table->shape ?? 'square' }} size-{{ $table->size ?? 'medium' }} {{ ($table->shape === 'rectangle' && $table->orientation === 'vertical') ? 'vertical' : '' }}"
-                         data-table-id="{{ $table->id }}"
-                         data-status="{{ $table->status }}"
-                         data-shape="{{ $table->shape ?? 'square' }}"
-                         data-orientation="{{ $table->orientation ?? 'horizontal' }}"
-                         data-size="{{ $table->size ?? 'medium' }}"
-                         style="left: {{ $table->position_x ?? (($loop->index % 8) * 120 + 20) }}px; top: {{ $table->position_y ?? (floor($loop->index / 8) * 120 + 80) }}px;">
+                <div class="tables-container">
+                    @foreach($tables as $table)
+                        <div class="table-item card {{ $table->shape ?? 'square' }} size-{{ $table->size ?? 'medium' }} {{ ($table->shape === 'rectangle' && $table->orientation === 'vertical') ? 'vertical' : '' }}"
+                             data-table-id="{{ $table->id }}"
+                             data-status="{{ $table->status }}"
+                             data-shape="{{ $table->shape ?? 'square' }}"
+                             data-orientation="{{ $table->orientation ?? 'horizontal' }}"
+                             data-size="{{ $table->size ?? 'medium' }}"
+                             data-position-x="{{ $table->position_x ?? (($loop->index % 8) * 120 + 20) }}"
+                             data-position-y="{{ $table->position_y ?? (floor($loop->index / 8) * 120 + 80) }}"
+                             style="left: {{ $table->position_x ?? (($loop->index % 8) * 120 + 20) }}px; top: {{ $table->position_y ?? (floor($loop->index / 8) * 120 + 80) }}px;">
 
-                        <div class="table-visual-map {{ $table->status }} shape-{{ $table->shape ?? 'square' }}">
-                            <i class="ri ri-restaurant-2-line table-icon-map"></i>
-                        </div>
+                            <div class="table-visual-map {{ $table->status }} shape-{{ $table->shape ?? 'square' }}">
+                                <i class="ri ri-restaurant-2-line table-icon-map"></i>
+                            </div>
 
-                        <div class="table-info-map">
-                            <strong class="d-block">{{ $table->number }}</strong>
-                            <small class="text-muted">
-                                <i class="ri ri-user-line"></i> {{ $table->capacity }}
-                            </small>
+                            <div class="table-info-map">
+                                <strong class="d-block">{{ $table->number }}</strong>
+                                <small class="text-muted">
+                                    <i class="ri ri-user-line"></i> {{ $table->capacity }}
+                                </small>
+                            </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         @else
             <div class="text-center py-5">
@@ -771,16 +831,38 @@ toggleEditBtn.addEventListener('click', function() {
         toggleEditBtn.classList.add('btn-warning');
         saveBtn.style.display = 'inline-block';
         editModeBadge.style.display = 'block';
+        restaurantMap.classList.add('edit-mode');
         enableDragging();
+        applyAbsolutePositions();
     } else {
         editModeText.textContent = 'Modo Edición';
         toggleEditBtn.classList.remove('btn-warning');
         toggleEditBtn.classList.add('btn-outline-primary');
         saveBtn.style.display = 'none';
         editModeBadge.style.display = 'none';
+        restaurantMap.classList.remove('edit-mode');
         disableDragging();
+        removeAbsolutePositions();
     }
 });
+
+function applyAbsolutePositions() {
+    tableItems.forEach(item => {
+        const x = item.dataset.positionX || '20';
+        const y = item.dataset.positionY || '80';
+        item.style.left = x + 'px';
+        item.style.top = y + 'px';
+        item.style.position = 'absolute';
+    });
+}
+
+function removeAbsolutePositions() {
+    tableItems.forEach(item => {
+        item.style.left = '';
+        item.style.top = '';
+        item.style.position = '';
+    });
+}
 
 function enableDragging() {
     tableItems.forEach(item => {
@@ -1109,8 +1191,12 @@ saveBtn.addEventListener('click', async function() {
 
     tableItems.forEach(item => {
         const tableId = item.dataset.tableId;
-        const x = parseInt(item.style.left);
-        const y = parseInt(item.style.top);
+        const x = parseInt(item.style.left) || 0;
+        const y = parseInt(item.style.top) || 0;
+
+        // Actualizar data attributes para futuras referencias
+        item.dataset.positionX = x;
+        item.dataset.positionY = y;
 
         positions.push({
             id: tableId,
