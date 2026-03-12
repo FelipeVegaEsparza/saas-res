@@ -8,9 +8,46 @@
         <h1 class="mb-1">Pedidos Delivery</h1>
         <p class="text-muted">Gestiona pedidos de delivery y para llevar</p>
     </div>
-    <a href="{{ route('tenant.path.delivery.create', ['tenant' => request()->route('tenant')]) }}" class="btn btn-primary">
-        <i class="ri ri-add-line me-1"></i> Nuevo Pedido
-    </a>
+    <div class="d-flex gap-2">
+        <!-- Botón Compartir Link de Pedidos -->
+        <div class="dropdown">
+            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="ri ri-share-line me-1"></i> Compartir Link
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="#" onclick="shareWhatsApp()">
+                        <i class="ri ri-whatsapp-line me-2 text-success"></i> WhatsApp
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="shareFacebook()">
+                        <i class="ri ri-facebook-circle-line me-2 text-primary"></i> Facebook
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="shareTwitter()">
+                        <i class="ri ri-twitter-x-line me-2 text-dark"></i> X (Twitter)
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="shareInstagram()">
+                        <i class="ri ri-instagram-line me-2 text-danger"></i> Instagram
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="copyLink()">
+                        <i class="ri ri-file-copy-line me-2 text-secondary"></i> Copiar Link
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <a href="{{ route('tenant.path.delivery.create', ['tenant' => request()->route('tenant')]) }}" class="btn btn-primary">
+            <i class="ri ri-add-line me-1"></i> Nuevo Pedido
+        </a>
+    </div>
 </div>
 
 <!-- Filtros -->
@@ -130,4 +167,68 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    // URL del link de pedidos online
+    const orderUrl = '{{ url("/" . request()->route("tenant") . "/order") }}';
+    const restaurantName = '{{ tenant()->restaurant()->name ?? "Nuestro Restaurante" }}';
+
+    function shareWhatsApp() {
+        const message = `🍽️ ¡Haz tu pedido online en ${restaurantName}!\n\n📱 Ordena fácil y rápido desde tu celular:\n${orderUrl}\n\n🚚 Delivery y para llevar disponible`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+    }
+
+    function shareFacebook() {
+        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(orderUrl)}&quote=${encodeURIComponent(`¡Haz tu pedido online en ${restaurantName}! 🍽️`)}`;
+        window.open(facebookUrl, '_blank', 'width=600,height=400');
+    }
+
+    function shareTwitter() {
+        const message = `🍽️ ¡Haz tu pedido online en ${restaurantName}! Delivery y para llevar disponible 🚚`;
+        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(orderUrl)}`;
+        window.open(twitterUrl, '_blank', 'width=600,height=400');
+    }
+
+    function shareInstagram() {
+        // Instagram no permite compartir links directamente, así que copiamos el link
+        copyLink();
+        Swal.fire({
+            icon: 'info',
+            title: 'Link copiado',
+            text: 'El link se ha copiado al portapapeles. Puedes pegarlo en tu historia o post de Instagram.',
+            confirmButtonText: 'Entendido'
+        });
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(orderUrl).then(function() {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Link copiado!',
+                text: 'El link de pedidos se ha copiado al portapapeles',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }).catch(function() {
+            // Fallback para navegadores que no soportan clipboard API
+            const textArea = document.createElement('textarea');
+            textArea.value = orderUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            Swal.fire({
+                icon: 'success',
+                title: '¡Link copiado!',
+                text: 'El link de pedidos se ha copiado al portapapeles',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        });
+    }
+</script>
+@endpush
 @endsection
